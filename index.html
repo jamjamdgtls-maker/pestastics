@@ -203,6 +203,8 @@
       <span class="tab active" data-status="pending">Pending <span class="count" id="countPending">0</span></span>
       <span class="tab" data-status="approved">Approved <span class="count" id="countApproved">0</span></span>
       <span class="tab" data-status="rejected">Rejected <span class="count" id="countRejected">0</span></span>
+      <span style="flex:1;"></span>
+      <button id="adminRefresh" class="signout" style="margin-bottom:8px;">Refresh</button>
     </div>
     <div id="adminList"></div>
   </div>
@@ -227,7 +229,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   doc, setDoc, getDoc, serverTimestamp,
-  collection, getDocs, updateDoc
+  collection, query, where, getDocs, getCountFromServer, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ---------------------------------------------------------------
@@ -290,7 +292,13 @@ async function route() {
   if (target === "admin") {
     if (currentProfile.role !== "superadmin") { showView("forbidden"); return; }
     showView("admin");
-    await loadAdminUsers();
+    if (!adminInitialized) {
+      adminInitialized = true;
+      await loadCounts();
+      await loadTab(activeStatus);
+    } else {
+      renderAdminList(); // cached — no read
+    }
     return;
   }
 
@@ -312,6 +320,8 @@ window.addEventListener("hashchange", route);
 
 onAuthStateChanged(auth, async (user) => {
   currentProfile = null; // invalidate cache on any auth change
+  adminInitialized = false;
+  tabCache = { pending: null, approved: null, rejected: null };
   bootGate.style.display = "none";
   if (!window.location.hash) window.location.hash = user ? "#dashboard" : "#login";
   await route();
@@ -422,43 +432,58 @@ document.getElementById("adminSignout").addEventListener("click", async () => {
 // ---------------------------------------------------------------
 // Admin panel
 // ---------------------------------------------------------------
-let allUsers = [];
+let tabCache = { pending: null, approved: null, rejected: null }; // per-status doc cache
+let adminInitialized = false;
 let activeStatus = "pending";
 const adminList = document.getElementById("adminList");
 
 document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", () => {
+  tab.addEventListener("click", async () => {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
     activeStatus = tab.dataset.status;
-    renderAdminList();
+    await loadTab(activeStatus); // no-op read if already cached
   });
 });
 
-async function loadAdminUsers() {
-  const snap = await getDocs(collection(db, "users"));
-  allUsers = [];
-  snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
-  updateAdminCounts();
+// Cheap: aggregation queries bill a small fixed cost, not one read per matching doc.
+async function loadCounts() {
+  const statuses = ["pending", "approved", "rejected"];
+  const results = await Promise.all(statuses.map(s =>
+    getCountFromServer(query(collection(db, "users"), where("status", "==", s)))
+  ));
+  document.getElementById("countPending").textContent = results[0].data().count;
+  document.getElementById("countApproved").textContent = results[1].data().count;
+  document.getElementById("countRejected").textContent = results[2].data().count;
+}
+
+// Only fetches the requested status slice, and only if not already cached.
+async function loadTab(status) {
+  if (tabCache[status] === null) {
+    const snap = await getDocs(query(collection(db, "users"), where("status", "==", status)));
+    const docs = [];
+    snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
+    tabCache[status] = docs.filter(u => u.role !== "superadmin");
+  }
   renderAdminList();
 }
 
-function updateAdminCounts() {
-  document.getElementById("countPending").textContent = allUsers.filter(u => u.status === "pending").length;
-  document.getElementById("countApproved").textContent = allUsers.filter(u => u.status === "approved").length;
-  document.getElementById("countRejected").textContent = allUsers.filter(u => u.status === "rejected").length;
-}
+document.getElementById("adminRefresh").addEventListener("click", async () => {
+  tabCache = { pending: null, approved: null, rejected: null };
+  await loadCounts();
+  await loadTab(activeStatus);
+});
 
 function renderAdminList() {
-  const filtered = allUsers.filter(u => u.status === activeStatus && u.role !== "superadmin");
+  const items = tabCache[activeStatus] || [];
   adminList.innerHTML = "";
 
-  if (filtered.length === 0) {
+  if (items.length === 0) {
     adminList.innerHTML = `<div class="empty">No ${activeStatus} accounts right now.</div>`;
     return;
   }
 
-  filtered.forEach(u => {
+  items.forEach(u => {
     const row = document.createElement("div");
     row.className = "row";
     const created = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleDateString() : "—";
@@ -495,11 +520,27 @@ function makeBtn(text, cls, onclick) {
   return b;
 }
 
-async function setStatus(uid, status) {
-  await updateDoc(doc(db, "users", uid), { status });
-  const u = allUsers.find(x => x.id === uid);
-  if (u) u.status = status;
-  updateAdminCounts();
+async function setStatus(uid, newStatus) {
+  await updateDoc(doc(db, "users", uid), { status: newStatus });
+
+  const oldStatus = activeStatus; // action buttons only ever act on the currently-open tab
+
+  // Remove locally from the tab it left — avoids a re-read of this tab.
+  tabCache[oldStatus] = (tabCache[oldStatus] || []).filter(u => u.id !== uid);
+
+  // Invalidate the destination tab rather than eagerly fetching it —
+  // it'll load fresh (one query) only if the admin actually opens it.
+  tabCache[newStatus] = null;
+
+  // Update counts locally without another aggregation read.
+  const el = {
+    pending: document.getElementById("countPending"),
+    approved: document.getElementById("countApproved"),
+    rejected: document.getElementById("countRejected")
+  };
+  el[oldStatus].textContent = Math.max(0, parseInt(el[oldStatus].textContent) - 1);
+  el[newStatus].textContent = parseInt(el[newStatus].textContent) + 1;
+
   renderAdminList();
 }
 
