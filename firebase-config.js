@@ -1,14 +1,14 @@
 // ============================================================
-// Firebase config — fill in with your project's values
-// (Firebase Console → Project settings → Your apps → SDK config)
+// Firebase config for the workorder-8d44c project
 // ============================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDzN6PTLKBlq6jIE8aBMegvcL-qJCKqzMc"",
+  apiKey: "AIzaSyDzN6PTLKBlq6jIE8aBMegvcL-qJCKqzMc",
   authDomain: "workorder-8d44c.firebaseapp.com",
+  databaseURL: "https://workorder-8d44c-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "workorder-8d44c",
   storageBucket: "workorder-8d44c.firebasestorage.app",
   messagingSenderId: "637630862405",
