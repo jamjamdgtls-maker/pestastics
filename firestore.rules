@@ -54,17 +54,8 @@ service cloud.firestore {
     }
 
     // Read-only lookups the Clients page uses to show linked records —
-    // written by their own future pages, not by clients.html itself.
-    match /contracts/{id} {
-      allow read: if isApproved();
-    }
+    // written by their own future pages, not by any module built so far.
     match /complaints/{id} {
-      allow read: if isApproved();
-    }
-    match /payments/{id} {
-      allow read: if isApproved();
-    }
-    match /treatments/{id} {
       allow read: if isApproved();
     }
     match /renewals/{id} {
@@ -74,12 +65,36 @@ service cloud.firestore {
       allow read: if isApproved();
     }
 
-    // Shared counters (customer numbers) and settings (sales agents, etc.)
+    // ---------------------------------------------------------------
+    // Contracts module (added for contracts.html integration)
+    // ---------------------------------------------------------------
+    match /contracts/{contractId} {
+      // Any approved user can view/create/edit contracts, including the
+      // rollup fields (totalPaid, balanceRemaining, etc.) kept in sync by
+      // js/contract-sync.js. Only a super admin can delete one outright.
+      allow read, create, update: if isApproved();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Treatments/payments are child records of a contract — same access
+    // as the contract itself, since editing a session/installment is
+    // really editing part of the contract (see js/contract-sync.js).
+    match /treatments/{id} {
+      allow read, create, update: if isApproved();
+      allow delete: if isSuperAdmin();
+    }
+    match /payments/{id} {
+      allow read, create, update: if isApproved();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Shared counters (customer/contract numbers) and settings (sales
+    // agents, contract types, teams list, etc.)
     match /config/{id} {
       allow read, write: if isApproved();
     }
 
-    // Append-only audit trail of client changes.
+    // Append-only audit trail of client/contract changes.
     match /audit_log/{id} {
       allow read, create: if isApproved();
     }

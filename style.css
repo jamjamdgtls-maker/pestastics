@@ -298,3 +298,25 @@ button.primary:focus-visible { outline: 2px solid var(--signal); outline-offset:
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
 }
+
+/* ── Router loading overlay (shown while a lazy module's HTML file is
+      being fetched the first time it's visited) ── */
+.router-loading {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  align-items: center;
+  justify-content: center;
+  background: rgba(240, 242, 241, 0.7);
+  backdrop-filter: blur(1px);
+}
+.router-loading-spinner {
+  width: 30px;
+  height: 30px;
+  border: 3px solid var(--border);
+  border-top-color: var(--signal);
+  border-radius: 50%;
+  animation: router-spin 0.7s linear infinite;
+}
+@keyframes router-spin { to { transform: rotate(360deg); } }

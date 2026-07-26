@@ -1,0 +1,1350 @@
+<!-- ════════════════════════════════════════════════════════════════
+     Contracts module — fetched + mounted once by js/router.js on first
+     visit to #contracts, then left in the DOM (hidden) for every visit
+     after. Sits alongside index.html, firebase-config.js, and js/.
+════════════════════════════════════════════════════════════════ -->
+<style>
+#view-contracts *, #view-contracts *::before, #view-contracts *::after {box-sizing:border-box;margin:0;padding:0}#view-contracts {
+      --primary:hsl(142,76%,36%);--primary-hover:hsl(142,76%,30%);--primary-light:hsl(142,76%,95%);--primary-border:hsl(142,76%,80%);
+      --bg:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;
+      --sidebar-bg:#0f1b12;--sidebar-text:#c8d6ca;--sidebar-muted:#6b7f6e;
+      --text:#111827;--text-secondary:#4b5563;--text-muted:#9ca3af;
+      --border:#e5e7eb;--border-hover:#d1d5db;
+      --radius:8px;--radius-sm:4px;--radius-lg:12px;
+      --shadow-sm:0 1px 3px rgba(0,0,0,.08);--shadow:0 2px 8px rgba(0,0,0,.10);--shadow-lg:0 8px 24px rgba(0,0,0,.12);
+      --green:hsl(142,76%,36%);--green-bg:hsl(142,76%,95%);--green-text:hsl(142,76%,28%);
+      --blue:hsl(213,94%,47%);--blue-bg:hsl(213,94%,95%);--blue-text:hsl(213,94%,35%);
+      --amber:hsl(38,92%,50%);--amber-bg:hsl(38,92%,95%);--amber-text:hsl(38,92%,32%);
+      --red:hsl(0,84%,50%);--red-bg:hsl(0,84%,96%);--red-text:hsl(0,84%,38%);
+      --purple:hsl(262,83%,58%);--purple-bg:hsl(262,83%,96%);--purple-text:hsl(262,83%,42%);
+      --gray:hsl(220,9%,46%);--gray-bg:hsl(220,9%,95%);--gray-text:hsl(220,9%,35%);
+      --sidebar-width:250px;--topbar-height:58px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif
+    }#view-contracts html, #view-contracts body {height:100%;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg-secondary);line-height:1.5;-webkit-font-smoothing:antialiased}#view-contracts a {color:inherit;text-decoration:none}#view-contracts button {font-family:var(--font);cursor:pointer}#view-contracts input, #view-contracts select, #view-contracts textarea {font-family:var(--font);font-size:14px}#view-contracts /* ── APP SHELL ── */
+    #app-shell {display:flex;height:100vh;overflow:hidden;width:100vw}#view-contracts /* ── SIDEBAR ── */
+    .sidebar {position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);display:flex;flex-direction:column;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);overflow:hidden}#view-contracts .sidebar-logo {display:flex;align-items:center;gap:10px;padding:16px;border-bottom:1px solid rgba(255,255,255,.06)}#view-contracts .sidebar-logo-icon {width:34px;height:34px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}#view-contracts .sidebar-logo-icon svg {width:19px;height:19px;color:white}#view-contracts .sidebar-logo-text span {display:block;font-size:15px;font-weight:700;color:white;line-height:1.2}#view-contracts .sidebar-logo-text small {font-size:10px;color:var(--sidebar-muted);text-transform:uppercase;letter-spacing:.08em}#view-contracts .sidebar-nav {flex:1;overflow-y:auto;padding:10px}#view-contracts .sidebar-nav::-webkit-scrollbar {width:4px}#view-contracts .sidebar-nav::-webkit-scrollbar-thumb {background:rgba(255,255,255,.1);border-radius:2px}#view-contracts .nav-section-label {font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sidebar-muted);padding:12px 10px 6px}#view-contracts .nav-item {display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);color:var(--sidebar-text);font-size:13.5px;font-weight:450;cursor:pointer;transition:all .15s;position:relative;user-select:none}#view-contracts .nav-item:hover {background:rgba(255,255,255,.07);color:white}#view-contracts .nav-item.active {background:rgba(34,197,94,.15);color:hsl(142,76%,65%)}#view-contracts .nav-item.active::before {content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--primary);border-radius:0 2px 2px 0}#view-contracts .nav-item svg {width:16px;height:16px;flex-shrink:0;opacity:.85}#view-contracts .nav-item.active svg {opacity:1}#view-contracts .sidebar-footer {padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)}#view-contracts .sidebar-note {font-size:11px;color:var(--sidebar-muted);line-height:1.5}#view-contracts .sidebar-note strong {color:var(--sidebar-text)}#view-contracts /* ── MAIN ── */
+    .main-wrapper {margin-left:var(--sidebar-width);width:calc(100vw - var(--sidebar-width));height:100vh;display:flex;flex-direction:column;overflow:hidden}#view-contracts .topbar {height:var(--topbar-height);background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}#view-contracts .topbar-title {font-size:16px;font-weight:700;color:var(--text)}#view-contracts .topbar-tag {font-size:11px;background:var(--amber-bg);color:var(--amber-text);border:1px solid hsl(38,92%,75%);padding:2px 8px;border-radius:20px;font-weight:600}#view-contracts .topbar-spacer {flex:1}#view-contracts .topbar-btn {width:34px;height:34px;background:none;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer}#view-contracts .topbar-btn svg {width:16px;height:16px}#view-contracts .page-content {flex:1;overflow:hidden;padding:22px 24px;display:flex;flex-direction:column}#view-contracts /* ── BUTTONS ── */
+    .btn {display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}#view-contracts .btn svg {width:15px;height:15px}#view-contracts .btn-primary {background:var(--primary);color:white}#view-contracts .btn-primary:hover {background:var(--primary-hover)}#view-contracts .btn-primary:active {transform:scale(.98)}#view-contracts .btn-secondary {background:white;color:var(--text);border:1px solid var(--border)}#view-contracts .btn-secondary:hover {background:var(--bg-secondary)}#view-contracts .btn-danger {background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}#view-contracts .btn-danger:hover {background:#fee2e2}#view-contracts .btn-ghost {background:none;color:var(--text-secondary);border:none;padding:6px 10px}#view-contracts .btn-ghost:hover {background:var(--bg-secondary);color:var(--text)}#view-contracts .btn-sm {padding:5px 10px;font-size:12px}#view-contracts .btn-sm svg {width:13px;height:13px}#view-contracts .btn-icon {padding:6px;border-radius:var(--radius);background:none;border:1px solid var(--border);color:var(--text-secondary);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center}#view-contracts .btn-icon:hover {background:var(--bg-secondary);color:var(--text)}#view-contracts .btn-icon svg {width:14px;height:14px}#view-contracts /* ── BADGES ── */
+    .badge {display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}#view-contracts .badge::before {content:'';width:5px;height:5px;border-radius:50%;background:currentColor}#view-contracts .badge-green {background:var(--green-bg);color:var(--green-text)}#view-contracts .badge-blue {background:var(--blue-bg);color:var(--blue-text)}#view-contracts .badge-amber {background:var(--amber-bg);color:var(--amber-text)}#view-contracts .badge-red {background:var(--red-bg);color:var(--red-text)}#view-contracts .badge-purple {background:var(--purple-bg);color:var(--purple-text)}#view-contracts .badge-gray {background:var(--gray-bg);color:var(--gray-text)}#view-contracts /* ── PAGE ── */
+    .page-header {display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:18px;gap:16px;flex-wrap:wrap;flex-shrink:0}#view-contracts .page-header-left h2 {font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}#view-contracts .page-header-left p {font-size:13px;color:var(--text-muted);margin-top:3px}#view-contracts .page-header-right {display:flex;gap:8px;flex-wrap:wrap}#view-contracts /* ── STATS ── */
+    .stats-row {display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap;flex-shrink:0}#view-contracts .stat-pill {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;display:flex;align-items:center;gap:10px;flex:1;min-width:130px}#view-contracts .stat-pill-icon {width:32px;height:32px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}#view-contracts .stat-pill-icon svg {width:16px;height:16px}#view-contracts .stat-pill-val {font-size:20px;font-weight:800;color:var(--text);line-height:1}#view-contracts .stat-pill-lbl {font-size:11.5px;color:var(--text-muted);margin-top:2px}#view-contracts /* ── FILTERS ── */
+    .filters-bar {display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;flex-shrink:0}#view-contracts .search-wrap {position:relative;flex:1;min-width:220px}#view-contracts .search-wrap svg {position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}#view-contracts .search-input {width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white;outline:none;transition:border-color .15s,box-shadow .15s}#view-contracts .search-input:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-contracts /* ── TABLE ── */
+    .table-card {background:white;border:1px solid var(--border);border-radius:var(--radius);display:flex;flex-direction:column;overflow:hidden}#view-contracts .table-wrapper {overflow:auto;flex:1;min-height:0}#view-contracts table {width:100%;border-collapse:collapse}#view-contracts thead th {padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;text-align:left;position:sticky;top:0;z-index:1}#view-contracts tbody tr {border-bottom:1px solid var(--bg-tertiary);transition:background .1s}#view-contracts tbody tr:last-child {border-bottom:none}#view-contracts tbody tr:hover {background:var(--bg-secondary)}#view-contracts tbody td {padding:10px 14px;font-size:13.5px;color:var(--text);vertical-align:middle}#view-contracts td.muted {color:var(--text-muted);font-size:12.5px}#view-contracts td.mono {font-family:monospace;font-size:12.5px;color:var(--text-secondary)}#view-contracts .actions-cell {display:flex;align-items:center;gap:5px}#view-contracts /* ── PAGINATION ── */
+    .pagination {display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-top:1px solid var(--border);background:white;flex-wrap:wrap;gap:10px}#view-contracts .pagination-info {font-size:13px;color:var(--text-muted)}#view-contracts .pagination-controls {display:flex;align-items:center;gap:4px}#view-contracts .page-btn {min-width:32px;height:32px;padding:0 10px;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font)}#view-contracts .page-btn:hover:not(:disabled) {background:var(--bg-secondary);color:var(--text)}#view-contracts .page-btn.active {background:var(--primary);color:white;border-color:var(--primary);font-weight:600}#view-contracts .page-btn:disabled {opacity:.4;cursor:not-allowed}#view-contracts /* ── FORMS (compact) ── */
+    .form-group {margin-bottom:12px}#view-contracts .form-label {display:block;font-size:11.5px;font-weight:600;color:var(--text-secondary);margin-bottom:4px;text-transform:uppercase;letter-spacing:.03em}#view-contracts .form-label .req {color:var(--red);margin-left:2px}#view-contracts .form-input, #view-contracts .form-select, #view-contracts .form-textarea {width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none}#view-contracts .form-select {appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:14px;padding-right:28px;cursor:pointer}#view-contracts .form-input:focus, #view-contracts .form-select:focus, #view-contracts .form-textarea:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}#view-contracts .form-textarea {resize:vertical;min-height:44px}#view-contracts .form-hint {font-size:11px;color:var(--text-muted);margin-top:3px}#view-contracts .form-input[readonly] {background:var(--bg-secondary);color:var(--text-secondary)}#view-contracts .form-row {display:grid;gap:10px}#view-contracts .form-row.c2 {grid-template-columns:repeat(2,1fr)}#view-contracts .form-row.c3 {grid-template-columns:repeat(3,1fr)}#view-contracts .form-row.c4 {grid-template-columns:repeat(4,1fr)}#view-contracts .form-section-title {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--primary);margin:14px 0 8px;padding-top:10px;border-top:1px solid var(--border)}#view-contracts .form-section-title:first-child {margin-top:0;padding-top:0;border-top:none}#view-contracts /* ── MODAL ── */
+    .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}#view-contracts .modal-overlay.open {opacity:1;pointer-events:all}#view-contracts .modal {background:white;border-radius:var(--radius-lg);width:100%;max-width:560px;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}#view-contracts .modal-overlay.open .modal {transform:translateY(0) scale(1)}#view-contracts .modal-xl {max-width:70vw;width:70vw;height:70vh;max-height:70vh}#view-contracts .modal-90 {max-width:90vw;width:90vw;height:90vh;max-height:90vh}#view-contracts .modal-header {display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0}#view-contracts .modal-title {font-size:15px;font-weight:700;color:var(--text)}#view-contracts .modal-close {width:28px;height:28px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);cursor:pointer;transition:all .15s}#view-contracts .modal-close:hover {background:var(--bg-secondary);color:var(--text)}#view-contracts .modal-close svg {width:14px;height:14px}#view-contracts .modal-body {padding:18px 20px;overflow-y:auto;flex:1;min-height:0}#view-contracts .modal-footer {display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0}#view-contracts /* Split layout inside the compact contract modal: fields left, #view-contracts live preview right */
+    .modal-split {display:grid;grid-template-columns:1fr 1fr;gap:22px;height:100%;min-height:0}#view-contracts .modal-split-fields {overflow-y:auto;padding-right:4px}#view-contracts .modal-split-preview {display:flex;flex-direction:column;min-height:0;border-left:1px solid var(--border);padding-left:22px}
+    @media(max-width:900px){#view-contracts .modal-split {grid-template-columns:1fr}#view-contracts .modal-split-preview {border-left:none;padding-left:0;border-top:1px solid var(--border);padding-top:16px;margin-top:16px}}#view-contracts /* ── TABS ── */
+    .tabs {display:flex;border-bottom:2px solid var(--border);gap:4px;margin-bottom:16px;flex-shrink:0}#view-contracts .tab {padding:8px 14px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}#view-contracts .tab:hover {color:var(--text)}#view-contracts .tab.active {color:var(--primary);border-bottom-color:var(--primary);font-weight:600}#view-contracts .ftab {padding:8px 14px;font-size:13px;font-weight:500;color:var(--text-muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}#view-contracts .ftab:hover {color:var(--text)}#view-contracts .ftab.active {color:var(--primary);border-bottom-color:var(--primary);font-weight:600}#view-contracts /* ── DETAIL ── */
+    .detail-grid {display:grid;grid-template-columns:1fr 1fr;gap:12px 20px}#view-contracts .detail-field label {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);display:block;margin-bottom:3px}#view-contracts .detail-field span {font-size:13.5px;color:var(--text);word-break:break-word}#view-contracts .detail-field.full {grid-column:1/-1}#view-contracts /* ── SUMMARY CARDS ── */
+    .summary-cards {display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}#view-contracts .sum-card {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px}#view-contracts .sum-card-val {font-size:20px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px;font-variant-numeric:tabular-nums}#view-contracts .sum-card-lbl {font-size:11.5px;color:var(--text-muted)}#view-contracts /* ── PROGRESS BAR ── */
+    .progress-wrap {margin-bottom:16px}#view-contracts .progress-label {display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:6px}#view-contracts .progress-bar {height:8px;background:var(--bg-tertiary);border-radius:4px;overflow:hidden}#view-contracts .progress-fill {height:100%;background:var(--primary);border-radius:4px;transition:width .4s ease}#view-contracts .next-treatment-banner {background:var(--green-bg);border:1px solid var(--primary-border);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--green-text)}#view-contracts .next-treatment-banner svg {width:16px;height:16px;flex-shrink:0}#view-contracts /* ── EMPTY ── */
+    .empty-state {text-align:center;padding:40px 20px}#view-contracts .empty-state svg {width:36px;height:36px;color:var(--text-muted);margin-bottom:12px;opacity:.5}#view-contracts .empty-state h3 {font-size:14px;font-weight:600;margin-bottom:6px}#view-contracts .empty-state p {font-size:12.5px;color:var(--text-muted);max-width:320px;margin:0 auto}#view-contracts /* ── SPINNER / TOAST ── */
+    .spinner {width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}#view-contracts #toast-container {position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}#view-contracts .toast {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-width:280px;max-width:380px;box-shadow:var(--shadow-lg);display:flex;align-items:flex-start;gap:10px;pointer-events:all;animation:toastIn .2s ease;border-left:4px solid var(--primary)}#view-contracts .toast.error {border-left-color:var(--red)}#view-contracts .toast.warning {border-left-color:var(--amber)}#view-contracts .toast-icon svg {width:16px;height:16px}#view-contracts .toast-body {flex:1}#view-contracts .toast-title {font-size:13.5px;font-weight:600}#view-contracts .toast-msg {font-size:12.5px;color:var(--text-secondary);margin-top:2px}#view-contracts .toast-close {background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0}#view-contracts .toast-close svg {width:14px;height:14px}
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}#view-contracts /* Live preview table */
+    .preview-table-wrap {max-height:calc(90vh - 260px);overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm)}#view-contracts .preview-table {width:100%;border-collapse:collapse;font-size:12px}#view-contracts .preview-table th {position:sticky;top:0;background:var(--bg-secondary);padding:6px 10px;text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);border-bottom:1px solid var(--border)}#view-contracts .preview-table td {padding:6px 10px;border-bottom:1px solid var(--bg-tertiary)}#view-contracts .preview-table tr:last-child td {border-bottom:none}#view-contracts .preview-empty {flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:12.5px;text-align:center;padding:20px;border:1px dashed var(--border);border-radius:var(--radius-sm)}#view-contracts .preview-total-bar {margin-top:10px;padding:8px 10px;background:var(--green-bg);border:1px solid var(--primary-border);border-radius:var(--radius-sm);font-size:12px;color:var(--green-text);font-weight:600}#view-contracts /* Sort / column dropdown */
+    .sort-icon {font-size:10px;margin-left:3px;color:var(--primary)}#view-contracts .col-header {position:relative;cursor:pointer;user-select:none;white-space:nowrap}#view-contracts .col-header:hover {background:var(--bg-tertiary)}#view-contracts .col-header-inner {display:flex;align-items:center;gap:4px}#view-contracts .col-menu-btn {background:none;border:none;color:var(--text-muted);font-size:10px;padding:2px 3px;cursor:pointer;border-radius:2px;line-height:1;opacity:0;transition:opacity .15s}#view-contracts .col-header:hover .col-menu-btn {opacity:1}#view-contracts .col-menu-btn:hover {background:var(--border);color:var(--text)}#view-contracts .col-dropdown {position:absolute;top:100%;left:0;z-index:100;background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);min-width:200px;padding:6px 0;font-size:13px;font-weight:400;text-transform:none;letter-spacing:0}#view-contracts .col-dropdown-item {display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;color:var(--text);transition:background .1s;white-space:nowrap}#view-contracts .col-dropdown-item:hover {background:var(--bg-secondary)}#view-contracts .col-dropdown-item svg {width:14px;height:14px;color:var(--text-muted);flex-shrink:0}#view-contracts .col-dropdown-sep {height:1px;background:var(--border);margin:4px 0}#view-contracts .col-dropdown-search {padding:6px 10px}#view-contracts .col-dropdown-search input {width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;outline:none}#view-contracts .col-dropdown-values {max-height:180px;overflow-y:auto}#view-contracts .col-dropdown-values label {display:flex;align-items:center;gap:8px;padding:5px 14px;cursor:pointer;font-size:12.5px;color:var(--text)}#view-contracts .col-dropdown-values label:hover {background:var(--bg-secondary)}#view-contracts .col-dropdown-actions {display:flex;gap:6px;padding:6px 10px;border-top:1px solid var(--border);margin-top:4px}#view-contracts .col-dropdown-actions button {flex:1;padding:5px 8px;font-size:12px;border-radius:var(--radius-sm);cursor:pointer}#view-contracts .table-wrapper::-webkit-scrollbar {width:8px;height:8px}#view-contracts .table-wrapper::-webkit-scrollbar-thumb {background:var(--border-hover);border-radius:4px}#view-contracts .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
+
+    @media(max-width:1024px){#view-contracts .sidebar {transform:translateX(-100%)}#view-contracts .sidebar.open {transform:translateX(0)}#view-contracts .main-wrapper {margin-left:0}#view-contracts .modal-xl {width:94vw;max-width:94vw;height:90vh;max-height:90vh}#view-contracts .modal-90 {width:96vw;max-width:96vw;height:94vh;max-height:94vh}#view-contracts .modal-split {grid-template-columns:1fr}
+    }
+
+    #view-contracts #app-shell { display: flex; }
+
+/* ── Sidebar user footer (added to match the authenticated shell —
+      the original local-preview file only had a plain text note here) ── */
+#view-contracts .sidebar-user{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
+#view-contracts .sidebar-user:hover{background:rgba(255,255,255,.07)}
+#view-contracts .user-avatar{width:34px;height:34px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0;overflow:hidden}
+#view-contracts .user-avatar img{width:100%;height:100%;object-fit:cover}
+#view-contracts .user-info{flex:1;min-width:0}
+#view-contracts .user-name{font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-contracts .user-role{font-size:11px;color:var(--sidebar-muted);text-transform:capitalize}
+#view-contracts .btn-signout{background:none;border:none;padding:6px;color:var(--sidebar-muted);border-radius:var(--radius-sm);transition:all .15s;display:flex;align-items:center;cursor:pointer}
+#view-contracts .btn-signout:hover{color:var(--red);background:rgba(239,68,68,.1)}
+#view-contracts .btn-signout svg{width:16px;height:16px}
+
+</style>
+
+<div data-view="contracts" id="view-contracts">
+<div id="app-shell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="#dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a class="nav-item" href="#clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients</a>
+      <a class="nav-item active" href="#contracts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Contracts</a>
+      <div class="nav-section-label" id="contracts-admin-nav-label" style="display:none">Admin</div>
+      <a class="nav-item" href="#admin" id="contracts-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar"><span id="user-initials">?</span></div>
+        <div class="user-info"><div class="user-name" id="user-display-name">Loading…</div><div class="user-role" id="user-role-label">—</div></div>
+        <button class="btn-signout" id="btn-signout" title="Sign Out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <span class="topbar-title">Contracts</span>
+      <div class="topbar-spacer"></div>
+      <button id="btn-refresh" class="topbar-btn" title="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
+    </header>
+
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Contracts</h2>
+          <p>Manage all pest control service contracts</p>
+        </div>
+        <div class="page-header-right">
+          <button class="btn btn-secondary" id="btn-export-csv">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export CSV
+          </button>
+          <button class="btn btn-primary" id="btn-new-contract">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Contract
+          </button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--blue-bg);color:var(--blue)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div><div><div class="stat-pill-val" id="stat-total">—</div><div class="stat-pill-lbl">Total</div></div></div>
+        <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div><div class="stat-pill-val" id="stat-active">—</div><div class="stat-pill-lbl">Active</div></div></div>
+        <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--red-bg);color:var(--red)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="stat-pill-val" id="stat-expired">—</div><div class="stat-pill-lbl">Expired</div></div></div>
+        <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--purple-bg);color:var(--purple)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div><div><div class="stat-pill-val" id="stat-renewed">—</div><div class="stat-pill-lbl">Renewed</div></div></div>
+        <div class="stat-pill"><div class="stat-pill-icon" style="background:var(--green-bg);color:var(--green)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><div><div class="stat-pill-val" id="stat-value">—</div><div class="stat-pill-lbl">Total Value</div></div></div>
+      </div>
+
+      <div class="filters-bar">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="search-input" id="search-input" placeholder="Search by customer no, client name…" />
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-clear-filters">Clear</button>
+      </div>
+
+      <div class="table-card" style="flex:1;min-height:0">
+        <div class="table-wrapper" style="flex:1;overflow:auto;min-height:0">
+          <table>
+            <thead>
+              <tr>
+                <th class="col-header" data-sort="contractNumber" data-col="contractNumber"><div class="col-header-inner"><span>Contract No.</span><span class="sort-icon" id="sort-contractNumber">▲</span><button class="col-menu-btn" data-col="contractNumber">▾</button></div></th>
+                <th class="col-header" data-sort="customerNo" data-col="customerNo"><div class="col-header-inner"><span>Customer No</span><span class="sort-icon" id="sort-customerNo"></span><button class="col-menu-btn" data-col="customerNo">▾</button></div></th>
+                <th class="col-header" data-sort="clientName" data-col="clientName"><div class="col-header-inner"><span>Client Name</span><span class="sort-icon" id="sort-clientName"></span><button class="col-menu-btn" data-col="clientName">▾</button></div></th>
+                <th class="col-header" data-sort="contractType" data-col="contractType"><div class="col-header-inner"><span>Contract Type</span><span class="sort-icon" id="sort-contractType"></span><button class="col-menu-btn" data-col="contractType">▾</button></div></th>
+                <th class="col-header" data-sort="contractStartDate" data-col="contractStartDate"><div class="col-header-inner"><span>Start Date</span><span class="sort-icon" id="sort-contractStartDate"></span><button class="col-menu-btn" data-col="contractStartDate">▾</button></div></th>
+                <th class="col-header" data-sort="contractEndDate" data-col="contractEndDate"><div class="col-header-inner"><span>End Date</span><span class="sort-icon" id="sort-contractEndDate"></span><button class="col-menu-btn" data-col="contractEndDate">▾</button></div></th>
+                <th class="col-header" data-sort="totalAmount" data-col="totalAmount"><div class="col-header-inner"><span>Amount (₱)</span><span class="sort-icon" id="sort-totalAmount"></span><button class="col-menu-btn" data-col="totalAmount">▾</button></div></th>
+                <th class="col-header" data-col="balance"><div class="col-header-inner"><span>Balance (₱)</span><span class="sort-icon" id="sort-balance"></span></div></th>
+                <th class="col-header" data-sort="status" data-col="status"><div class="col-header-inner"><span>Status</span><span class="sort-icon" id="sort-status"></span><button class="col-menu-btn" data-col="status">▾</button></div></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contracts-tbody">
+              <tr><td colspan="10" style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <span class="pagination-info" id="pagination-info">Loading…</span>
+          <div class="pagination-controls" id="pagination-controls"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     CONTRACT FORM MODAL (New / Edit) — 90% of screen, tabbed:
+     New Contract Details / Schedule List / Payments List / Notes List
+══════════════════════════════════ -->
+<div class="modal-overlay" id="contract-form-modal">
+  <div class="modal modal-90">
+    <div class="modal-header">
+      <span class="modal-title" id="form-modal-title">New Contract</span>
+      <button class="modal-close" data-close="contract-form-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="form-contract-id" />
+      <div class="modal-split">
+        <div class="modal-split-fields">
+          <div class="tabs">
+            <button type="button" class="ftab active" data-ftab="details">New Contract Details</button>
+            <button type="button" class="ftab" data-ftab="notes">Notes</button>
+          </div>
+
+          <div id="ftab-details" class="tab-panel">
+          <div class="form-section-title">Client &amp; Type</div>
+          <div class="form-row c2">
+            <div class="form-group">
+              <label class="form-label">Customer No <span class="req">*</span></label>
+              <input type="text" class="form-input" id="form-customer-no" placeholder="e.g. PC-00001" list="customer-datalist" autocomplete="off" />
+              <datalist id="customer-datalist"></datalist>
+              <div class="form-hint" id="client-name-hint" style="color:var(--green-text);font-weight:600"></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Contract Number</label>
+              <input type="text" class="form-input" id="form-contract-no" placeholder="Auto-generated" readonly />
+            </div>
+          </div>
+          <div class="form-row c2">
+            <div class="form-group">
+              <label class="form-label">Contract Type <span class="req">*</span></label>
+              <select class="form-select" id="form-contract-type"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Treatment Method</label>
+              <select class="form-select" id="form-treatment-method"></select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Schedule &amp; Value</div>
+          <div class="form-row c3">
+            <div class="form-group">
+              <label class="form-label">Frequency <span class="req">*</span></label>
+              <select class="form-select" id="form-frequency"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sessions <span class="req">*</span></label>
+              <input type="number" class="form-input" id="form-sessions" min="1" placeholder="12" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Warranty (mo.)</label>
+              <input type="number" class="form-input" id="form-warranty" min="0" placeholder="6" />
+            </div>
+          </div>
+          <div class="form-row c3">
+            <div class="form-group">
+              <label class="form-label">Start Date <span class="req">*</span></label>
+              <input type="date" class="form-input" id="form-start-date" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date</label>
+              <input type="date" class="form-input" id="form-end-date" readonly />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Total Amount (₱) <span class="req">*</span></label>
+              <input type="number" class="form-input" id="form-amount" min="0" step="0.01" placeholder="0.00" />
+            </div>
+          </div>
+          <div class="form-row c2">
+            <div class="form-group">
+              <label class="form-label">Downpayment %</label>
+              <input type="number" class="form-input" id="form-downpayment-pct" min="0" max="100" step="1" placeholder="e.g. 60" />
+              <div class="form-hint" id="downpayment-hint">System default: 60%</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Payment Plan</label>
+              <select class="form-select" id="form-payment-plan-type">
+                <option value="">Use system default</option>
+                <option value="downpayment-then-equal">Downpayment + Equal</option>
+                <option value="equal">Equal Installments</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-section-title">Assignment</div>
+          <div class="form-row c2">
+            <div class="form-group">
+              <label class="form-label">Assigned Team</label>
+              <select class="form-select" id="form-team"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Sales Agent</label>
+              <select class="form-select" id="form-sales-agent"></select>
+            </div>
+          </div>
+          <div class="form-row c2">
+            <div class="form-group">
+              <label class="form-label">Comm. Source</label>
+              <select class="form-select" id="form-comm-source"></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="form-status"></select>
+            </div>
+          </div>
+      </div>
+
+      <div id="ftab-notes" class="tab-panel" style="display:none">
+        <div class="form-group">
+          <label class="form-label">Notes</label>
+          <textarea class="form-textarea" id="form-notes" placeholder="Any additional notes…" style="min-height:280px"></textarea>
+        </div>
+      </div>
+        </div>
+        <div class="modal-split-preview">
+          <div class="form-section-title" style="margin-top:0">Live Preview</div>
+          <div class="form-hint" style="margin-bottom:10px">Exactly what will be generated in <strong>Treatments</strong> &amp; <strong>Payments</strong> once you save — updates as you type.</div>
+          <div id="combined-preview-container" style="flex:1;min-height:0;overflow-y:auto">
+            <div class="preview-empty" id="combined-preview-empty">Fill in Frequency, Sessions, Start Date and Total Amount to see the generated schedule &amp; payments here.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="contract-form-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-contract">
+        <span id="save-btn-text">Save Contract</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════
+     CONTRACT DETAIL MODAL
+══════════════════════════════════ -->
+<div class="modal-overlay" id="contract-detail-modal">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="detail-title">Contract Details</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px" id="detail-subtitle"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-secondary btn-sm" id="btn-edit-from-detail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          Edit
+        </button>
+        <button class="btn btn-danger btn-sm" id="btn-delete-from-detail">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          Delete
+        </button>
+        <button class="modal-close" data-close="contract-detail-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <button class="tab active" data-tab="info">Info</button>
+        <button class="tab" data-tab="treatments">Treatments</button>
+        <button class="tab" data-tab="payments">Payments</button>
+        <button class="tab" data-tab="notes">Notes</button>
+      </div>
+      <div id="tab-info" class="tab-panel"></div>
+      <div id="tab-treatments" class="tab-panel" style="display:none"></div>
+      <div id="tab-payments" class="tab-panel" style="display:none"></div>
+      <div id="tab-notes" class="tab-panel" style="display:none"></div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+
+</div>
+
+
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, serverTimestamp, runTransaction, writeBatch
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {
+  cachedGetDocs, cachedGetDoc, smartUpdateDoc, invalidate
+} from './js/firestore-cache.js';
+import { recalcContractRollup, amendContractScope } from './js/contract-sync.js';
+
+/* ── Fallback settings — used for whatever config/settings doesn't
+   already have (this doc is shared with the Clients module, which is
+   the one that currently owns salesAgents/commSources). ── */
+const DEFAULT_SETTINGS = {
+  defaultDownpaymentPct: 60,
+  defaultPaymentPlanType: 'downpayment-then-equal',
+  contractTypesList: ['Termite Control', 'General Pest Control', 'Rodents Control', 'Crawling Insects Control', 'Pre-Construction Termite Control', 'Reticulation System', 'Flying Insects Control'],
+  treatmentMethods: ['Chemical spraying', 'Heat treatment', 'Baiting system', 'Fogging', 'Biological control', 'Physical removal', 'Monitoring'],
+  contractFrequencies: ['Monthly', 'Bi-Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'One-Time'],
+  commSources: ['Referral', 'Facebook', 'Google Search', 'Walk-in', 'Repeat Client', 'Flyer'],
+  contractStatuses: ['Active', 'Expired', 'Renewed', 'Cancelled'],
+  teamsList: ['Team Alpha', 'Team Bravo']
+};
+
+/* ── State ── */
+let currentUser = null, currentRole = null;
+let allContracts = [], filteredContracts = [], currentPage = 1;
+const PER_PAGE = 20;
+let clientMap = {};
+let activeDetailId = null;
+
+/* ── Helpers ── */
+const $ = id => document.getElementById(id);
+
+function showToast(msg, type = 'success', title = '') {
+  const c = $('toast-container'), el = document.createElement('div');
+  el.className = `toast ${type === 'success' ? '' : type}`;
+  const icons = {
+    success: `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(142,76%,36%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    error:   `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(0,84%,50%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    warning: `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(38,92%,50%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`
+  };
+  const titles = { success: 'Saved', error: 'Error', warning: 'Warning' };
+  el.innerHTML = `<div class="toast-icon">${icons[type] || icons.success}</div><div class="toast-body"><div class="toast-title">${title || titles[type] || 'Done'}</div><div class="toast-msg">${msg}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+  c.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 5000);
+}
+function openModal(id) { $(id).classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); }
+document.querySelectorAll('#view-contracts [data-close]').forEach(btn =>
+  btn.addEventListener('click', () => closeModal(btn.dataset.close))
+);
+document.querySelectorAll('#view-contracts .modal-overlay').forEach(ov => {
+  let downOnOverlay = false;
+  ov.addEventListener('mousedown', e => { downOnOverlay = (e.target === ov); });
+  ov.addEventListener('click', e => { if (e.target === ov && downOnOverlay) closeModal(ov.id); downOnOverlay = false; });
+});
+
+async function logAction(action, entityType, entityId, description) {
+  try {
+    await addDoc(collection(db, 'audit_log'), {
+      action, entityType, entityId, description,
+      performedBy: currentUser?.email || '',
+      performedByUid: currentUser?.uid || '',
+      createdAt: serverTimestamp()
+    });
+  } catch {}
+}
+
+function parseDateStr(s) { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function fmtDate(v) { if (!v) return '—'; const d = (v instanceof Date) ? v : parseDateStr(v); if (!d || isNaN(d)) return '—'; return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }); }
+function fmtCurrency(n) { return '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function toISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function addMonths(date, n) { const d = new Date(date); d.setMonth(d.getMonth() + n); return d; }
+function getIntervalMonths(freq) { return { monthly: 1, 'bi-monthly': 2, quarterly: 3, 'semi-annual': 6, annual: 12, 'one-time': null }[freq] || 1; }
+function computeEndDate(startDate, freq, sessions, warrantyMonths) {
+  if (warrantyMonths && warrantyMonths > 0) return addMonths(startDate, warrantyMonths);
+  if (freq === 'one-time') return new Date(startDate);
+  const interval = getIntervalMonths(freq);
+  return addMonths(startDate, interval * (sessions - 1));
+}
+function computeStatus(c) {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  if (c.status === 'active') { const end = parseDateStr(c.contractEndDate); if (end && end < today) return 'expired'; }
+  return c.status || 'active';
+}
+function statusBadge(s) { const m = { active: 'green', expired: 'red', renewed: 'purple', cancelled: 'gray' }; return `<span class="badge badge-${m[s] || 'gray'}">${s}</span>`; }
+
+function computeInstallmentAmounts(totalAmount, sessions, downpaymentPct, planType, settings) {
+  const usePlanType = planType || settings.defaultPaymentPlanType;
+  const dpPct = (downpaymentPct !== undefined && downpaymentPct !== null && !isNaN(downpaymentPct)) ? downpaymentPct : settings.defaultDownpaymentPct;
+  let amounts = [];
+  if (usePlanType === 'equal' || sessions <= 1) {
+    const per = totalAmount / sessions;
+    amounts = Array(sessions).fill(parseFloat(per.toFixed(2)));
+    const sumSoFar = amounts.slice(0, -1).reduce((a, b) => a + b, 0);
+    amounts[amounts.length - 1] = parseFloat((totalAmount - sumSoFar).toFixed(2));
+  } else {
+    const dpAmt = parseFloat((totalAmount * dpPct / 100).toFixed(2));
+    const remaining = parseFloat((totalAmount - dpAmt).toFixed(2));
+    const perInstallment = sessions > 1 ? parseFloat((remaining / (sessions - 1)).toFixed(2)) : 0;
+    amounts = [dpAmt];
+    for (let i = 1; i < sessions - 1; i++) amounts.push(perInstallment);
+    if (sessions > 1) { const sumSoFar = amounts.reduce((a, b) => a + b, 0); amounts.push(parseFloat((totalAmount - sumSoFar).toFixed(2))); }
+  }
+  return amounts;
+}
+
+/* Builds the treatment + payment schedule for a contract. Shared by the
+   live preview and the actual save routine, so what you see before saving
+   is exactly what gets written. Each pair shares a sessionNo — that's how
+   cancelTreatmentSession() finds a treatment's paired payment later. */
+function buildSchedule({ startDate, freq, sessions, totalAmount, warrantyMonths, downpaymentPct, planType, customerNo, contractType, team, settings }) {
+  const interval = getIntervalMonths(freq);
+  const usePlanType = planType || settings.defaultPaymentPlanType;
+  const amounts = computeInstallmentAmounts(totalAmount, sessions, downpaymentPct, planType, settings);
+  const treatments = [], payments = [];
+  for (let i = 0; i < sessions; i++) {
+    const d = freq === 'one-time' ? new Date(startDate) : addMonths(startDate, interval * i);
+    treatments.push({
+      customerNo, contractType, sessionNo: i + 1,
+      treatmentNo: `TRT-${String(i + 1).padStart(3, '0')}`,
+      treatmentDate: toISO(d),
+      status: 'Scheduled',
+      assignedTeam: team || '', chemicalsUsed: '', technician: '', notes: ''
+    });
+    payments.push({
+      customerNo, sessionNo: i + 1,
+      amount: amounts[i] || 0, dueDate: toISO(d), paymentDate: null,
+      status: 'Pending', paymentMode: '', orNumber: '', receivedBy: '', remarks: '',
+      isDownpayment: i === 0 && usePlanType !== 'equal'
+    });
+  }
+  return { treatments, payments };
+}
+
+/* ══════════════════════════════════
+   LOAD
+══════════════════════════════════ */
+async function loadSettings() {
+  let cfg = null;
+  try { cfg = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings'); } catch {}
+  return { ...DEFAULT_SETTINGS, ...(cfg || {}) };
+}
+
+async function getNextContractNumber() {
+  const counterRef = doc(db, 'config', 'counters');
+  let nextNum = 1;
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(counterRef);
+    if (!snap.exists()) {
+      tx.set(counterRef, { contractCounter: 1 });
+      nextNum = 1;
+    } else {
+      nextNum = (snap.data().contractCounter || 0) + 1;
+      tx.update(counterRef, { contractCounter: nextNum });
+    }
+  });
+  invalidate('config:counters');
+  return `CTR-${String(nextNum).padStart(5, '0')}`;
+}
+
+async function loadAll() {
+  const settings = await loadSettings();
+
+  // Shared 'clients' cache key with the Clients module — a free read if
+  // that module already loaded this session, and vice versa.
+  const clients = await cachedGetDocs(collection(db, 'clients'), 'clients');
+  clientMap = {};
+  clients.forEach(c => { clientMap[c.customerNo] = { name: c.clientName, id: c.id }; });
+  $('customer-datalist').innerHTML = clients.map(c => `<option value="${c.customerNo}">${c.customerNo} — ${c.clientName}</option>`).join('');
+
+  $('form-team').innerHTML = '<option value="">— Select Team —</option>' + settings.teamsList.map(t => `<option value="${t}">${t}</option>`).join('');
+  $('form-contract-type').innerHTML = '<option value="">— Select Contract Type —</option>' + settings.contractTypesList.map(t => `<option value="${t}">${t}</option>`).join('');
+  $('form-treatment-method').innerHTML = '<option value="">— Select or type —</option>' + settings.treatmentMethods.map(m => `<option value="${m}">${m}</option>`).join('');
+  $('form-frequency').innerHTML = '<option value="">— Select —</option>' + settings.contractFrequencies.map(f => `<option value="${f.toLowerCase().replace(/\s+/g, '-')}">${f}</option>`).join('');
+  $('form-comm-source').innerHTML = '<option value="">— Select Source —</option>' + settings.commSources.map(s => `<option>${s}</option>`).join('');
+  $('form-status').innerHTML = settings.contractStatuses.map(s => `<option value="${s.toLowerCase()}">${s}</option>`).join('');
+  const agentSet = new Set(clients.map(c => c.salesAgent).filter(Boolean));
+  $('form-sales-agent').innerHTML = '<option value="">— Select Agent —</option>' + [...agentSet].sort().map(a => `<option>${a}</option>`).join('');
+  $('downpayment-hint').textContent = `System default: ${settings.defaultDownpaymentPct}% downpayment`;
+
+  // Shared 'contracts' cache key with the Clients module's stat counts —
+  // same free-read relationship in the other direction.
+  allContracts = (await cachedGetDocs(collection(db, 'contracts'), 'contracts'))
+    .slice()
+    .sort((a, b) => (parseDateStr(b.contractStartDate) || 0) - (parseDateStr(a.contractStartDate) || 0));
+
+  computeStats();
+  applyFilters();
+}
+
+function computeStats() {
+  let active = 0, expired = 0, renewed = 0, totalVal = 0;
+  allContracts.forEach(c => {
+    const s = computeStatus(c);
+    if (s === 'active') active++; else if (s === 'expired') expired++; else if (s === 'renewed') renewed++;
+    totalVal += Number(c.totalAmount || 0);
+  });
+  $('stat-total').textContent = allContracts.length;
+  $('stat-active').textContent = active;
+  $('stat-expired').textContent = expired;
+  $('stat-renewed').textContent = renewed;
+  $('stat-value').textContent = '₱' + totalVal.toLocaleString('en-PH', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+/* Patch one contract's rollup fields into the in-memory list + re-render,
+   instead of reloading the whole collection after every line-item change. */
+function applyLocalContractPatch(id, patch) {
+  const idx = allContracts.findIndex(x => x.id === id);
+  if (idx >= 0) allContracts[idx] = { ...allContracts[idx], ...patch };
+  computeStats();
+  renderTable();
+}
+
+/* ══════════════════════════════════
+   SORT + COLUMN FILTER ENGINE
+══════════════════════════════════ */
+let sortField = 'contractNumber', sortDir = 'asc';
+let activeColDropdown = null;
+let columnFilters = {};
+
+function getColValue(c, col) {
+  if (col === 'contractNumber') return c.contractNumber || '';
+  if (col === 'customerNo') return c.customerNo || '';
+  if (col === 'clientName') return (clientMap[c.customerNo]?.name || '');
+  if (col === 'contractType') return c.contractType || '';
+  if (col === 'contractStartDate') return c.contractStartDate || '';
+  if (col === 'contractEndDate') return c.contractEndDate || '';
+  if (col === 'totalAmount') return Number(c.totalAmount) || 0;
+  if (col === 'status') return computeStatus(c);
+  return '';
+}
+function getUniqueColValues(col) {
+  const vals = new Set();
+  allContracts.forEach(c => { const v = getColValue(c, col).toString().trim(); if (v && v !== '—') vals.add(v); });
+  return [...vals].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+}
+function closeColDropdown() { if (activeColDropdown) { activeColDropdown.remove(); activeColDropdown = null; } document.removeEventListener('click', onDocClickCloseDropdown, true); }
+function onDocClickCloseDropdown(e) { if (activeColDropdown && !activeColDropdown.contains(e.target) && !e.target.closest('.col-menu-btn')) closeColDropdown(); }
+
+function openColDropdown(col, th) {
+  closeColDropdown();
+  const values = getUniqueColValues(col);
+  const currentFilter = columnFilters[col];
+  const hasSortField = th.dataset.sort;
+  const dd = document.createElement('div');
+  dd.className = 'col-dropdown';
+  dd.innerHTML = `
+    ${hasSortField ? `
+      <div class="col-dropdown-item" data-action="sort-asc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>Sort A → Z</div>
+      <div class="col-dropdown-item" data-action="sort-desc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>Sort Z → A</div>
+      <div class="col-dropdown-sep"></div>` : ''}
+    <div class="col-dropdown-search"><input type="text" placeholder="Search…" id="col-search-input" /></div>
+    <div class="col-dropdown-values" id="col-values-list">
+      ${values.map(v => `<label><input type="checkbox" value="${v.replace(/"/g, '&quot;')}" ${!currentFilter || currentFilter.has(v) ? 'checked' : ''} />${v}</label>`).join('')}
+    </div>
+    <div class="col-dropdown-actions">
+      <button class="btn btn-ghost btn-sm" data-action="select-all" style="border:1px solid var(--border)">All</button>
+      <button class="btn btn-ghost btn-sm" data-action="select-none" style="border:1px solid var(--border)">None</button>
+      <button class="btn btn-primary btn-sm" data-action="apply">Apply</button>
+    </div>`;
+  th.style.position = 'relative'; th.appendChild(dd); activeColDropdown = dd;
+  dd.querySelector('#col-search-input').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    dd.querySelectorAll('#col-values-list label').forEach(lbl => { lbl.style.display = lbl.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+  });
+  dd.querySelectorAll('[data-action="sort-asc"],[data-action="sort-desc"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sortField = th.dataset.sort; sortDir = btn.dataset.action === 'sort-asc' ? 'asc' : 'desc';
+      document.querySelectorAll('#view-contracts .sort-icon').forEach(el => el.textContent = '');
+      const icon = document.getElementById('sort-' + sortField); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+      doSort(); closeColDropdown();
+    });
+  });
+  dd.querySelector('[data-action="select-all"]')?.addEventListener('click', () => { dd.querySelectorAll('#col-values-list input[type="checkbox"]').forEach(cb => cb.checked = true); });
+  dd.querySelector('[data-action="select-none"]')?.addEventListener('click', () => { dd.querySelectorAll('#col-values-list input[type="checkbox"]').forEach(cb => cb.checked = false); });
+  dd.querySelector('[data-action="apply"]')?.addEventListener('click', () => {
+    const checked = [...dd.querySelectorAll('#col-values-list input[type="checkbox"]:checked')].map(cb => cb.value);
+    if (checked.length === values.length) delete columnFilters[col]; else columnFilters[col] = new Set(checked);
+    th.style.background = columnFilters[col] ? 'var(--primary-light)' : '';
+    closeColDropdown(); applyFilters();
+  });
+  setTimeout(() => document.addEventListener('click', onDocClickCloseDropdown, true), 10);
+  dd.querySelector('#col-search-input').focus();
+}
+document.querySelectorAll('#view-contracts .col-menu-btn').forEach(btn => { btn.addEventListener('click', e => { e.stopPropagation(); openColDropdown(btn.dataset.col, btn.closest('th')); }); });
+document.querySelectorAll('#view-contracts th.col-header').forEach(th => {
+  th.addEventListener('click', e => {
+    if (e.target.closest('.col-menu-btn') || e.target.closest('.col-dropdown')) return;
+    const field = th.dataset.sort; if (!field) return;
+    if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc'; else { sortField = field; sortDir = 'asc'; }
+    document.querySelectorAll('#view-contracts .sort-icon').forEach(el => el.textContent = '');
+    const icon = document.getElementById('sort-' + field); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+    doSort();
+  });
+});
+
+function doSort() {
+  filteredContracts.sort((a, b) => {
+    let av, bv;
+    if (sortField === 'contractStartDate' || sortField === 'contractEndDate') {
+      av = (parseDateStr(a[sortField]) || new Date(0)).getTime(); bv = (parseDateStr(b[sortField]) || new Date(0)).getTime();
+    } else if (sortField === 'totalAmount') { av = Number(a.totalAmount) || 0; bv = Number(b.totalAmount) || 0; }
+    else { av = getColValue(a, sortField).toString().toLowerCase(); bv = getColValue(b, sortField).toString().toLowerCase(); }
+    if (av < bv) return sortDir === 'asc' ? -1 : 1;
+    if (av > bv) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  currentPage = 1; renderTable();
+}
+function applyFilters() {
+  const q = $('search-input').value.toLowerCase().trim();
+  filteredContracts = allContracts.filter(c => {
+    const dispStatus = computeStatus(c);
+    const clientName = (clientMap[c.customerNo]?.name || '').toLowerCase();
+    const matchQ = !q || [c.customerNo, clientName, c.contractNumber, c.contractType, dispStatus].some(f => (f || '').toLowerCase().includes(q));
+    let matchCol = true;
+    for (const [col, allowed] of Object.entries(columnFilters)) { if (!allowed.has(getColValue(c, col).toString().trim())) { matchCol = false; break; } }
+    return matchQ && matchCol;
+  });
+  currentPage = 1; doSort();
+}
+$('search-input').addEventListener('input', applyFilters);
+$('btn-clear-filters').addEventListener('click', () => {
+  $('search-input').value = ''; columnFilters = {};
+  document.querySelectorAll('#view-contracts thead th').forEach(th => th.style.background = '');
+  applyFilters();
+});
+$('btn-refresh').addEventListener('click', () => {
+  invalidate('clients', 'contracts', 'config:settings');
+  loadAll();
+  showToast('Data refreshed.');
+});
+
+/* ── Delete contract (superadmin only) — cascades to its treatments &
+   payments, since those only exist to serve this contract. ── */
+async function deleteContract(id) {
+  if (currentRole !== 'superadmin') {
+    showToast('Only super admins can delete contracts.', 'error');
+    return;
+  }
+  const c = allContracts.find(x => x.id === id);
+  if (!c) return;
+  const contractNo = c.contractNumber || id;
+  const clientName = (clientMap[c.customerNo]?.name || '—');
+  const confirmed = confirm(`Delete contract "${contractNo}" for ${clientName} (${c.customerNo || 'no customer #'})?\n\nThis also removes its scheduled treatments and payments.\n\nThis action cannot be undone.`);
+  if (!confirmed) return;
+
+  try {
+    const [treatSnap, paySnap] = await Promise.all([
+      getDocs(query(collection(db, 'treatments'), where('contractId', '==', id))),
+      getDocs(query(collection(db, 'payments'), where('contractId', '==', id)))
+    ]);
+    const allDocs = [...treatSnap.docs, ...paySnap.docs];
+    for (let i = 0; i < allDocs.length; i += 450) {
+      const batch = writeBatch(db);
+      allDocs.slice(i, i + 450).forEach(d => batch.delete(d.ref));
+      await batch.commit();
+    }
+    await deleteDoc(doc(db, 'contracts', id));
+    invalidate('contracts');
+    await logAction('deleted', 'contract', id, `Deleted contract: ${contractNo} (${clientName})`);
+    showToast(`Contract "${contractNo}" deleted.`);
+    if (activeDetailId === id) closeModal('contract-detail-modal');
+    await loadAll();
+  } catch (err) {
+    console.error('Delete contract error:', err);
+    showToast('Failed to delete contract: ' + err.message, 'error');
+  }
+}
+
+document.getElementById('contracts-tbody').addEventListener('click', function (e) {
+  const viewBtn = e.target.closest('.btn-view, .contract-no-link');
+  const editBtn = e.target.closest('.btn-edit');
+  const deleteBtn = e.target.closest('.btn-delete');
+  if (viewBtn && viewBtn.dataset.id) { openDetailModal(viewBtn.dataset.id); return; }
+  if (editBtn && editBtn.dataset.id) { openEditModal(editBtn.dataset.id); return; }
+  if (deleteBtn && deleteBtn.dataset.id) { deleteContract(deleteBtn.dataset.id); return; }
+});
+
+function renderTable() {
+  const isSuperAdmin = currentRole === 'superadmin';
+  const total = filteredContracts.length, totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  currentPage = Math.min(currentPage, totalPages);
+  const start = (currentPage - 1) * PER_PAGE, end = Math.min(start + PER_PAGE, total);
+  const page = filteredContracts.slice(start, end);
+  $('pagination-info').textContent = total === 0 ? 'No records found' : `Showing ${start + 1}–${end} of ${total} contracts`;
+
+  if (!page.length) {
+    $('contracts-tbody').innerHTML = `<tr><td colspan="10"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg><h3>No contracts found</h3><p>Try adjusting your search or filters, or create a new contract.</p></div></td></tr>`;
+    $('pagination-controls').innerHTML = ''; return;
+  }
+
+  $('contracts-tbody').innerHTML = page.map(c => {
+    const dispStatus = computeStatus(c);
+    const clientName = clientMap[c.customerNo]?.name || '—';
+    // Balance comes straight off the contract's own rollup field — no
+    // per-row payments query needed to render the list.
+    const balance = c.balanceRemaining !== undefined ? Number(c.balanceRemaining) : Number(c.totalAmount || 0);
+    const contractNo = c.contractNumber || c.id.slice(0, 8).toUpperCase();
+    return `<tr>
+      <td><span class="contract-no-link" style="color:var(--primary);cursor:pointer;font-weight:600;font-family:monospace;font-size:12.5px" data-id="${c.id}">${contractNo}</span></td>
+      <td class="mono">${c.customerNo || '—'}</td>
+      <td style="font-weight:500">${clientName}</td>
+      <td style="font-size:12.5px"><span style="display:inline-block;background:var(--green-bg);color:var(--green-text);border:1px solid hsl(142,76%,80%);padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">${c.contractType || '—'}</span></td>
+      <td class="muted">${fmtDate(c.contractStartDate)}</td>
+      <td class="muted">${fmtDate(c.contractEndDate)}</td>
+      <td style="font-variant-numeric:tabular-nums">${fmtCurrency(c.totalAmount)}</td>
+      <td style="font-variant-numeric:tabular-nums;color:${balance > 0 ? 'var(--amber-text)' : 'var(--green-text)'}">${fmtCurrency(balance)}</td>
+      <td>${statusBadge(dispStatus)}</td>
+      <td>
+        <div class="actions-cell">
+          <button class="btn btn-sm btn-secondary btn-view" data-id="${c.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>View
+          </button>
+          <button class="btn-icon btn-edit" data-id="${c.id}" title="Edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          ${isSuperAdmin ? `<button class="btn-icon btn-delete" data-id="${c.id}" title="Delete" style="color:var(--red-text);border-color:#fca5a5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const ctrl = $('pagination-controls');
+  if (totalPages <= 1) { ctrl.innerHTML = ''; return; }
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) { if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) pages.push(i); else if (pages[pages.length - 1] !== '…') pages.push('…'); }
+  ctrl.innerHTML = `<button class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} data-p="${currentPage - 1}">‹</button>${pages.map(p => p === '…' ? `<button class="page-btn" disabled>…</button>` : `<button class="page-btn${p === currentPage ? ' active' : ''}" data-p="${p}">${p}</button>`).join('')}<button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} data-p="${currentPage + 1}">›</button>`;
+  ctrl.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => { currentPage = Number(b.dataset.p); renderTable(); }));
+}
+
+/* ══════════════════════════════════
+   NEW/EDIT CONTRACT MODAL + LIVE PREVIEW
+══════════════════════════════════ */
+function resetFormTabs() {
+  document.querySelectorAll('#view-contracts .ftab').forEach(t => t.classList.remove('active'));
+  document.querySelector('#view-contracts .ftab[data-ftab="details"]').classList.add('active');
+  document.querySelectorAll('#contract-form-modal .tab-panel').forEach(p => p.style.display = 'none');
+  $('ftab-details').style.display = '';
+}
+document.querySelectorAll('#view-contracts .ftab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#view-contracts .ftab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('#contract-form-modal .tab-panel').forEach(p => p.style.display = 'none');
+    $(`ftab-${tab.dataset.ftab}`).style.display = '';
+  });
+});
+
+let cachedSettingsForForm = DEFAULT_SETTINGS;
+
+function clearForm() {
+  ['form-contract-id', 'form-customer-no', 'form-contract-no', 'form-treatment-method', 'form-sessions', 'form-warranty', 'form-start-date', 'form-end-date', 'form-amount', 'form-notes', 'form-downpayment-pct'].forEach(id => { $(id).value = ''; });
+  ['form-contract-type', 'form-frequency', 'form-team', 'form-sales-agent', 'form-comm-source', 'form-payment-plan-type'].forEach(id => { $(id).value = ''; });
+  $('form-status').value = 'active';
+  $('client-name-hint').textContent = '';
+  resetFormTabs();
+  renderPreview();
+}
+$('form-customer-no').addEventListener('input', () => {
+  const no = $('form-customer-no').value.trim();
+  const client = clientMap[no];
+  $('client-name-hint').textContent = client ? `✓ ${client.name}` : (no ? 'Client not found in system' : '');
+});
+
+$('btn-new-contract').addEventListener('click', () => {
+  clearForm();
+  $('form-modal-title').textContent = 'New Contract';
+  $('save-btn-text').textContent = 'Save & Generate Schedule';
+  $('form-contract-id').value = '';
+  $('form-contract-no').value = 'Auto-generated';
+  openModal('contract-form-modal');
+});
+
+function openEditModal(id) {
+  const c = allContracts.find(x => x.id === id);
+  if (!c) return;
+  clearForm();
+  $('form-modal-title').textContent = 'Edit Contract';
+  $('save-btn-text').textContent = 'Update Contract';
+  $('form-contract-id').value = id;
+  $('form-customer-no').value = c.customerNo || '';
+  const client = clientMap[c.customerNo];
+  $('client-name-hint').textContent = client ? `✓ ${client.name}` : '';
+  $('form-contract-no').value = c.contractNumber || '';
+  $('form-contract-type').value = c.contractType || '';
+  $('form-treatment-method').value = c.treatmentMethod || '';
+  $('form-frequency').value = c.frequency || '';
+  $('form-sessions').value = c.noOfSessions || '';
+  $('form-warranty').value = c.warrantyPeriod || '';
+  $('form-start-date').value = c.contractStartDate || '';
+  $('form-end-date').value = c.contractEndDate || '';
+  $('form-amount').value = c.totalAmount || '';
+  $('form-team').value = c.assignedTeam || '';
+  $('form-sales-agent').value = c.salesAgent || '';
+  $('form-comm-source').value = c.communicationSource || '';
+  $('form-status').value = c.status || 'active';
+  $('form-notes').value = c.notes || '';
+  if (c.downpaymentPct !== undefined) $('form-downpayment-pct').value = c.downpaymentPct;
+  if (c.paymentPlanType) $('form-payment-plan-type').value = c.paymentPlanType;
+  renderPreview();
+  openModal('contract-form-modal');
+}
+
+/* Live preview: reads the current field values and renders exactly what
+   buildSchedule() would generate for a NEW contract. (Editing doesn't
+   regenerate the schedule, so this only matters for "New Contract".) */
+function renderPreview() {
+  const startStr = $('form-start-date').value;
+  const freq = $('form-frequency').value;
+  const sessions = parseInt($('form-sessions').value) || 0;
+  const amount = parseFloat($('form-amount').value) || 0;
+  const warranty = parseInt($('form-warranty').value) || 0;
+  const combinedContainer = $('combined-preview-container');
+
+  if (!startStr || !freq || !sessions) {
+    combinedContainer.innerHTML = `<div class="preview-empty">Fill in Frequency, Sessions, Start Date and Total Amount to see the generated schedule &amp; payments here.</div>`;
+    return;
+  }
+  const startDate = parseDateStr(startStr);
+  const endDate = computeEndDate(startDate, freq, sessions, warranty);
+  $('form-end-date').value = toISO(endDate);
+
+  const dpPctInput = parseFloat($('form-downpayment-pct').value);
+  const settings = cachedSettingsForForm;
+  const dpPct = !isNaN(dpPctInput) ? dpPctInput : settings.defaultDownpaymentPct;
+  const planType = $('form-payment-plan-type').value || settings.defaultPaymentPlanType;
+  $('downpayment-hint').textContent = !isNaN(dpPctInput) ? `Using ${dpPct}% downpayment on 1st session` : `Using system default: ${settings.defaultDownpaymentPct}% downpayment`;
+
+  const sched = buildSchedule({
+    startDate, freq, sessions, totalAmount: amount, warrantyMonths: warranty, downpaymentPct: dpPctInput, planType,
+    customerNo: $('form-customer-no').value.trim(), contractType: $('form-contract-type').value, team: $('form-team').value, settings
+  });
+
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  let scheduleRows = '';
+  sched.treatments.forEach((t, i) => {
+    const p = sched.payments[i];
+    const d = parseDateStr(t.treatmentDate);
+    const dayStr = days[d.getDay()];
+    const label = p.isDownpayment ? '1st (DP)' : String(i + 1);
+    scheduleRows += `<tr>
+      <td style="font-weight:${p.isDownpayment ? '700' : '500'};color:${p.isDownpayment ? 'var(--primary)' : 'inherit'}">${label}</td>
+      <td>${fmtDate(t.treatmentDate)}</td>
+      <td class="muted">${dayStr}</td>
+      <td><span class="badge badge-${i === 0 ? 'blue' : 'gray'}">${t.status}</span></td>
+      <td>${t.assignedTeam || '—'}</td>
+    </tr>`;
+  });
+  let paymentRows = '';
+  sched.payments.forEach((p, i) => {
+    const label = p.isDownpayment ? '1st (DP)' : String(i + 1);
+    paymentRows += `<tr>
+      <td style="font-weight:${p.isDownpayment ? '700' : '500'};color:${p.isDownpayment ? 'var(--primary)' : 'inherit'}">${label}</td>
+      <td>${fmtDate(p.dueDate)}</td>
+      <td style="text-align:right;font-variant-numeric:tabular-nums;font-weight:${p.isDownpayment ? '700' : '400'}">${amount ? fmtCurrency(p.amount) : '—'}</td>
+      <td><span class="badge badge-amber">${p.status}</span></td>
+    </tr>`;
+  });
+  combinedContainer.innerHTML = `
+    <div class="form-section-title" style="margin-top:0;font-size:12px">Schedule</div>
+    <div class="preview-table-wrap" style="max-height:none;margin-bottom:14px">
+      <table class="preview-table">
+        <thead><tr><th>#</th><th>Treatment Date</th><th>Day</th><th>Status</th><th>Team</th></tr></thead>
+        <tbody>${scheduleRows}</tbody>
+      </table>
+    </div>
+    <div class="form-section-title" style="font-size:12px">Payments</div>
+    <div class="preview-table-wrap" style="max-height:none">
+      <table class="preview-table">
+        <thead><tr><th>#</th><th>Due Date</th><th style="text-align:right">Amount Due</th><th>Status</th></tr></thead>
+        <tbody>${paymentRows}</tbody>
+      </table>
+    </div>
+    <div class="preview-total-bar" id="preview-total-bar"></div>`;
+
+  if (amount) {
+    const dpAmt = sched.payments[0]?.amount || 0;
+    const remainSessions = sessions - 1;
+    const remaining = parseFloat((amount - dpAmt).toFixed(2));
+    const perRemain = remainSessions > 0 ? parseFloat((remaining / remainSessions).toFixed(2)) : 0;
+    const warrantyLine = warranty > 0 ? ` · Warranty: <strong>${warranty} mo.</strong> (expires ${fmtDate(toISO(endDate))})` : '';
+    if (planType !== 'equal' && sessions > 1) {
+      $('preview-total-bar').innerHTML = `Total: <strong>${fmtCurrency(amount)}</strong> · Downpayment: <strong>${fmtCurrency(dpAmt)} (${dpPct}%)</strong>${remainSessions > 0 ? ` · Remaining ${remainSessions} sessions: <strong>${fmtCurrency(perRemain)} each</strong>` : ''}${warrantyLine}`;
+    } else {
+      const per = sched.payments[0]?.amount || 0;
+      $('preview-total-bar').innerHTML = `Total: <strong>${fmtCurrency(amount)}</strong> · Per session: <strong>${fmtCurrency(per)}</strong>${warrantyLine}`;
+    }
+  } else {
+    $('preview-total-bar').textContent = 'Enter Total Amount to see the payment breakdown.';
+  }
+}
+['form-start-date', 'form-frequency', 'form-sessions', 'form-amount', 'form-warranty', 'form-downpayment-pct', 'form-payment-plan-type', 'form-customer-no', 'form-contract-type', 'form-team'].forEach(id => {
+  $(id).addEventListener('input', renderPreview);
+  $(id).addEventListener('change', renderPreview);
+});
+
+$('btn-save-contract').addEventListener('click', async () => {
+  const customerNo = $('form-customer-no').value.trim();
+  const contractType = $('form-contract-type').value.trim();
+  const freq = $('form-frequency').value;
+  const sessions = parseInt($('form-sessions').value) || 0;
+  const startStr = $('form-start-date').value;
+  const amount = parseFloat($('form-amount').value) || 0;
+
+  if (!customerNo) { showToast('Customer No is required.', 'error'); return; }
+  if (!contractType) { showToast('Contract Type is required.', 'error'); return; }
+  if (!freq) { showToast('Frequency is required.', 'error'); return; }
+  if (!sessions) { showToast('No. of Sessions is required.', 'error'); return; }
+  if (!startStr) { showToast('Start Date is required.', 'error'); return; }
+  if (!amount) { showToast('Total Amount is required.', 'error'); return; }
+
+  const startDate = parseDateStr(startStr);
+  const warrantyPeriod = parseInt($('form-warranty').value) || 0;
+  const endDate = computeEndDate(startDate, freq, sessions, warrantyPeriod);
+  const dpPctInput = parseFloat($('form-downpayment-pct').value);
+  const settings = cachedSettingsForForm;
+  const dpPct = !isNaN(dpPctInput) ? dpPctInput : settings.defaultDownpaymentPct;
+  const planType = $('form-payment-plan-type').value || settings.defaultPaymentPlanType;
+
+  const editId = $('form-contract-id').value;
+  const btn = $('btn-save-contract');
+  btn.disabled = true;
+
+  const data = {
+    customerNo, contractType,
+    treatmentMethod: $('form-treatment-method').value.trim(),
+    frequency: freq, noOfSessions: sessions, warrantyPeriod,
+    contractStartDate: toISO(startDate), contractEndDate: toISO(endDate),
+    totalAmount: amount, assignedTeam: $('form-team').value, salesAgent: $('form-sales-agent').value,
+    communicationSource: $('form-comm-source').value, status: $('form-status').value,
+    notes: $('form-notes').value.trim(), downpaymentPct: dpPct, paymentPlanType: planType,
+    updatedAt: serverTimestamp()
+  };
+
+  try {
+    if (editId) {
+      // Editing core fields doesn't regenerate the schedule — only
+      // totalAmount can move the balance, and we already have totalPaid
+      // from this contract's own rollup, so no extra read is needed.
+      const existing = allContracts.find(x => x.id === editId);
+      data.balanceRemaining = amount - Number(existing?.totalPaid || 0);
+      await smartUpdateDoc(doc(db, 'contracts', editId), data, ['contracts']);
+      await logAction('updated', 'contract', editId, `Updated contract: ${data.contractNumber || existing?.contractNumber || editId}`);
+      showToast('Contract updated successfully.');
+    } else {
+      const contractNumber = await getNextContractNumber();
+      const sched = buildSchedule({ startDate, freq, sessions, totalAmount: amount, warrantyMonths: warrantyPeriod, downpaymentPct: dpPctInput, planType, customerNo, contractType, team: $('form-team').value, settings });
+
+      const contractRef = doc(collection(db, 'contracts'));
+      const batch = writeBatch(db);
+      batch.set(contractRef, {
+        ...data, contractNumber,
+        totalSessions: sessions, completedSessions: 0,
+        nextTreatmentDate: sched.treatments[0]?.treatmentDate || null,
+        totalPaid: 0, balanceRemaining: amount, lastPaymentDate: null,
+        createdAt: serverTimestamp()
+      });
+      sched.treatments.forEach(t => batch.set(doc(collection(db, 'treatments')), { ...t, contractId: contractRef.id }));
+      sched.payments.forEach(p => batch.set(doc(collection(db, 'payments')), { ...p, contractId: contractRef.id }));
+      await batch.commit();
+      invalidate('contracts');
+      await logAction('created', 'contract', contractRef.id, `Created contract: ${contractNumber} (${sched.treatments.length} sessions)`);
+      showToast(`Contract ${contractNumber} created. ${sched.treatments.length} treatments & ${sched.payments.length} payments scheduled.`);
+    }
+    closeModal('contract-form-modal');
+    await loadAll();
+  } catch (err) {
+    console.error('Save contract error:', err);
+    showToast('Failed to save contract: ' + err.message, 'error');
+  }
+  btn.disabled = false;
+});
+
+/* ══════════════════════════════════
+   DETAIL MODAL
+══════════════════════════════════ */
+function openDetailModal(id) {
+  const c = allContracts.find(x => x.id === id);
+  if (!c) return;
+  activeDetailId = id;
+  const dispStatus = computeStatus(c);
+  const contractNo = c.contractNumber || c.id.slice(0, 8).toUpperCase();
+  const clientName = clientMap[c.customerNo]?.name || '—';
+
+  $('detail-title').textContent = contractNo;
+  $('detail-subtitle').textContent = `${clientName} · ${c.customerNo || ''}`;
+  $('btn-edit-from-detail').onclick = () => { closeModal('contract-detail-modal'); openEditModal(id); };
+  const delBtn = $('btn-delete-from-detail');
+  if (currentRole === 'superadmin') { delBtn.style.display = ''; delBtn.onclick = () => deleteContract(id); }
+  else { delBtn.style.display = 'none'; delBtn.onclick = null; }
+
+  document.querySelectorAll('#view-contracts .tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('#view-contracts .tab[data-tab="info"]').classList.add('active');
+  document.querySelectorAll('#contract-detail-modal .tab-panel').forEach(p => p.style.display = 'none');
+  $('tab-info').style.display = '';
+
+  $('tab-info').innerHTML = `
+    <div class="detail-grid">
+      ${[
+        ['Contract No.', contractNo], ['Client Name', clientName],
+        ['Customer No.', c.customerNo], ['Contract Type', c.contractType || '—'],
+        ['Treatment Method', c.treatmentMethod], ['Frequency', c.frequency],
+        ['Sessions', `${c.completedSessions ?? 0} / ${c.totalSessions ?? c.noOfSessions ?? 0} completed`],
+        ['Warranty Period', c.warrantyPeriod ? c.warrantyPeriod + ' months' : '—'],
+        ['Start Date', fmtDate(c.contractStartDate)], ['End Date', fmtDate(c.contractEndDate)],
+        ['Total Amount', fmtCurrency(c.totalAmount)],
+        ['Balance Remaining', fmtCurrency(c.balanceRemaining ?? c.totalAmount)],
+        ['Assigned Team', c.assignedTeam], ['Sales Agent', c.salesAgent], ['Comm. Source', c.communicationSource],
+        ['Status', statusBadge(dispStatus), 'raw'],
+      ].map(([label, val, type]) => `<div class="detail-field"><label>${label}</label><span>${type === 'raw' ? val : (val || '—')}</span></div>`).join('')}
+      <div class="detail-field full"><label>Notes</label><span>${c.notes || '—'}</span></div>
+    </div>`;
+
+  openModal('contract-detail-modal');
+
+  $('tab-notes').innerHTML = `
+    <div class="form-group">
+      <label class="form-label" style="font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted)">Contract Notes</label>
+      <textarea class="form-textarea" id="notes-editor" style="min-height:180px">${c.notes || ''}</textarea>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:8px">
+      <button class="btn btn-primary btn-sm" id="btn-save-notes">Save Notes</button>
+    </div>`;
+  $('btn-save-notes').addEventListener('click', async () => {
+    const notes = $('notes-editor').value;
+    try {
+      await smartUpdateDoc(doc(db, 'contracts', id), { notes, updatedAt: serverTimestamp() }, ['contracts']);
+      applyLocalContractPatch(id, { notes });
+      showToast('Notes saved.');
+    } catch (err) {
+      showToast('Failed to save notes: ' + err.message, 'error');
+    }
+  });
+}
+
+document.querySelectorAll('#view-contracts .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#view-contracts .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('#contract-detail-modal .tab-panel').forEach(p => p.style.display = 'none');
+    $(`tab-${tab.dataset.tab}`).style.display = '';
+    const c = allContracts.find(x => x.id === activeDetailId);
+    if (!c) return;
+    if (tab.dataset.tab === 'treatments') loadDetailTreatments(c);
+    if (tab.dataset.tab === 'payments') loadDetailPayments(c);
+  });
+});
+
+/* ── Treatments tab: progress/next-visit come straight from the
+   contract's rollup fields; only the row-by-row list needs its own
+   targeted (per-contract, not cached) query. ── */
+async function loadDetailTreatments(c) {
+  const panel = $('tab-treatments');
+  panel.innerHTML = `<div style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></div>`;
+  const snap = await getDocs(query(collection(db, 'treatments'), where('contractId', '==', c.id)));
+  const treatments = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.sessionNo || 0) - (b.sessionNo || 0));
+
+  const total = c.totalSessions ?? treatments.filter(t => t.status !== 'Cancelled').length;
+  const completed = c.completedSessions ?? treatments.filter(t => t.status === 'Completed').length;
+  const pct = total > 0 ? Math.round(completed / total * 100) : 0;
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+
+  let html = `
+    <div class="progress-wrap">
+      <div class="progress-label"><span>${completed} of ${total} sessions completed</span><span>${pct}%</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin:10px 0">
+      <button class="btn btn-secondary btn-sm" id="btn-add-extra-treatment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Extra Treatment
+      </button>
+    </div>`;
+  if (c.nextTreatmentDate) {
+    html += `<div class="next-treatment-banner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Next treatment: <strong>${fmtDate(c.nextTreatmentDate)}</strong></div>`;
+  }
+  if (!treatments.length) {
+    html += `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/></svg><h3>No treatments</h3><p>No treatments scheduled yet.</p></div>`;
+  } else {
+    const sMap = { Scheduled: 'blue', Completed: 'green', Cancelled: 'gray', 'Need Schedule': 'amber' };
+    html += `<div style="overflow-x:auto"><table class="mini-table" style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <thead><tr><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">#</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Date</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Status</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Team</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Technician</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Actions</th></tr></thead>
+      <tbody>${treatments.map(t => {
+        const isOverdue = t.status === 'Scheduled' && parseDateStr(t.treatmentDate) < today;
+        const dispS = isOverdue ? 'overdue' : t.status;
+        let actions = '';
+        if (t.status !== 'Completed' && t.status !== 'Cancelled') actions += `<button class="btn btn-ghost btn-sm mark-complete-btn" data-id="${t.id}" style="border:1px solid var(--border);margin-right:4px">Mark Completed</button>`;
+        if (t.status !== 'Cancelled') actions += `<button class="btn btn-ghost btn-sm cancel-session-btn" data-id="${t.id}" data-session="${t.sessionNo}" style="border:1px solid #fca5a5;color:var(--red-text)">Cancel Session</button>`;
+        return `<tr><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary);font-family:monospace;font-size:11.5px;color:var(--text-muted)">${t.treatmentNo || '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${fmtDate(t.treatmentDate)}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)"><span class="badge badge-${sMap[dispS] || 'gray'}">${dispS}</span></td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${t.assignedTeam || '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${t.technician || '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary);white-space:nowrap">${actions}</td></tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('.mark-complete-btn').forEach(btn => btn.addEventListener('click', () => markTreatmentCompleted(c.id, btn.dataset.id)));
+  panel.querySelectorAll('.cancel-session-btn').forEach(btn => btn.addEventListener('click', () => cancelTreatmentSession(c.id, Number(btn.dataset.session))));
+  $('btn-add-extra-treatment')?.addEventListener('click', () => addExtraTreatment(c.id));
+}
+
+async function markTreatmentCompleted(contractId, treatmentId) {
+  try {
+    await updateDoc(doc(db, 'treatments', treatmentId), { status: 'Completed' });
+    const rollup = await recalcContractRollup(contractId);
+    if (rollup) applyLocalContractPatch(contractId, rollup);
+    const c = allContracts.find(x => x.id === contractId);
+    if (c) await loadDetailTreatments(c);
+    showToast('Treatment marked completed.');
+  } catch (err) {
+    showToast('Failed to update treatment: ' + err.message, 'error');
+  }
+}
+
+/* Cancels a session's treatment AND its paired payment (same contractId +
+   sessionNo), then shrinks the contract's totalAmount/noOfSessions to
+   match — a structural change, not just a status flip, so it goes
+   through amendContractScope() and gets an audit log entry. */
+async function cancelTreatmentSession(contractId, sessionNo) {
+  const confirmed = confirm(`Cancel session #${sessionNo}?\n\nThis will also cancel its paired payment and reduce the contract's total value by that installment's amount. This cannot be undone.`);
+  if (!confirmed) return;
+  try {
+    const [treatSnap, paySnap] = await Promise.all([
+      getDocs(query(collection(db, 'treatments'), where('contractId', '==', contractId), where('sessionNo', '==', sessionNo))),
+      getDocs(query(collection(db, 'payments'), where('contractId', '==', contractId), where('sessionNo', '==', sessionNo)))
+    ]);
+    const batch = writeBatch(db);
+    treatSnap.docs.forEach(d => batch.update(d.ref, { status: 'Cancelled' }));
+    paySnap.docs.forEach(d => batch.update(d.ref, { status: 'Cancelled' }));
+    await batch.commit();
+
+    const cancelledAmount = paySnap.docs.reduce((sum, d) => sum + Number(d.data().amount || 0), 0);
+    const rollup = await amendContractScope(contractId, {
+      amountDelta: -cancelledAmount, sessionDelta: -1,
+      reason: `Cancelled session #${sessionNo}`,
+      performedBy: currentUser?.email || '', performedByUid: currentUser?.uid || ''
+    });
+    if (rollup) applyLocalContractPatch(contractId, rollup);
+    const c = allContracts.find(x => x.id === contractId);
+    if (c) await loadDetailTreatments(c);
+    showToast(`Session #${sessionNo} cancelled.`);
+  } catch (err) {
+    console.error('Cancel session error:', err);
+    showToast('Failed to cancel session: ' + err.message, 'error');
+  }
+}
+
+/* Adds a brand-new session (treatment + payment pair) beyond the
+   original schedule — grows the contract's totalAmount/noOfSessions,
+   the mirror image of cancelTreatmentSession(). */
+async function addExtraTreatment(contractId) {
+  const dateStr = prompt('Treatment date (YYYY-MM-DD):', toISO(new Date()));
+  if (!dateStr) return;
+  const amountStr = prompt('Amount to bill for this extra session (₱):', '0');
+  if (amountStr === null) return;
+  const amount = parseFloat(amountStr) || 0;
+  if (amount <= 0) { showToast('Enter an amount greater than zero.', 'error'); return; }
+
+  try {
+    const c = allContracts.find(x => x.id === contractId);
+    const existingSnap = await getDocs(query(collection(db, 'treatments'), where('contractId', '==', contractId)));
+    const maxSessionNo = existingSnap.docs.reduce((max, d) => Math.max(max, d.data().sessionNo || 0), 0);
+    const nextSessionNo = maxSessionNo + 1;
+
+    const batch = writeBatch(db);
+    batch.set(doc(collection(db, 'treatments')), {
+      contractId, customerNo: c?.customerNo || '', contractType: c?.contractType || '',
+      sessionNo: nextSessionNo, treatmentNo: `TRT-${String(nextSessionNo).padStart(3, '0')}`,
+      treatmentDate: dateStr, status: 'Scheduled',
+      assignedTeam: c?.assignedTeam || '', chemicalsUsed: '', technician: '', notes: 'Added as an extra session.'
+    });
+    batch.set(doc(collection(db, 'payments')), {
+      contractId, customerNo: c?.customerNo || '', sessionNo: nextSessionNo,
+      amount, dueDate: dateStr, paymentDate: null, status: 'Pending',
+      paymentMode: '', orNumber: '', receivedBy: '', remarks: 'Extra session', isDownpayment: false
+    });
+    await batch.commit();
+
+    const rollup = await amendContractScope(contractId, {
+      amountDelta: amount, sessionDelta: 1,
+      reason: `Added extra session on ${dateStr}`,
+      performedBy: currentUser?.email || '', performedByUid: currentUser?.uid || ''
+    });
+    if (rollup) applyLocalContractPatch(contractId, rollup);
+    if (c) await loadDetailTreatments(c);
+    showToast('Extra treatment added.');
+  } catch (err) {
+    console.error('Add extra treatment error:', err);
+    showToast('Failed to add extra treatment: ' + err.message, 'error');
+  }
+}
+
+/* ── Payments tab: summary cards come from the contract's own rollup
+   fields; the row list is its own targeted (uncached) query. ── */
+async function loadDetailPayments(c) {
+  const panel = $('tab-payments');
+  panel.innerHTML = `<div style="text-align:center;padding:24px"><div class="spinner" style="margin:0 auto"></div></div>`;
+  const snap = await getDocs(query(collection(db, 'payments'), where('contractId', '==', c.id)));
+  const payments = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+    .sort((a, b) => (a.sessionNo || 0) - (b.sessionNo || 0));
+
+  const totalAmt = Number(c.totalAmount || 0);
+  const collected = c.totalPaid ?? 0;
+  const balance = c.balanceRemaining ?? Math.max(0, totalAmt - collected);
+
+  let html = `
+    <div class="summary-cards">
+      <div class="sum-card"><div class="sum-card-val">${fmtCurrency(totalAmt)}</div><div class="sum-card-lbl">Total Contract Value</div></div>
+      <div class="sum-card" style="border-color:var(--green);background:var(--green-bg)"><div class="sum-card-val" style="color:var(--green-text)">${fmtCurrency(collected)}</div><div class="sum-card-lbl" style="color:var(--green-text)">Total Collected</div></div>
+      <div class="sum-card" style="border-color:${balance > 0 ? 'var(--amber)' : 'var(--green)'};background:${balance > 0 ? 'var(--amber-bg)' : 'var(--green-bg)'}"><div class="sum-card-val" style="color:${balance > 0 ? 'var(--amber-text)' : 'var(--green-text)'}">${fmtCurrency(balance)}</div><div class="sum-card-lbl" style="color:${balance > 0 ? 'var(--amber-text)' : 'var(--green-text)'}">Remaining Balance</div></div>
+    </div>`;
+
+  if (!payments.length) {
+    html += `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/></svg><h3>No payments</h3><p>No payment schedule found for this contract.</p></div>`;
+    panel.innerHTML = html; return;
+  }
+
+  html += `<div style="overflow-x:auto"><table class="mini-table" style="width:100%;border-collapse:collapse;font-size:12.5px">
+    <thead><tr><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">#</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Due Date</th><th style="text-align:right;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Amount</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Status</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Payment Date</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">OR No.</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Actions</th></tr></thead>
+    <tbody>${payments.map(p => {
+      const isPaid = p.status === 'Received';
+      const label = p.isDownpayment ? '1st (DP)' : (p.sessionNo || '');
+      const action = (p.status === 'Pending') ? `<button class="btn btn-ghost btn-sm mark-received-btn" data-id="${p.id}" data-amount="${p.amount}" style="border:1px solid var(--border)">Mark Received</button>` : '';
+      return `<tr><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary);font-weight:${p.isDownpayment ? '700' : '400'};color:${p.isDownpayment ? 'var(--primary)' : 'inherit'}">${label}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${fmtDate(p.dueDate)}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary);text-align:right;font-variant-numeric:tabular-nums">${fmtCurrency(p.amount)}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)"><span class="badge badge-${isPaid ? 'green' : (p.status === 'Cancelled' ? 'gray' : 'amber')}">${p.status}</span></td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${isPaid ? fmtDate(p.paymentDate) : '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary);font-family:monospace;font-size:11px">${p.orNumber || '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${action}</td></tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+  panel.innerHTML = html;
+
+  panel.querySelectorAll('.mark-received-btn').forEach(btn => btn.addEventListener('click', () => markPaymentReceived(c.id, btn.dataset.id)));
+}
+
+async function markPaymentReceived(contractId, paymentId) {
+  const orNumber = prompt('OR Number:', '') || '';
+  const paymentMode = prompt('Payment mode (e.g. Cash, GCash, Bank Transfer):', '') || '';
+  try {
+    await updateDoc(doc(db, 'payments', paymentId), {
+      status: 'Received', paymentDate: toISO(new Date()),
+      orNumber, paymentMode, receivedBy: currentUser?.email || ''
+    });
+    const rollup = await recalcContractRollup(contractId);
+    if (rollup) applyLocalContractPatch(contractId, rollup);
+    const c = allContracts.find(x => x.id === contractId);
+    if (c) await loadDetailPayments(c);
+    showToast('Payment marked received.');
+  } catch (err) {
+    showToast('Failed to update payment: ' + err.message, 'error');
+  }
+}
+
+/* ── CSV Export ── */
+$('btn-export-csv').addEventListener('click', () => {
+  const headers = ['contractNumber', 'customerNo', 'clientName', 'contractType', 'treatmentMethod', 'frequency', 'noOfSessions', 'warrantyPeriod', 'contractStartDate', 'contractEndDate', 'totalAmount', 'balanceRemaining', 'assignedTeam', 'salesAgent', 'status', 'notes'];
+  const rows = filteredContracts.map(c => [
+    c.contractNumber, c.customerNo, (clientMap[c.customerNo]?.name || ''),
+    c.contractType, c.treatmentMethod, c.frequency, c.noOfSessions, c.warrantyPeriod,
+    fmtDate(c.contractStartDate), fmtDate(c.contractEndDate), c.totalAmount, c.balanceRemaining ?? c.totalAmount,
+    c.assignedTeam, c.salesAgent, computeStatus(c), c.notes
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv' })), download: `pestastic_contracts_${Date.now()}.csv` });
+  a.click(); showToast(`Exported ${filteredContracts.length} contracts.`);
+});
+
+/* ══════════════════════════════════
+   Auth wiring — same pattern as the Clients module: sign-in/approval
+   is owned entirely by the shell (index.html + js/router.js); this
+   module just reacts to the profile it already resolved.
+══════════════════════════════════ */
+let contractsInitialized = false;
+
+async function applyProfile(p) {
+  currentUser = { uid: p.uid, email: p.email };
+  currentRole = p.role;
+
+  const name = p.name || p.email || 'there';
+  $('user-display-name').textContent = name;
+  $('user-role-label').textContent = (p.role || 'user').replace('_', ' ');
+  $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const isSuperAdmin = p.role === 'superadmin';
+  $('contracts-admin-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('contracts-nav-admin').style.display = isSuperAdmin ? '' : 'none';
+
+  cachedSettingsForForm = await loadSettings();
+
+  if (!contractsInitialized) {
+    contractsInitialized = true;
+    await loadAll();
+  } else {
+    renderTable();
+  }
+}
+
+if (window.__pcProfile) applyProfile(window.__pcProfile);
+window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+$('btn-signout').addEventListener('click', () => {
+  if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
+});
+
+</script>
