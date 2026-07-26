@@ -269,6 +269,7 @@ import { showView as routerShowView, isKnownView, setProfile } from "./js/router
 const bootGate = document.getElementById("bootGate");
 
 let currentProfile = null; // cached Firestore profile of the signed-in user, if any
+let profileBroadcast = false; // ensures pc:profile fires once per sign-in, not on every navigation
 
 async function showView(name) {
   await routerShowView(name);
@@ -319,10 +320,17 @@ async function route() {
   }
 
   // status === "approved" — let every module (mounted or not yet
-  // mounted) know who's signed in, without it needing its own read.
-  setProfile({ uid: user.uid, email: user.email, name: currentProfile.name, role: currentProfile.role });
-  const dashAdminLink = document.getElementById("dashAdminLink");
-  if (dashAdminLink) dashAdminLink.style.display = currentProfile.role === "superadmin" ? "" : "none";
+  // mounted) know who's signed in. Only needs to happen once per
+  // sign-in, not on every navigation — modules cache this themselves
+  // and re-running it was forcing every mounted module to redo its
+  // "profile changed" handling (including re-reading settings) on
+  // every single hash change.
+  if (!profileBroadcast) {
+    profileBroadcast = true;
+    setProfile({ uid: user.uid, email: user.email, name: currentProfile.name, role: currentProfile.role });
+    const dashAdminLink = document.getElementById("dashAdminLink");
+    if (dashAdminLink) dashAdminLink.style.display = currentProfile.role === "superadmin" ? "" : "none";
+  }
 
   if (target === "admin") {
     if (currentProfile.role !== "superadmin") { await showView("forbidden"); return; }
@@ -360,6 +368,7 @@ window.addEventListener("hashchange", route);
 
 onAuthStateChanged(auth, async (user) => {
   currentProfile = null; // invalidate cache on any auth change
+  profileBroadcast = false; // a real auth change means modules need the new profile
   adminInitialized = false;
   tabCache = { pending: null, approved: null, rejected: null };
   bootGate.style.display = "none";
