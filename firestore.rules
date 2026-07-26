@@ -88,8 +88,17 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
-    // Shared counters (customer/contract numbers) and settings (sales
-    // agents, contract types, teams list, etc.)
+    // Teams module (used by treatments.html for team/technician rosters) —
+    // kept as its own collection rather than a config/settings list, since
+    // each doc carries a member/technician roster.
+    match /teams/{id} {
+      allow read, create, update: if isApproved();
+      allow delete: if isSuperAdmin();
+    }
+
+    // Shared counters (customer/contract/treatment numbers) and settings
+    // (sales agents, contract types, treatment types, booking statuses,
+    // cancel/reschedule reasons, etc.)
     match /config/{id} {
       allow read, write: if isApproved();
     }

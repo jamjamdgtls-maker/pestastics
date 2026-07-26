@@ -11,7 +11,7 @@ anywhere, ever.
 - `index.html` — the shell: register/login/pending/admin/forbidden/notfound
   views, the router wiring, and `#view-mount` (where feature modules get
   injected).
-- `clients.html` / `contracts.html` — self-contained feature modules. Each
+- `clients.html` / `contracts.html` / `treatments.html` — self-contained feature modules. Each
   has its own `<style>` (scoped under `#view-clients` / `#view-contracts`
   so they can't clash with each other or the shell) and its own
   `<script type="module">`. Not meant to be opened directly in a browser —
@@ -88,7 +88,7 @@ anywhere, ever.
 7. Serve the folder over HTTP (not `file://` — the router uses `fetch()`,
    which needs a real origin) and open `index.html`.
 
-## Data model (Clients + Contracts)
+## Data model (Clients + Contracts + Treatments)
 
 - `clients/{id}` — `customerNo`, `clientName`, address fields, `salesAgent`,
   `communicationSource`, `documents[]`, etc.
@@ -97,22 +97,37 @@ anywhere, ever.
   `js/contract-sync.js`: `totalSessions`, `completedSessions`,
   `nextTreatmentDate`, `totalPaid`, `balanceRemaining`, `lastPaymentDate`.
 - `treatments/{id}` — one per session: `contractId`, `customerNo`,
-  `sessionNo`, `treatmentDate`, `status` (Scheduled/Completed/Cancelled).
+  `sessionNo`, `treatmentDate`, `status` (`scheduled`/`need schedule`/
+  `completed`/`cancelled`/`rescheduled`, lowercase — this is the
+  Treatments module's vocabulary; Contracts' embedded treatments tab
+  was reconciled to match it).
 - `payments/{id}` — one per installment: `contractId`, `customerNo`,
-  `sessionNo`, `amount`, `status` (Pending/Received/Cancelled).
-- `config/settings` — shared dropdown options (sales agents, comm
-  sources, contract types, teams list, etc.) — read by both modules.
-- `config/counters` — `clientCounter` / `contractCounter`, incremented
-  via Firestore transactions for auto-generated numbers.
+  `sessionNo`, `amount`, `status` (`Pending`/`Received`/`Cancelled`,
+  capitalized — a different, older vocabulary than treatments' own
+  status field; the two were never unified and both modules agree on it).
+- `teams/{id}` — `teamName` + a `members`/`technicians` roster. Kept as
+  its own collection rather than folded into config/settings (unlike
+  Contract Type, Sales Agent, etc.) because Treatments cascades a
+  Technician dropdown from each team's roster — a flat settings array
+  can't represent that relationship.
+- `config/settings` — shared dropdown options: `salesAgents`,
+  `commSources` (shared between Clients and Contracts), `contractTypesList`,
+  `treatmentMethods`, `teamsList` *(Contracts' own team select — not the
+  same as the `teams` collection Treatments uses)*, `treatmentTypesList`,
+  `bookingStatuses`, `cancelReasons`, `rescheduleReasons` (Treatments' own).
+- `config/counters` — `clientCounter`/`contractCounter`/`treatmentCounter`,
+  incremented via Firestore transactions for auto-generated numbers.
 - `audit_log/{id}` — append-only trail of creates/updates/deletes/
-  amendments across both modules.
+  amendments across every module.
 
 Two tiers of contract update, by design:
 - **Status-only** (mark a session completed, mark a payment received) →
   silent rollup recalculation, no change to what the contract is worth.
 - **Structural** (cancel a session, add an extra one) → confirmed in the
   UI, adjusts `totalAmount`/`noOfSessions`, writes an audit log entry,
-  then recalculates the rollup on top.
+  then recalculates the rollup on top. Both Contracts' "Cancel Session"/
+  "Add Extra Treatment" and Treatments' "Cancel"/"Add Extra Treatment"
+  (the old "New Treatment" modal, now billable) go through this same path.
 
 ## Managed dropdown lists
 

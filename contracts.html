@@ -80,6 +80,7 @@
       <a class="nav-item" href="#dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
       <a class="nav-item" href="#clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients</a>
       <a class="nav-item active" href="#contracts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Contracts</a>
+      <a class="nav-item" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
       <div class="nav-section-label" id="contracts-admin-nav-label" style="display:none">Admin</div>
       <a class="nav-item" href="#admin" id="contracts-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
     </nav>
@@ -509,7 +510,7 @@ function buildSchedule({ startDate, freq, sessions, totalAmount, warrantyMonths,
       customerNo, contractType, sessionNo: i + 1,
       treatmentNo: `TRT-${String(i + 1).padStart(3, '0')}`,
       treatmentDate: toISO(d),
-      status: isFirst ? 'Scheduled' : 'Need Schedule',
+      status: isFirst ? 'scheduled' : 'need schedule',
       assignedTeam: team || '', chemicalsUsed: '', technician: '', notes: ''
     });
     payments.push({
@@ -1168,8 +1169,8 @@ async function loadDetailTreatments(c) {
   const treatments = snap.docs.map(d => ({ id: d.id, ...d.data() }))
     .sort((a, b) => (a.sessionNo || 0) - (b.sessionNo || 0));
 
-  const total = c.totalSessions ?? treatments.filter(t => t.status !== 'Cancelled').length;
-  const completed = c.completedSessions ?? treatments.filter(t => t.status === 'Completed').length;
+  const total = c.totalSessions ?? treatments.filter(t => t.status !== 'cancelled').length;
+  const completed = c.completedSessions ?? treatments.filter(t => t.status === 'completed').length;
   const pct = total > 0 ? Math.round(completed / total * 100) : 0;
   const today = new Date(); today.setHours(0, 0, 0, 0);
 
@@ -1190,15 +1191,15 @@ async function loadDetailTreatments(c) {
   if (!treatments.length) {
     html += `<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/></svg><h3>No treatments</h3><p>No treatments scheduled yet.</p></div>`;
   } else {
-    const sMap = { Scheduled: 'blue', Completed: 'green', Cancelled: 'gray', 'Need Schedule': 'amber' };
+    const sMap = { scheduled: 'blue', completed: 'green', cancelled: 'gray', rescheduled: 'purple', 'need schedule': 'amber', overdue: 'red' };
     html += `<div style="overflow-x:auto"><table class="mini-table" style="width:100%;border-collapse:collapse;font-size:12.5px">
       <thead><tr><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">#</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Date</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Status</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Team</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Technician</th><th style="text-align:left;padding:8px 10px;background:var(--bg-secondary);border-bottom:1px solid var(--border)">Actions</th></tr></thead>
       <tbody>${treatments.map(t => {
-        const isOverdue = t.status === 'Scheduled' && parseDateStr(t.treatmentDate) < today;
-        const dispS = isOverdue ? 'overdue' : t.status;
+        const isOverdue = t.status === 'scheduled' && parseDateStr(t.treatmentDate) < today;
+        const dispS = isOverdue ? 'overdue' : (t.status || 'scheduled');
         let actions = '';
-        if (t.status !== 'Completed' && t.status !== 'Cancelled') actions += `<button class="btn btn-ghost btn-sm mark-complete-btn" data-id="${t.id}" style="border:1px solid var(--border);margin-right:4px">Mark Completed</button>`;
-        if (t.status !== 'Cancelled') actions += `<button class="btn btn-ghost btn-sm cancel-session-btn" data-id="${t.id}" data-session="${t.sessionNo}" style="border:1px solid #fca5a5;color:var(--red-text)">Cancel Session</button>`;
+        if (t.status !== 'completed' && t.status !== 'cancelled') actions += `<button class="btn btn-ghost btn-sm mark-complete-btn" data-id="${t.id}" style="border:1px solid var(--border);margin-right:4px">Mark Completed</button>`;
+        if (t.status !== 'cancelled') actions += `<button class="btn btn-ghost btn-sm cancel-session-btn" data-id="${t.id}" data-session="${t.sessionNo}" style="border:1px solid #fca5a5;color:var(--red-text)">Cancel Session</button>`;
         return `<tr><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary);font-family:monospace;font-size:11.5px;color:var(--text-muted)">${t.treatmentNo || '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${fmtDate(t.treatmentDate)}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)"><span class="badge badge-${sMap[dispS] || 'gray'}">${dispS}</span></td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${t.assignedTeam || '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary)">${t.technician || '—'}</td><td style="padding:8px 10px;border-bottom:1px solid var(--bg-tertiary);white-space:nowrap">${actions}</td></tr>`;
       }).join('')}</tbody>
     </table></div>`;
@@ -1212,7 +1213,7 @@ async function loadDetailTreatments(c) {
 
 async function markTreatmentCompleted(contractId, treatmentId) {
   try {
-    await updateDoc(doc(db, 'treatments', treatmentId), { status: 'Completed' });
+    await updateDoc(doc(db, 'treatments', treatmentId), { status: 'completed' });
     const rollup = await recalcContractRollup(contractId);
     if (rollup) applyLocalContractPatch(contractId, rollup);
     const c = allContracts.find(x => x.id === contractId);
@@ -1236,7 +1237,7 @@ async function cancelTreatmentSession(contractId, sessionNo) {
       getDocs(query(collection(db, 'payments'), where('contractId', '==', contractId), where('sessionNo', '==', sessionNo)))
     ]);
     const batch = writeBatch(db);
-    treatSnap.docs.forEach(d => batch.update(d.ref, { status: 'Cancelled' }));
+    treatSnap.docs.forEach(d => batch.update(d.ref, { status: 'cancelled' }));
     paySnap.docs.forEach(d => batch.update(d.ref, { status: 'Cancelled' }));
     await batch.commit();
 
@@ -1277,7 +1278,7 @@ async function addExtraTreatment(contractId) {
     batch.set(doc(collection(db, 'treatments')), {
       contractId, customerNo: c?.customerNo || '', contractType: c?.contractType || '',
       sessionNo: nextSessionNo, treatmentNo: `TRT-${String(nextSessionNo).padStart(3, '0')}`,
-      treatmentDate: dateStr, status: 'Scheduled',
+      treatmentDate: dateStr, status: 'scheduled',
       assignedTeam: c?.assignedTeam || '', chemicalsUsed: '', technician: '', notes: 'Added as an extra session.'
     });
     batch.set(doc(collection(db, 'payments')), {
