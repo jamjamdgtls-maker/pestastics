@@ -62,6 +62,8 @@
        so the shell layout should just always be flex when mounted. */
     #view-clients #app-shell { display: flex; }
 
+    #view-clients .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
+    #view-clients .manage-list-link:hover{color:hsl(142,76%,28%)}
 </style>
 
 <div data-view="clients" id="view-clients">
@@ -243,13 +245,13 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Sales Agent</label>
+          <label class="form-label">Sales Agent<button type="button" class="manage-list-link" data-field="salesAgents" data-title="Manage Sales Agents" data-target="form-sales-agent">Manage list</button></label>
           <select class="form-select" id="form-sales-agent">
             <option value="">— Select Agent —</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label">Communication Source</label>
+          <label class="form-label">Communication Source<button type="button" class="manage-list-link" data-field="commSources" data-title="Manage Communication Sources" data-target="form-comm-source">Manage list</button></label>
           <select class="form-select" id="form-comm-source">
             <option value="">— Select Source —</option>
           </select>
@@ -388,8 +390,9 @@ import {
   query, where, orderBy, serverTimestamp, runTransaction, writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {
-  cachedGetDocs, cachedGetDoc, smartAddDoc, smartUpdateDoc, smartDeleteDoc, invalidate
+  cachedGetDocs, smartAddDoc, smartUpdateDoc, smartDeleteDoc, invalidate
 } from './js/firestore-cache.js';
+import { getSettingsList, openListManager } from './js/list-manager.js';
 
 /* ── State ── */
 let currentUser = null, currentRole = null;
@@ -425,6 +428,26 @@ document.querySelectorAll('[data-close]').forEach(btn =>
 document.querySelectorAll('.modal-overlay').forEach(ov =>
   ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); })
 );
+
+/* ── "Manage list" buttons next to Sales Agent / Comm. Source — same
+   shared list-manager the Contracts module uses, since these are the
+   same config/settings fields either module can edit. ── */
+document.querySelectorAll('#view-clients .manage-list-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openListManager({
+      fieldName: btn.dataset.field,
+      title: btn.dataset.title,
+      onSaved: items => {
+        const sel = $(btn.dataset.target);
+        const current = sel.value;
+        sel.innerHTML = sel.querySelector('option[value=""]').outerHTML +
+          items.map(x => `<option>${x}</option>`).join('');
+        if (items.includes(current)) sel.value = current;
+        if (btn.dataset.field === 'salesAgents') salesAgents = items;
+      }
+    });
+  });
+});
 
 function fmtDate(val) {
   if (!val) return '—';
@@ -510,18 +533,11 @@ async function cascadeCustomerNoChange(oldNo, newNo) {
 async function loadClients() {
   allClients = await cachedGetDocs(query(collection(db, 'clients'), orderBy('clientName', 'asc')), 'clients');
 
-  let commSources = [];
-  try {
-    const cfg = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings');
-    if (cfg) {
-      salesAgents = cfg.salesAgents || [];
-      if (cfg.commSources && cfg.commSources.length) commSources = cfg.commSources;
-    }
-  } catch { salesAgents = []; }
-
-  const agentSet = new Set(salesAgents);
-  allClients.forEach(c => { if (c.salesAgent) agentSet.add(c.salesAgent); });
-  salesAgents = [...agentSet].filter(Boolean).sort();
+  // Shared managed lists (config/settings) — same lists Contracts uses,
+  // explicitly managed via "Manage list" rather than derived from
+  // whatever values happen to already be on a record.
+  salesAgents = await getSettingsList('salesAgents');
+  const commSources = await getSettingsList('commSources');
 
   /* Populate Communication Source dropdown */
   const commEl = $('form-comm-source');

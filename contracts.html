@@ -64,6 +64,8 @@
 #view-contracts .btn-signout:hover{color:var(--red);background:rgba(239,68,68,.1)}
 #view-contracts .btn-signout svg{width:16px;height:16px}
 
+    #view-contracts .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
+    #view-contracts .manage-list-link:hover{color:hsl(142,76%,28%)}
 </style>
 
 <div data-view="contracts" id="view-contracts">
@@ -197,12 +199,12 @@
           </div>
           <div class="form-row c2">
             <div class="form-group">
-              <label class="form-label">Contract Type <span class="req">*</span></label>
-              <select class="form-select" id="form-contract-type"></select>
+              <label class="form-label">Contract Type <span class="req">*</span><button type="button" class="manage-list-link" data-field="contractTypesList" data-title="Manage Contract Types" data-target="form-contract-type">Manage list</button></label>
+              <select class="form-select" id="form-contract-type"><option value="">— Select Contract Type —</option></select>
             </div>
             <div class="form-group">
-              <label class="form-label">Treatment Method</label>
-              <select class="form-select" id="form-treatment-method"></select>
+              <label class="form-label">Treatment Method<button type="button" class="manage-list-link" data-field="treatmentMethods" data-title="Manage Treatment Methods" data-target="form-treatment-method">Manage list</button></label>
+              <select class="form-select" id="form-treatment-method"><option value="">— Select or add —</option></select>
             </div>
           </div>
 
@@ -250,22 +252,36 @@
               </select>
             </div>
           </div>
+          <div class="form-row c2" id="downpayment-status-row">
+            <div class="form-group">
+              <label class="form-label">Downpayment Status</label>
+              <select class="form-select" id="form-downpayment-status">
+                <option value="Pending">Pending</option>
+                <option value="Received">Already Received</option>
+              </select>
+              <div class="form-hint">Set to "Already Received" if the client paid the downpayment at signing.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Downpayment Payment Date</label>
+              <input type="date" class="form-input" id="form-downpayment-date" disabled />
+            </div>
+          </div>
 
           <div class="form-section-title">Assignment</div>
           <div class="form-row c2">
             <div class="form-group">
-              <label class="form-label">Assigned Team</label>
-              <select class="form-select" id="form-team"></select>
+              <label class="form-label">Assigned Team<button type="button" class="manage-list-link" data-field="teamsList" data-title="Manage Teams" data-target="form-team">Manage list</button></label>
+              <select class="form-select" id="form-team"><option value="">— Select Team —</option></select>
             </div>
             <div class="form-group">
-              <label class="form-label">Sales Agent</label>
-              <select class="form-select" id="form-sales-agent"></select>
+              <label class="form-label">Sales Agent<button type="button" class="manage-list-link" data-field="salesAgents" data-title="Manage Sales Agents" data-target="form-sales-agent">Manage list</button></label>
+              <select class="form-select" id="form-sales-agent"><option value="">— Select Agent —</option></select>
             </div>
           </div>
           <div class="form-row c2">
             <div class="form-group">
-              <label class="form-label">Comm. Source</label>
-              <select class="form-select" id="form-comm-source"></select>
+              <label class="form-label">Comm. Source<button type="button" class="manage-list-link" data-field="commSources" data-title="Manage Communication Sources" data-target="form-comm-source">Manage list</button></label>
+              <select class="form-select" id="form-comm-source"><option value="">— Select Source —</option></select>
             </div>
             <div class="form-group">
               <label class="form-label">Status</label>
@@ -352,19 +368,25 @@ import {
   cachedGetDocs, cachedGetDoc, smartUpdateDoc, invalidate
 } from './js/firestore-cache.js';
 import { recalcContractRollup, amendContractScope } from './js/contract-sync.js';
+import { getSettingsList, openListManager } from './js/list-manager.js';
 
 /* ── Fallback settings — used for whatever config/settings doesn't
-   already have (this doc is shared with the Clients module, which is
-   the one that currently owns salesAgents/commSources). ── */
+   already have. Contract Type, Treatment Method, Assigned Team, Sales
+   Agent and Comm. Source all start empty on purpose: they're built up
+   through each field's "Manage list" button rather than pre-seeded, so
+   Contract Type/Treatment Method/Team can't silently drift from what's
+   actually managed elsewhere. Frequency stays a fixed system list —
+   it drives real interval-month math (getIntervalMonths), so letting
+   it be freeform text could silently break schedule generation. */
 const DEFAULT_SETTINGS = {
   defaultDownpaymentPct: 60,
   defaultPaymentPlanType: 'downpayment-then-equal',
-  contractTypesList: ['Termite Control', 'General Pest Control', 'Rodents Control', 'Crawling Insects Control', 'Pre-Construction Termite Control', 'Reticulation System', 'Flying Insects Control'],
-  treatmentMethods: ['Chemical spraying', 'Heat treatment', 'Baiting system', 'Fogging', 'Biological control', 'Physical removal', 'Monitoring'],
+  contractTypesList: [],
+  treatmentMethods: [],
   contractFrequencies: ['Monthly', 'Bi-Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'One-Time'],
-  commSources: ['Referral', 'Facebook', 'Google Search', 'Walk-in', 'Repeat Client', 'Flyer'],
+  commSources: [],
   contractStatuses: ['Active', 'Expired', 'Renewed', 'Cancelled'],
-  teamsList: ['Team Alpha', 'Team Bravo']
+  teamsList: []
 };
 
 /* ── State ── */
@@ -399,6 +421,26 @@ document.querySelectorAll('#view-contracts .modal-overlay').forEach(ov => {
   let downOnOverlay = false;
   ov.addEventListener('mousedown', e => { downOnOverlay = (e.target === ov); });
   ov.addEventListener('click', e => { if (e.target === ov && downOnOverlay) closeModal(ov.id); downOnOverlay = false; });
+});
+
+/* ── "Manage list" buttons next to Contract Type / Treatment Method /
+   Assigned Team / Sales Agent / Comm. Source — each opens the shared
+   list-manager modal for that config/settings field and repopulates
+   its <select> with whatever the list looks like afterward. ── */
+document.querySelectorAll('#view-contracts .manage-list-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openListManager({
+      fieldName: btn.dataset.field,
+      title: btn.dataset.title,
+      onSaved: items => {
+        const sel = $(btn.dataset.target);
+        const current = sel.value;
+        sel.innerHTML = sel.querySelector('option[value=""]').outerHTML +
+          items.map(x => `<option value="${x}">${x}</option>`).join('');
+        if (items.includes(current)) sel.value = current;
+      }
+    });
+  });
 });
 
 async function logAction(action, entityType, entityId, description) {
@@ -455,25 +497,28 @@ function computeInstallmentAmounts(totalAmount, sessions, downpaymentPct, planTy
    live preview and the actual save routine, so what you see before saving
    is exactly what gets written. Each pair shares a sessionNo — that's how
    cancelTreatmentSession() finds a treatment's paired payment later. */
-function buildSchedule({ startDate, freq, sessions, totalAmount, warrantyMonths, downpaymentPct, planType, customerNo, contractType, team, settings }) {
+function buildSchedule({ startDate, freq, sessions, totalAmount, warrantyMonths, downpaymentPct, planType, customerNo, contractType, team, settings, downpaymentPaid, downpaymentDate }) {
   const interval = getIntervalMonths(freq);
   const usePlanType = planType || settings.defaultPaymentPlanType;
   const amounts = computeInstallmentAmounts(totalAmount, sessions, downpaymentPct, planType, settings);
   const treatments = [], payments = [];
   for (let i = 0; i < sessions; i++) {
     const d = freq === 'one-time' ? new Date(startDate) : addMonths(startDate, interval * i);
+    const isFirst = i === 0;
     treatments.push({
       customerNo, contractType, sessionNo: i + 1,
       treatmentNo: `TRT-${String(i + 1).padStart(3, '0')}`,
       treatmentDate: toISO(d),
-      status: 'Scheduled',
+      status: isFirst ? 'Scheduled' : 'Need Schedule',
       assignedTeam: team || '', chemicalsUsed: '', technician: '', notes: ''
     });
     payments.push({
       customerNo, sessionNo: i + 1,
-      amount: amounts[i] || 0, dueDate: toISO(d), paymentDate: null,
-      status: 'Pending', paymentMode: '', orNumber: '', receivedBy: '', remarks: '',
-      isDownpayment: i === 0 && usePlanType !== 'equal'
+      amount: amounts[i] || 0, dueDate: toISO(d),
+      paymentDate: (isFirst && downpaymentPaid) ? downpaymentDate : null,
+      status: (isFirst && downpaymentPaid) ? 'Received' : 'Pending',
+      paymentMode: '', orNumber: '', receivedBy: '', remarks: '',
+      isDownpayment: isFirst && usePlanType !== 'equal'
     });
   }
   return { treatments, payments };
@@ -517,12 +562,14 @@ async function loadAll() {
 
   $('form-team').innerHTML = '<option value="">— Select Team —</option>' + settings.teamsList.map(t => `<option value="${t}">${t}</option>`).join('');
   $('form-contract-type').innerHTML = '<option value="">— Select Contract Type —</option>' + settings.contractTypesList.map(t => `<option value="${t}">${t}</option>`).join('');
-  $('form-treatment-method').innerHTML = '<option value="">— Select or type —</option>' + settings.treatmentMethods.map(m => `<option value="${m}">${m}</option>`).join('');
+  $('form-treatment-method').innerHTML = '<option value="">— Select or add —</option>' + settings.treatmentMethods.map(m => `<option value="${m}">${m}</option>`).join('');
   $('form-frequency').innerHTML = '<option value="">— Select —</option>' + settings.contractFrequencies.map(f => `<option value="${f.toLowerCase().replace(/\s+/g, '-')}">${f}</option>`).join('');
   $('form-comm-source').innerHTML = '<option value="">— Select Source —</option>' + settings.commSources.map(s => `<option>${s}</option>`).join('');
   $('form-status').innerHTML = settings.contractStatuses.map(s => `<option value="${s.toLowerCase()}">${s}</option>`).join('');
-  const agentSet = new Set(clients.map(c => c.salesAgent).filter(Boolean));
-  $('form-sales-agent').innerHTML = '<option value="">— Select Agent —</option>' + [...agentSet].sort().map(a => `<option>${a}</option>`).join('');
+  // Shared with the Clients module — the same managed list, not derived
+  // from whichever agents happen to already be on a client record.
+  const salesAgentsList = await getSettingsList('salesAgents');
+  $('form-sales-agent').innerHTML = '<option value="">— Select Agent —</option>' + salesAgentsList.map(a => `<option>${a}</option>`).join('');
   $('downpayment-hint').textContent = `System default: ${settings.defaultDownpaymentPct}% downpayment`;
 
   // Shared 'contracts' cache key with the Clients module's stat counts —
@@ -799,9 +846,11 @@ document.querySelectorAll('#view-contracts .ftab').forEach(tab => {
 let cachedSettingsForForm = DEFAULT_SETTINGS;
 
 function clearForm() {
-  ['form-contract-id', 'form-customer-no', 'form-contract-no', 'form-treatment-method', 'form-sessions', 'form-warranty', 'form-start-date', 'form-end-date', 'form-amount', 'form-notes', 'form-downpayment-pct'].forEach(id => { $(id).value = ''; });
+  ['form-contract-id', 'form-customer-no', 'form-contract-no', 'form-treatment-method', 'form-sessions', 'form-warranty', 'form-start-date', 'form-end-date', 'form-amount', 'form-notes', 'form-downpayment-pct', 'form-downpayment-date'].forEach(id => { $(id).value = ''; });
   ['form-contract-type', 'form-frequency', 'form-team', 'form-sales-agent', 'form-comm-source', 'form-payment-plan-type'].forEach(id => { $(id).value = ''; });
   $('form-status').value = 'active';
+  $('form-downpayment-status').value = 'Pending';
+  $('form-downpayment-date').disabled = true;
   $('client-name-hint').textContent = '';
   resetFormTabs();
   renderPreview();
@@ -811,6 +860,11 @@ $('form-customer-no').addEventListener('input', () => {
   const client = clientMap[no];
   $('client-name-hint').textContent = client ? `✓ ${client.name}` : (no ? 'Client not found in system' : '');
 });
+$('form-downpayment-status').addEventListener('change', () => {
+  const received = $('form-downpayment-status').value === 'Received';
+  $('form-downpayment-date').disabled = !received;
+  if (received && !$('form-downpayment-date').value) $('form-downpayment-date').value = toISO(new Date());
+});
 
 $('btn-new-contract').addEventListener('click', () => {
   clearForm();
@@ -818,6 +872,7 @@ $('btn-new-contract').addEventListener('click', () => {
   $('save-btn-text').textContent = 'Save & Generate Schedule';
   $('form-contract-id').value = '';
   $('form-contract-no').value = 'Auto-generated';
+  $('downpayment-status-row').style.display = '';
   openModal('contract-form-modal');
 });
 
@@ -827,6 +882,7 @@ function openEditModal(id) {
   clearForm();
   $('form-modal-title').textContent = 'Edit Contract';
   $('save-btn-text').textContent = 'Update Contract';
+  $('downpayment-status-row').style.display = 'none'; // downpayment is managed via the Payments tab once the contract exists
   $('form-contract-id').value = id;
   $('form-customer-no').value = c.customerNo || '';
   const client = clientMap[c.customerNo];
@@ -878,7 +934,9 @@ function renderPreview() {
 
   const sched = buildSchedule({
     startDate, freq, sessions, totalAmount: amount, warrantyMonths: warranty, downpaymentPct: dpPctInput, planType,
-    customerNo: $('form-customer-no').value.trim(), contractType: $('form-contract-type').value, team: $('form-team').value, settings
+    customerNo: $('form-customer-no').value.trim(), contractType: $('form-contract-type').value, team: $('form-team').value, settings,
+    downpaymentPaid: $('form-downpayment-status').value === 'Received',
+    downpaymentDate: $('form-downpayment-date').value || toISO(new Date())
   });
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -939,7 +997,7 @@ function renderPreview() {
     $('preview-total-bar').textContent = 'Enter Total Amount to see the payment breakdown.';
   }
 }
-['form-start-date', 'form-frequency', 'form-sessions', 'form-amount', 'form-warranty', 'form-downpayment-pct', 'form-payment-plan-type', 'form-customer-no', 'form-contract-type', 'form-team'].forEach(id => {
+['form-start-date', 'form-frequency', 'form-sessions', 'form-amount', 'form-warranty', 'form-downpayment-pct', 'form-payment-plan-type', 'form-customer-no', 'form-contract-type', 'form-team', 'form-downpayment-status', 'form-downpayment-date'].forEach(id => {
   $(id).addEventListener('input', renderPreview);
   $(id).addEventListener('change', renderPreview);
 });
@@ -993,8 +1051,11 @@ $('btn-save-contract').addEventListener('click', async () => {
       await logAction('updated', 'contract', editId, `Updated contract: ${data.contractNumber || existing?.contractNumber || editId}`);
       showToast('Contract updated successfully.');
     } else {
+      const downpaymentPaid = $('form-downpayment-status').value === 'Received';
+      const downpaymentDate = downpaymentPaid ? ($('form-downpayment-date').value || toISO(new Date())) : null;
       const contractNumber = await getNextContractNumber();
-      const sched = buildSchedule({ startDate, freq, sessions, totalAmount: amount, warrantyMonths: warrantyPeriod, downpaymentPct: dpPctInput, planType, customerNo, contractType, team: $('form-team').value, settings });
+      const sched = buildSchedule({ startDate, freq, sessions, totalAmount: amount, warrantyMonths: warrantyPeriod, downpaymentPct: dpPctInput, planType, customerNo, contractType, team: $('form-team').value, settings, downpaymentPaid, downpaymentDate });
+      const initialTotalPaid = downpaymentPaid ? (sched.payments[0]?.amount || 0) : 0;
 
       const contractRef = doc(collection(db, 'contracts'));
       const batch = writeBatch(db);
@@ -1002,7 +1063,8 @@ $('btn-save-contract').addEventListener('click', async () => {
         ...data, contractNumber,
         totalSessions: sessions, completedSessions: 0,
         nextTreatmentDate: sched.treatments[0]?.treatmentDate || null,
-        totalPaid: 0, balanceRemaining: amount, lastPaymentDate: null,
+        totalPaid: initialTotalPaid, balanceRemaining: amount - initialTotalPaid,
+        lastPaymentDate: downpaymentPaid ? downpaymentDate : null,
         createdAt: serverTimestamp()
       });
       sched.treatments.forEach(t => batch.set(doc(collection(db, 'treatments')), { ...t, contractId: contractRef.id }));

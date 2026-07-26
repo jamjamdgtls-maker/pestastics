@@ -31,6 +31,11 @@ anywhere, ever.
   its `treatments`/`payments` child records, and handles the two
   structural amendments (cancelling a session, adding an extra one) that
   change the contract's actual committed value, not just its status.
+- `js/list-manager.js` — a shared, self-contained "manage this dropdown's
+  options" modal for config/settings array fields (Contract Type,
+  Treatment Method, Assigned Team, Sales Agent, Communication Source).
+  Both Clients and Contracts open the same modal for Sales Agent/Comm.
+  Source since they're the same shared list either way.
 - `firebase-config.js` — shared Firebase init.
 - `firestore.rules` — security rules for every collection above.
 
@@ -108,6 +113,35 @@ Two tiers of contract update, by design:
 - **Structural** (cancel a session, add an extra one) → confirmed in the
   UI, adjusts `totalAmount`/`noOfSessions`, writes an audit log entry,
   then recalculates the rollup on top.
+
+## Managed dropdown lists
+
+Contract Type, Treatment Method, Assigned Team, Sales Agent, and
+Communication Source all start **empty** — there's no seeded example
+data baked into the code. Each has a "Manage list" link next to its
+dropdown that opens `js/list-manager.js`'s modal to add/rename/delete
+options, writing straight to `config/settings`. Sales Agent and
+Communication Source are shared between Clients and Contracts (same
+field on the same doc); add one from either module and it shows up in
+both.
+
+**Frequency is the one exception** — it stays a fixed system list
+(Monthly/Bi-Monthly/Quarterly/Semi-Annual/Annual/One-Time) rather than
+user-editable, because its value directly drives interval-month math in
+`buildSchedule()`. A freeform value there could silently break schedule
+generation instead of erroring, so it's intentionally not on the
+"Manage list" pattern.
+
+## Downpayment already collected at signing
+
+The New Contract form has a "Downpayment Status" + "Downpayment Payment
+Date" pair (New Contract only — Edit doesn't regenerate the schedule,
+so an existing contract's payments are managed one at a time via the
+Payments tab's "Mark Received" instead). If set to "Already Received",
+the first session's payment is written as `status: "Received"` with the
+given date, and the contract's initial `totalPaid`/`balanceRemaining`
+rollup reflects it immediately — no separate "mark received" step
+needed right after creating the contract.
 
 ## Things to adjust for production
 
