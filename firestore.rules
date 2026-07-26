@@ -1,0 +1,41 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isSuperAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "superadmin";
+    }
+
+    match /users/{uid} {
+      // A user can read their own profile; a super admin can read anyone's.
+      allow read: if isOwner(uid) || isSuperAdmin();
+
+      // A user can create their OWN profile at registration, but only as
+      // status "pending" / role "user" — they cannot self-approve or
+      // self-promote to superadmin.
+      allow create: if isOwner(uid)
+        && request.resource.data.status == "pending"
+        && request.resource.data.role == "user";
+
+      // Only a super admin can change status/role after that (approve/reject).
+      // A user can still update their own non-privileged fields (e.g. name),
+      // but not status or role.
+      allow update: if isSuperAdmin()
+        || (isOwner(uid)
+            && request.resource.data.status == resource.data.status
+            && request.resource.data.role == resource.data.role);
+
+      allow delete: if isSuperAdmin();
+    }
+  }
+}

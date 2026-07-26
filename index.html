@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Access Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ---- SPA-only additions (dashboard/admin chrome) ---- */
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:20px 32px; border-bottom:1px solid var(--border); background:var(--card); }
+  .topbar .brand-mark { display:flex; align-items:center; gap:10px; }
+  .topbar .brand-mark span { font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.12em; color:var(--slate); }
+  .signout { font-size:13px; color:var(--slate); background:none; border:1px solid var(--border); border-radius:7px; padding:7px 14px; cursor:pointer; font-family:inherit; }
+  .signout:hover { border-color: var(--ink); color: var(--ink); }
+
+  .center-shell { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .pending-card { background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:44px 40px; max-width:460px; width:100%; text-align:center; }
+  .pending-card .badge { display:inline-flex; align-items:center; gap:7px; background:#FBF3E6; color:var(--amber); border:1px solid #F0DCB6; padding:5px 12px; border-radius:999px; font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:20px; }
+  .pending-card .badge .dot { width:6px; height:6px; border-radius:50%; background:var(--amber); }
+  .pending-card h1 { font-size:24px; margin-bottom:10px; }
+  .pending-card p { color:var(--slate); font-size:14.5px; margin-bottom:30px; }
+
+  .gate { min-height:100vh; display:flex; align-items:center; justify-content:center; color:var(--slate); font-size:14px; }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 40px 24px 80px; }
+  .wrap h1 { font-size: 26px; margin-bottom: 6px; }
+  .wrap .sub { color: var(--slate); font-size: 14px; margin-bottom: 32px; }
+  .wrap.narrow { max-width: 720px; text-align: center; margin-top: 80px; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .tab { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; text-transform: uppercase; letter-spacing: .06em; padding: 10px 4px; margin-right: 22px; color: var(--slate); cursor: pointer; border-bottom: 2px solid transparent; }
+  .tab.active { color: var(--ink); border-bottom-color: var(--signal); }
+  .tab .count { color: var(--slate-light); margin-left: 5px; }
+
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+  .row .who { display: flex; flex-direction: column; gap: 2px; }
+  .row .who .name { font-weight: 600; font-size: 14.5px; }
+  .row .who .email { font-size: 13px; color: var(--slate); }
+  .row .who .meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--slate-light); margin-top: 3px; }
+  .row .actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .row .actions button { font-family: inherit; font-size: 13px; font-weight: 500; border-radius: 7px; padding: 8px 14px; cursor: pointer; border: 1px solid transparent; }
+  .btn-approve { background: var(--signal); color: #fff; }
+  .btn-approve:hover { background: var(--signal-dark); }
+  .btn-reject { background: transparent; border-color: var(--border); color: var(--rose); }
+  .btn-reject:hover { border-color: var(--rose); background: #FBEDED; }
+  .badge-status { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-transform: uppercase; letter-spacing: .06em; padding: 3px 9px; border-radius: 999px; }
+  .badge-pending { background:#FBF3E6; color:var(--amber); }
+  .badge-approved { background:#EEF3F1; color:var(--signal-dark); }
+  .badge-rejected { background:#FBEDED; color:var(--rose); }
+  .empty { text-align:center; padding: 60px 20px; color: var(--slate-light); font-size: 14px; }
+
+  [data-view] { display: none; }
+  [data-view].active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Boot gate: shown while we check auth state on load -->
+<div id="bootGate" class="gate">Loading…</div>
+
+<!-- ===================== VIEW: register ===================== -->
+<div data-view="register">
+  <div class="shell">
+    <div class="brand-panel">
+      <div>
+        <div class="brand-mark"><span class="dot"></span><span>ACCESS CONTROL</span></div>
+        <div class="brand-copy" style="margin-top:64px;">
+          <h1>Every account is reviewed before it's let in.</h1>
+          <p>Create your account below. A super admin verifies who you are before you get access — no self-serve accounts, no exceptions.</p>
+        </div>
+        <div class="stepper">
+          <div class="step active">
+            <div class="rail"><div class="node"></div><div class="line"></div></div>
+            <div><div class="label">01 — Requested</div><div class="desc">You submit your details.</div></div>
+          </div>
+          <div class="step">
+            <div class="rail"><div class="node"></div><div class="line"></div></div>
+            <div><div class="label">02 — Reviewed</div><div class="desc">A super admin checks the request.</div></div>
+          </div>
+          <div class="step">
+            <div class="rail"><div class="node"></div></div>
+            <div><div class="label">03 — Cleared</div><div class="desc">Sign in unlocks.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="brand-foot">status pipeline · pending → approved / rejected</div>
+    </div>
+
+    <div class="form-panel">
+      <div class="form-card">
+        <div class="eyebrow">Step 01 of 03</div>
+        <h2>Request an account</h2>
+        <p class="sub">Fill this in, then wait for a super admin to clear you.</p>
+        <div id="registerBanner" class="banner"></div>
+        <form id="registerForm">
+          <div class="field"><label for="regName">Full name</label><input type="text" id="regName" required autocomplete="name"></div>
+          <div class="field"><label for="regEmail">Email</label><input type="email" id="regEmail" required autocomplete="email"></div>
+          <div class="field"><label for="regPassword">Password</label><input type="password" id="regPassword" required minlength="6" autocomplete="new-password"></div>
+          <div class="field"><label for="regConfirm">Confirm password</label><input type="password" id="regConfirm" required minlength="6" autocomplete="new-password"></div>
+          <button type="submit" class="primary" id="registerBtn">Request access</button>
+        </form>
+        <div class="altlink">Already have an account? <a href="#login">Sign in</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VIEW: login ===================== -->
+<div data-view="login">
+  <div class="shell">
+    <div class="brand-panel">
+      <div>
+        <div class="brand-mark"><span class="dot"></span><span>ACCESS CONTROL</span></div>
+        <div class="brand-copy" style="margin-top:64px;">
+          <h1>Welcome back.</h1>
+          <p>Sign in with the credentials from your request. If you're still waiting on clearance, we'll let you know here.</p>
+        </div>
+        <div class="stepper">
+          <div class="step done">
+            <div class="rail"><div class="node"></div><div class="line"></div></div>
+            <div><div class="label">01 — Requested</div><div class="desc">Done at registration.</div></div>
+          </div>
+          <div class="step done">
+            <div class="rail"><div class="node"></div><div class="line"></div></div>
+            <div><div class="label">02 — Reviewed</div><div class="desc">Checked by a super admin.</div></div>
+          </div>
+          <div class="step active">
+            <div class="rail"><div class="node"></div></div>
+            <div><div class="label">03 — Cleared</div><div class="desc">Sign in below.</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="brand-foot">status pipeline · pending → approved / rejected</div>
+    </div>
+
+    <div class="form-panel">
+      <div class="form-card">
+        <div class="eyebrow">Sign in</div>
+        <h2>Enter your account</h2>
+        <p class="sub">Access unlocks once a super admin clears your request.</p>
+        <div id="loginBanner" class="banner"></div>
+        <form id="loginForm">
+          <div class="field"><label for="loginEmail">Email</label><input type="email" id="loginEmail" required autocomplete="email"></div>
+          <div class="field"><label for="loginPassword">Password</label><input type="password" id="loginPassword" required autocomplete="current-password"></div>
+          <button type="submit" class="primary" id="loginBtn">Sign in</button>
+        </form>
+        <div class="altlink">Need an account? <a href="#register">Request access</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VIEW: pending ===================== -->
+<div data-view="pending">
+  <div class="center-shell">
+    <div class="pending-card">
+      <div class="badge"><span class="dot"></span>Pending review</div>
+      <h1>Your request is in.</h1>
+      <p>A super admin needs to clear your account before you can sign in. This page doesn't refresh automatically — check back later or wait for an email.</p>
+      <div class="stepper">
+        <div class="step done">
+          <div class="rail"><div class="node"></div><div class="line"></div></div>
+          <div><div class="label">01 — Requested</div><div class="desc" style="color:var(--slate);">Submitted.</div></div>
+        </div>
+        <div class="step pending-state">
+          <div class="rail"><div class="node"></div><div class="line" style="background:var(--border);"></div></div>
+          <div><div class="label" style="color:var(--ink-soft);">02 — Reviewed</div><div class="desc" style="color:var(--slate);">Waiting on a super admin.</div></div>
+        </div>
+        <div class="step">
+          <div class="rail"><div class="node" style="border-color:var(--border);"></div></div>
+          <div><div class="label" style="color:var(--slate-light);">03 — Cleared</div><div class="desc" style="color:var(--slate-light);">Sign in unlocks.</div></div>
+        </div>
+      </div>
+      <div class="altlink" style="margin-top:28px;"><a href="#login">Back to sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== VIEW: dashboard ===================== -->
+<div data-view="dashboard">
+  <div class="topbar">
+    <div class="brand-mark"><span class="dot"></span><span>ACCESS CONTROL</span></div>
+    <button class="signout" id="dashSignout">Sign out</button>
+  </div>
+  <div class="wrap narrow">
+    <h1>You're cleared, <span id="dashName">there</span>.</h1>
+    <p class="sub" style="margin:0;">This is a placeholder dashboard — swap it out for your real app screen.</p>
+  </div>
+</div>
+
+<!-- ===================== VIEW: admin ===================== -->
+<div data-view="admin">
+  <div class="topbar">
+    <div class="brand-mark"><span class="dot"></span><span>ACCESS CONTROL — SUPER ADMIN</span></div>
+    <button class="signout" id="adminSignout">Sign out</button>
+  </div>
+  <div class="wrap">
+    <h1>Review requests</h1>
+    <p class="sub">Approve or reject accounts waiting on clearance.</p>
+    <div class="tabs">
+      <span class="tab active" data-status="pending">Pending <span class="count" id="countPending">0</span></span>
+      <span class="tab" data-status="approved">Approved <span class="count" id="countApproved">0</span></span>
+      <span class="tab" data-status="rejected">Rejected <span class="count" id="countRejected">0</span></span>
+    </div>
+    <div id="adminList"></div>
+  </div>
+</div>
+
+<!-- ===================== VIEW: forbidden ===================== -->
+<div data-view="forbidden">
+  <div class="center-shell">
+    <div class="pending-card">
+      <h1>Not your page.</h1>
+      <p>This screen is for super admins only.</p>
+      <div class="altlink"><a href="#dashboard">Back to dashboard</a></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { auth, db } from "./firebase-config.js";
+import {
+  createUserWithEmailAndPassword, signInWithEmailAndPassword,
+  onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  doc, setDoc, getDoc, serverTimestamp,
+  collection, getDocs, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ---------------------------------------------------------------
+// Tiny hash router. Each <div data-view="name"> is one screen.
+// ---------------------------------------------------------------
+const views = document.querySelectorAll("[data-view]");
+const bootGate = document.getElementById("bootGate");
+
+let currentProfile = null; // cached Firestore profile of the signed-in user, if any
+
+function showView(name) {
+  views.forEach(v => v.classList.toggle("active", v.dataset.view === name));
+}
+
+function currentRoute() {
+  return (window.location.hash || "#login").slice(1);
+}
+
+// Routes that don't require being signed in
+const PUBLIC_ROUTES = ["login", "register", "pending", "forbidden"];
+
+async function route() {
+  const target = currentRoute();
+  const user = auth.currentUser;
+
+  // Not signed in → only public routes are reachable
+  if (!user) {
+    if (!PUBLIC_ROUTES.includes(target)) {
+      window.location.hash = "#login";
+      return;
+    }
+    showView(target);
+    return;
+  }
+
+  // Signed in → re-fetch profile if we don't have it cached
+  if (!currentProfile) {
+    const snap = await getDoc(doc(db, "users", user.uid));
+    currentProfile = snap.exists() ? snap.data() : null;
+  }
+
+  if (!currentProfile) {
+    showView("login");
+    return;
+  }
+
+  if (currentProfile.status === "pending") {
+    showView("pending");
+    return;
+  }
+
+  if (currentProfile.status === "rejected") {
+    document.getElementById("loginBanner").className = "banner show error";
+    document.getElementById("loginBanner").textContent = "This account's request was declined. Contact a super admin for details.";
+    await signOut(auth);
+    return;
+  }
+
+  // status === "approved"
+  if (target === "admin") {
+    if (currentProfile.role !== "superadmin") { showView("forbidden"); return; }
+    showView("admin");
+    await loadAdminUsers();
+    return;
+  }
+
+  if (target === "login" || target === "register" || target === "") {
+    window.location.hash = currentProfile.role === "superadmin" ? "#admin" : "#dashboard";
+    return;
+  }
+
+  if (target === "dashboard") {
+    document.getElementById("dashName").textContent = currentProfile.name || user.email;
+    showView("dashboard");
+    return;
+  }
+
+  showView(target);
+}
+
+window.addEventListener("hashchange", route);
+
+onAuthStateChanged(auth, async (user) => {
+  currentProfile = null; // invalidate cache on any auth change
+  bootGate.style.display = "none";
+  if (!window.location.hash) window.location.hash = user ? "#dashboard" : "#login";
+  await route();
+});
+
+// ---------------------------------------------------------------
+// Register
+// ---------------------------------------------------------------
+const registerForm = document.getElementById("registerForm");
+const registerBanner = document.getElementById("registerBanner");
+const registerBtn = document.getElementById("registerBtn");
+
+registerForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  registerBanner.className = "banner";
+
+  const name = document.getElementById("regName").value.trim();
+  const email = document.getElementById("regEmail").value.trim();
+  const password = document.getElementById("regPassword").value;
+  const confirm = document.getElementById("regConfirm").value;
+
+  if (password !== confirm) {
+    registerBanner.textContent = "Passwords don't match.";
+    registerBanner.className = "banner show error";
+    return;
+  }
+
+  registerBtn.disabled = true;
+  registerBtn.textContent = "Submitting…";
+
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", cred.user.uid), {
+      name, email, status: "pending", role: "user", createdAt: serverTimestamp()
+    });
+    window.location.hash = "#pending";
+  } catch (err) {
+    registerBtn.disabled = false;
+    registerBtn.textContent = "Request access";
+    registerBanner.className = "banner show error";
+    if (err.code === "auth/email-already-in-use") registerBanner.textContent = "An account with this email already exists.";
+    else if (err.code === "auth/weak-password") registerBanner.textContent = "Password is too weak — use at least 6 characters.";
+    else registerBanner.textContent = err.message;
+  }
+});
+
+// ---------------------------------------------------------------
+// Login
+// ---------------------------------------------------------------
+const loginForm = document.getElementById("loginForm");
+const loginBanner = document.getElementById("loginBanner");
+const loginBtn = document.getElementById("loginBtn");
+
+loginForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  loginBanner.className = "banner";
+
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
+
+  loginBtn.disabled = true;
+  loginBtn.textContent = "Checking…";
+
+  try {
+    const cred = await signInWithEmailAndPassword(auth, email, password);
+    const snap = await getDoc(doc(db, "users", cred.user.uid));
+    const profile = snap.exists() ? snap.data() : null;
+    currentProfile = profile;
+
+    if (!profile) {
+      await signOut(auth);
+      loginBanner.className = "banner show error";
+      loginBanner.textContent = "No profile found for this account. Contact a super admin.";
+    } else if (profile.status === "pending") {
+      window.location.hash = "#pending";
+    } else if (profile.status === "rejected") {
+      await signOut(auth);
+      loginBanner.className = "banner show error";
+      loginBanner.textContent = "This account's request was declined. Contact a super admin for details.";
+    } else {
+      window.location.hash = profile.role === "superadmin" ? "#admin" : "#dashboard";
+    }
+  } catch (err) {
+    loginBanner.className = "banner show error";
+    if (["auth/invalid-credential", "auth/wrong-password", "auth/user-not-found"].includes(err.code)) {
+      loginBanner.textContent = "Incorrect email or password.";
+    } else {
+      loginBanner.textContent = err.message;
+    }
+  }
+
+  loginBtn.disabled = false;
+  loginBtn.textContent = "Sign in";
+});
+
+// ---------------------------------------------------------------
+// Sign out (dashboard + admin)
+// ---------------------------------------------------------------
+document.getElementById("dashSignout").addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.hash = "#login";
+});
+document.getElementById("adminSignout").addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.hash = "#login";
+});
+
+// ---------------------------------------------------------------
+// Admin panel
+// ---------------------------------------------------------------
+let allUsers = [];
+let activeStatus = "pending";
+const adminList = document.getElementById("adminList");
+
+document.querySelectorAll(".tab").forEach(tab => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    activeStatus = tab.dataset.status;
+    renderAdminList();
+  });
+});
+
+async function loadAdminUsers() {
+  const snap = await getDocs(collection(db, "users"));
+  allUsers = [];
+  snap.forEach(d => allUsers.push({ id: d.id, ...d.data() }));
+  updateAdminCounts();
+  renderAdminList();
+}
+
+function updateAdminCounts() {
+  document.getElementById("countPending").textContent = allUsers.filter(u => u.status === "pending").length;
+  document.getElementById("countApproved").textContent = allUsers.filter(u => u.status === "approved").length;
+  document.getElementById("countRejected").textContent = allUsers.filter(u => u.status === "rejected").length;
+}
+
+function renderAdminList() {
+  const filtered = allUsers.filter(u => u.status === activeStatus && u.role !== "superadmin");
+  adminList.innerHTML = "";
+
+  if (filtered.length === 0) {
+    adminList.innerHTML = `<div class="empty">No ${activeStatus} accounts right now.</div>`;
+    return;
+  }
+
+  filtered.forEach(u => {
+    const row = document.createElement("div");
+    row.className = "row";
+    const created = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleDateString() : "—";
+
+    row.innerHTML = `
+      <div class="who">
+        <div class="name">${escapeHtml(u.name || "—")}</div>
+        <div class="email">${escapeHtml(u.email || "—")}</div>
+        <div class="meta">requested ${created} · <span class="badge-status badge-${u.status}">${u.status}</span></div>
+      </div>
+      <div class="actions"></div>
+    `;
+
+    const actions = row.querySelector(".actions");
+
+    if (u.status === "pending") {
+      actions.appendChild(makeBtn("Approve", "btn-approve", () => setStatus(u.id, "approved")));
+      actions.appendChild(makeBtn("Reject", "btn-reject", () => setStatus(u.id, "rejected")));
+    } else if (u.status === "rejected") {
+      actions.appendChild(makeBtn("Approve instead", "btn-approve", () => setStatus(u.id, "approved")));
+    } else if (u.status === "approved") {
+      actions.appendChild(makeBtn("Revoke", "btn-reject", () => setStatus(u.id, "rejected")));
+    }
+
+    adminList.appendChild(row);
+  });
+}
+
+function makeBtn(text, cls, onclick) {
+  const b = document.createElement("button");
+  b.className = cls;
+  b.textContent = text;
+  b.onclick = onclick;
+  return b;
+}
+
+async function setStatus(uid, status) {
+  await updateDoc(doc(db, "users", uid), { status });
+  const u = allUsers.find(x => x.id === uid);
+  if (u) u.status = status;
+  updateAdminCounts();
+  renderAdminList();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement("div");
+  div.textContent = str;
+  return div.innerHTML;
+}
+</script>
+
+</body>
+</html>
