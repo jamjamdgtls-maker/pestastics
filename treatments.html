@@ -161,6 +161,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Manage Teams
           </button>
+          <button class="btn btn-secondary" id="btn-manage-statuses">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Manage Statuses
+          </button>
           <button class="btn btn-primary" id="btn-new-treatment">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Extra Treatment
@@ -620,7 +624,7 @@ let bookingStatuses = [];
 let csvTreatmentRows = [];
 
 const DEFAULT_CONTRACT_TYPES = [];
-const DEFAULT_BOOKING_STATUSES = [];
+const DEFAULT_BOOKING_STATUSES = ['Scheduled', 'Need Schedule', 'Completed', 'Cancelled', 'Rescheduled'];
 let teamsData = [];
 let sortField = 'treatmentDate', sortDir = 'asc';
 
@@ -756,6 +760,23 @@ async function refreshTeamDropdowns() {
 
 $('btn-manage-teams').addEventListener('click', () => {
   openTeamManager({ onSaved: () => refreshTeamDropdowns() });
+});
+
+$('btn-manage-statuses').addEventListener('click', () => {
+  openListManager({
+    fieldName: 'bookingStatuses',
+    title: 'Manage Treatment Statuses',
+    onSaved: items => {
+      bookingStatuses = items.length ? items : DEFAULT_BOOKING_STATUSES;
+      $('filter-status').innerHTML = '<option value="">All Status</option>' +
+        bookingStatuses.map(s => `<option value="${s.toLowerCase()}">${s}</option>`).join('');
+      // Status options are baked into each row's inline <select> and the
+      // summary cards at render time, so both just need a re-render to
+      // pick up the new list — no separate DOM patch needed.
+      computeSummary();
+      renderTable();
+    }
+  });
 });
 
 async function loadAll() {
