@@ -625,7 +625,8 @@ let teamsData = [];
 let sortField = 'treatmentDate', sortDir = 'asc';
 
 /* ── DOM helper ── */
-const $ = id => document.getElementById(id);
+const VIEW_ROOT = document.getElementById('view-treatments');
+const $ = id => VIEW_ROOT.querySelector('#' + id);
 
 /* ── Toast ── */
 function showToast(msg, type = 'success', title = '') {
@@ -652,10 +653,10 @@ function showToast(msg, type = 'success', title = '') {
 /* ── Modal helpers ── */
 function openModal(id)  { $(id).classList.add('open'); }
 function closeModal(id) { $(id).classList.remove('open'); }
-document.querySelectorAll('[data-close]').forEach(b =>
+document.querySelectorAll('#view-treatments [data-close]').forEach(b =>
   b.addEventListener('click', () => closeModal(b.dataset.close))
 );
-document.querySelectorAll('.modal-overlay').forEach(ov =>
+document.querySelectorAll('#view-treatments .modal-overlay').forEach(ov =>
   ov.addEventListener('click', e => { if (e.target === ov) closeModal(ov.id); })
 );
 
@@ -663,7 +664,7 @@ document.querySelectorAll('.modal-overlay').forEach(ov =>
    modals), Cancellation Reason, Reason for Rescheduling. The two reason
    selects always keep a trailing "Other" option that isn't part of the
    managed list itself. ── */
-document.querySelectorAll('.manage-list-link').forEach(btn => {
+document.querySelectorAll('#view-treatments .manage-list-link').forEach(btn => {
   btn.addEventListener('click', () => {
     const isReasonList = btn.dataset.field === 'cancelReasons' || btn.dataset.field === 'rescheduleReasons';
     openListManager({
@@ -975,7 +976,7 @@ window.clearAllFilters = () => {
   columnFilters = {};
   document.querySelectorAll('#view-treatments thead th').forEach(th => th.style.background = '');
   $('btn-clear-date-filter')?.classList.add('hidden');
-  document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
+  VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
   applyFilters();
 };
 $('btn-clear-filters').addEventListener('click', clearAllFilters);
@@ -991,7 +992,7 @@ const updateDateClearVisibility = () => {
 $('btn-clear-date-filter').addEventListener('click', () => {
   $('filter-date-from').value = '';
   $('filter-date-to').value   = '';
-  document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
+  VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
   updateDateClearVisibility();
   applyFilters();
 });
@@ -1003,7 +1004,7 @@ const fmtDateInput = d => {
   return `${y}-${m}-${day}`;
 };
 const clearQuickActive = () => {
-  document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
+  VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
 };
 const applyQuickRange = (range, btn) => {
   if (btn.classList.contains('active')) {
@@ -1035,7 +1036,7 @@ const applyQuickRange = (range, btn) => {
   updateDateClearVisibility();
   applyFilters();
 };
-document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(btn => {
+VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(btn => {
   btn.addEventListener('click', () => applyQuickRange(btn.dataset.range, btn));
 });
 // Manual date edits clear quick-filter active state
@@ -1627,8 +1628,8 @@ function openColDropdown(col, th) {
       const field = th.dataset.sort;
       sortField = field;
       sortDir = btn.dataset.action === 'sort-asc' ? 'asc' : 'desc';
-      document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
-      const icon = document.getElementById('sort-' + field);
+      VIEW_ROOT.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
+      const icon = $('sort-' + field);
       if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
       doSort();
       closeColDropdown();
@@ -1663,7 +1664,7 @@ function openColDropdown(col, th) {
 }
 
 // Attach click handlers to column menu buttons
-document.querySelectorAll('.col-menu-btn').forEach(btn => {
+document.querySelectorAll('#view-treatments .col-menu-btn').forEach(btn => {
   btn.addEventListener('click', e => {
     e.stopPropagation();
     const col = btn.dataset.col;
@@ -1673,7 +1674,7 @@ document.querySelectorAll('.col-menu-btn').forEach(btn => {
 });
 
 // Click on header text sorts
-document.querySelectorAll('th.col-header').forEach(th => {
+document.querySelectorAll('#view-treatments th.col-header').forEach(th => {
   th.addEventListener('click', e => {
     if (e.target.closest('.col-menu-btn') || e.target.closest('.col-dropdown')) return;
     const field = th.dataset.sort;
@@ -1684,8 +1685,8 @@ document.querySelectorAll('th.col-header').forEach(th => {
       sortField = field;
       sortDir = 'asc';
     }
-    document.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
-    const icon = document.getElementById('sort-' + field);
+    VIEW_ROOT.querySelectorAll('.sort-icon').forEach(el => el.textContent = '');
+    const icon = $('sort-' + field);
     if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
     doSort();
   });
@@ -1976,7 +1977,7 @@ function openDetailsModal(id) {
     if (typeof openEditModal === 'function') openEditModal(id);
     else {
       // Trigger the existing edit flow via the row button if openEditModal isn't a named export
-      const btn = document.querySelector(`.btn-edit[data-id="${id}"]`);
+      const btn = VIEW_ROOT.querySelector(`.btn-edit[data-id="${id}"]`);
       if (btn) btn.click();
     }
   };

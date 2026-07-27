@@ -400,7 +400,8 @@ let clientMap = {};
 let activeDetailId = null;
 
 /* ── Helpers ── */
-const $ = id => document.getElementById(id);
+const VIEW_ROOT = document.getElementById('view-contracts');
+const $ = id => VIEW_ROOT.querySelector('#' + id);
 
 function showToast(msg, type = 'success', title = '') {
   const c = $('toast-container'), el = document.createElement('div');
@@ -679,7 +680,7 @@ function openColDropdown(col, th) {
     btn.addEventListener('click', () => {
       sortField = th.dataset.sort; sortDir = btn.dataset.action === 'sort-asc' ? 'asc' : 'desc';
       document.querySelectorAll('#view-contracts .sort-icon').forEach(el => el.textContent = '');
-      const icon = document.getElementById('sort-' + sortField); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+      const icon = $('sort-' + sortField); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
       doSort(); closeColDropdown();
     });
   });
@@ -701,7 +702,7 @@ document.querySelectorAll('#view-contracts th.col-header').forEach(th => {
     const field = th.dataset.sort; if (!field) return;
     if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc'; else { sortField = field; sortDir = 'asc'; }
     document.querySelectorAll('#view-contracts .sort-icon').forEach(el => el.textContent = '');
-    const icon = document.getElementById('sort-' + field); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+    const icon = $('sort-' + field); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
     doSort();
   });
 });
@@ -780,7 +781,7 @@ async function deleteContract(id) {
   }
 }
 
-document.getElementById('contracts-tbody').addEventListener('click', function (e) {
+$('contracts-tbody').addEventListener('click', function (e) {
   const viewBtn = e.target.closest('.btn-view, .contract-no-link');
   const editBtn = e.target.closest('.btn-edit');
   const deleteBtn = e.target.closest('.btn-delete');
@@ -849,14 +850,14 @@ function renderTable() {
 function resetFormTabs() {
   document.querySelectorAll('#view-contracts .ftab').forEach(t => t.classList.remove('active'));
   document.querySelector('#view-contracts .ftab[data-ftab="details"]').classList.add('active');
-  document.querySelectorAll('#contract-form-modal .tab-panel').forEach(p => p.style.display = 'none');
+  VIEW_ROOT.querySelectorAll('#contract-form-modal .tab-panel').forEach(p => p.style.display = 'none');
   $('ftab-details').style.display = '';
 }
 document.querySelectorAll('#view-contracts .ftab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('#view-contracts .ftab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    document.querySelectorAll('#contract-form-modal .tab-panel').forEach(p => p.style.display = 'none');
+    VIEW_ROOT.querySelectorAll('#contract-form-modal .tab-panel').forEach(p => p.style.display = 'none');
     $(`ftab-${tab.dataset.ftab}`).style.display = '';
   });
 });
@@ -1140,7 +1141,7 @@ function openDetailModal(id) {
 
   document.querySelectorAll('#view-contracts .tab').forEach(t => t.classList.remove('active'));
   document.querySelector('#view-contracts .tab[data-tab="info"]').classList.add('active');
-  document.querySelectorAll('#contract-detail-modal .tab-panel').forEach(p => p.style.display = 'none');
+  VIEW_ROOT.querySelectorAll('#contract-detail-modal .tab-panel').forEach(p => p.style.display = 'none');
   $('tab-info').style.display = '';
 
   $('tab-info').innerHTML = `
@@ -1186,7 +1187,7 @@ document.querySelectorAll('#view-contracts .tab').forEach(tab => {
   tab.addEventListener('click', () => {
     document.querySelectorAll('#view-contracts .tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    document.querySelectorAll('#contract-detail-modal .tab-panel').forEach(p => p.style.display = 'none');
+    VIEW_ROOT.querySelectorAll('#contract-detail-modal .tab-panel').forEach(p => p.style.display = 'none');
     $(`tab-${tab.dataset.tab}`).style.display = '';
     const c = allContracts.find(x => x.id === activeDetailId);
     if (!c) return;

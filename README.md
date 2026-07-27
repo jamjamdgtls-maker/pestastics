@@ -18,29 +18,28 @@ anywhere, ever.
   Not meant to be opened directly in a browser — they're fragments the
   router assembles into the running app.
 
-  **Known caveat — partially fixed:** each module's own element IDs
-  (`sidebar`, `btn-signout`, `search-input`, `form-status`, and others)
-  are *not* unique across modules — every module reuses the same names.
-  Since the router leaves every visited module mounted forever (just
-  hidden), all of them can be in the DOM at once, and
-  `document.getElementById()` returns the first match in the whole
-  document, not necessarily the one belonging to whichever module just
-  mounted. This is what caused a real bug: after visiting Contracts,
-  Payments' own "Status" dropdown started rendering *contract* statuses
-  (Active/Renewed/etc.) instead of payment statuses, because both
-  modules used `id="form-status"` and `getElementById` was grabbing
-  whichever one happened to be earlier in the DOM.
+  **Cross-module ID collision — now fixed everywhere.** Every module
+  reuses the same element IDs (`sidebar`, `btn-signout`, `search-input`,
+  `form-status`, `btn-clear-filters`, and many others). Since the
+  router leaves every visited module mounted forever (just hidden), all
+  of them can be in the DOM at once — and plain `document.getElementById()`
+  returns the *first* match in the whole document, not necessarily the
+  one belonging to whichever module the code actually lives in. This
+  caused two confirmed, real bugs: Payments' own "Status" dropdown
+  rendering *contract* statuses after visiting Contracts (both used
+  `id="form-status"`), and Treatments' "Clear filters" button silently
+  touching Payments' inputs instead of its own (both share `search-input`,
+  `filter-date-from`, `filter-date-to`, `btn-clear-filters`, and more).
 
-  `payments.html` is now fixed — every lookup inside it is scoped to
-  search only within its own `#view-payments` root (`const $ = id =>
-  VIEW_ROOT.querySelector('#' + id)`), so it can never again reach into
-  another module's same-named element. **Clients, Contracts, and
-  Treatments still use unscoped `document.getElementById()`** and
-  haven't been fixed — they can still collide with each other, and
-  Payments' scoping only protects Payments itself, not the reverse
-  direction (another module accidentally grabbing one of Payments'
-  elements). Applying the same fix to the other three files is the
-  right long-term move; not done yet.
+  All four modules now scope every lookup to their own `#view-{name}`
+  root instead of the whole document: `const VIEW_ROOT =
+  document.getElementById('view-{name}'); const $ = id =>
+  VIEW_ROOT.querySelector('#' + id);`, with every other
+  `document.querySelectorAll(...)` call similarly prefixed with its own
+  `#view-{name}` selector. None of the four can reach into another
+  module's elements anymore, in either direction. If a fifth module
+  gets added later, it needs the same pattern from the start — it's not
+  automatic just from following the file-structure convention above.
 - `js/router.js` — fetches a module's HTML file the first time its route
   is visited, injects its styles into `<head>`, moves its own
   `[data-view]` element into `#view-mount`, and re-creates its `<script>`
