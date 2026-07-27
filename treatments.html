@@ -144,6 +144,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </div>
+          <button class="btn btn-ghost btn-sm" id="btn-clear-filters">Clear</button>
           <button class="btn btn-secondary" id="btn-download-template">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             CSV Template
@@ -174,7 +175,6 @@
       <select style="display:none" id="filter-type"><option value="">All Types</option></select>
       <select style="display:none" id="filter-status"><option value="">All Status</option></select>
       <select style="display:none" id="filter-team"><option value="">All Teams</option></select>
-      <button style="display:none" id="btn-clear-filters">Clear</button>
 
       <!-- Table -->
       <div class="table-card" style="display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0">
@@ -972,6 +972,8 @@ window.clearAllFilters = () => {
   activeStatusFilter = '';
   ['search-input','filter-team','filter-type','filter-date-from','filter-date-to']
     .forEach(id => { $(id).value = ''; });
+  columnFilters = {};
+  document.querySelectorAll('#view-treatments thead th').forEach(th => th.style.background = '');
   $('btn-clear-date-filter')?.classList.add('hidden');
   document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
   applyFilters();
@@ -1041,10 +1043,9 @@ document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(btn => 
   $(id).addEventListener('input', clearQuickActive);
 });
 
-/* ── Prev/Next date navigation: shifts the current From–To range by its
-   own span (e.g. a 7-day range moves back/forward 7 days; a single day
-   moves back/forward 1 day). If no range is set yet, defaults to today
-   and steps one day at a time. ── */
+/* ── Prev/Next date navigation: shifts the current From–To range by
+   exactly one calendar month each click, regardless of what span is
+   currently set. If no range is set yet, defaults to the current month. ── */
 const parseInputDate = str => {
   if (!str) return null;
   const [y,m,d] = str.split('-').map(Number);
@@ -1055,16 +1056,17 @@ const shiftDateRange = direction => {
   let to   = parseInputDate($('filter-date-to').value);
 
   if (!from && !to) {
-    from = to = new Date(); from.setHours(0,0,0,0);
+    const now = new Date();
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
   } else if (from && !to) {
     to = from;
   } else if (!from && to) {
     from = to;
   }
 
-  const spanDays = Math.round((to - from) / 86400000) + 1; // inclusive day count
-  from = new Date(from); from.setDate(from.getDate() + direction * spanDays);
-  to   = new Date(to);   to.setDate(to.getDate()   + direction * spanDays);
+  from = new Date(from); from.setMonth(from.getMonth() + direction);
+  to   = new Date(to);   to.setMonth(to.getMonth() + direction);
 
   $('filter-date-from').value = fmtDateInput(from);
   $('filter-date-to').value   = fmtDateInput(to);
