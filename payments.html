@@ -195,7 +195,7 @@
         <div class="date-range"><input type="date" id="filter-date-from" title="Due date from" /><span>to</span><input type="date" id="filter-date-to" title="Due date to" /></div>
         <button class="btn btn-ghost btn-sm" id="btn-clear-filters">Clear</button>
       </div>
-      <div class="table-card" style="flex:1;min-height:0">
+      <div class="table-card" style="display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0">
         <div class="table-wrapper" style="flex:1;overflow:auto;min-height:0">
           <table id="payments-table">
             <thead>
@@ -608,6 +608,21 @@ function applyFilters() {
   $(id).addEventListener('input', applyFilters);
   $(id).addEventListener('change', applyFilters);
 });
+// A narrow Due Date column-filter (set via the ▾ dropdown, e.g. "only
+// Jul 5") and a broad From/To range rarely make sense active together —
+// left on by accident, the column filter silently wins and every row
+// looks stuck on one date. Setting a new range clears it so they can't
+// conflict.
+function clearDueDateColumnFilter() {
+  if (!columnFilters.dueDate) return;
+  delete columnFilters.dueDate;
+  const th = VIEW_ROOT.querySelector('th[data-col="dueDate"]');
+  if (th) th.style.background = '';
+}
+['filter-date-from', 'filter-date-to'].forEach(id => {
+  $(id).addEventListener('input', clearDueDateColumnFilter);
+  $(id).addEventListener('change', clearDueDateColumnFilter);
+});
 $('btn-clear-filters').addEventListener('click', () => {
   $('search-input').value = ''; $('filter-date-from').value = ''; $('filter-date-to').value = '';
   columnFilters = {};
@@ -626,13 +641,13 @@ const clearQuickActive = () => VIEW_ROOT.querySelectorAll('#date-quick-filters .
 VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (btn.classList.contains('active')) {
-      btn.classList.remove('active'); $('filter-date-from').value = ''; $('filter-date-to').value = ''; applyFilters(); return;
+      btn.classList.remove('active'); $('filter-date-from').value = ''; $('filter-date-to').value = ''; clearDueDateColumnFilter(); applyFilters(); return;
     }
     const now = new Date(); const target = new Date(now);
     if (btn.dataset.range === 'tomorrow') target.setDate(now.getDate() + 1);
     const val = fmtDateInput(target);
     $('filter-date-from').value = val; $('filter-date-to').value = val;
-    clearQuickActive(); btn.classList.add('active'); applyFilters();
+    clearQuickActive(); btn.classList.add('active'); clearDueDateColumnFilter(); applyFilters();
   });
 });
 ['filter-date-from', 'filter-date-to'].forEach(id => $(id).addEventListener('input', clearQuickActive));
