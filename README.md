@@ -102,12 +102,19 @@ anywhere, ever.
   `noOfSessions`, `status`, plus rollup fields kept in sync by
   `js/contract-sync.js`: `totalSessions`, `completedSessions`,
   `nextTreatmentDate`, `totalPaid`, `balanceRemaining`, `lastPaymentDate`.
-- `treatments/{id}` — one per session: `contractId`, `customerNo`,
-  `sessionNo`, `treatmentDate`, `status` (`scheduled`/`need schedule`/
-  `completed`/`cancelled`/`rescheduled`, lowercase — this is the
-  Treatments module's vocabulary; Contracts' embedded treatments tab
-  was reconciled to match it).
-- `payments/{id}` — one per installment: `contractId`, `customerNo`,
+- `treatments/{id}` — one per session: `contractId`, `sessionNo`,
+  `treatmentDate`, `status` (`scheduled`/`need schedule`/`completed`/
+  `cancelled`/`rescheduled`, lowercase). Deliberately does **not** store
+  `customerNo` or `contractType` — those are contract facts, resolved
+  live via `contractId → contracts/{contractId}` every time they're
+  displayed (see `tCustomerNo()`/`tContractType()`/`tClientName()` in
+  treatments.html), so an edit to the contract is reflected everywhere
+  instantly with nothing to go stale. Contract Type shows as read-only
+  in the Treatments Edit modal for the same reason — it isn't this
+  module's data to change.
+- `payments/{id}` — one per installment: `contractId`, `customerNo`
+  (payments *do* keep this copy, following Contracts' own original
+  convention — only the Treatments-side duplication was the problem),
   `sessionNo`, `amount`, `status` (`Pending`/`Received`/`Cancelled`,
   capitalized — a different, older vocabulary than treatments' own
   status field; the two were never unified and both modules agree on it).
@@ -137,13 +144,11 @@ Two tiers of contract update, by design:
   "Add Extra Treatment" and Treatments' "Cancel"/"Add Extra Treatment"
   (the old "New Treatment" modal, now billable) go through this same path.
 
-**Editing a contract's Start Date** doesn't automatically touch the
-already-generated `treatments`/`payments` — those keep whatever dates
-they were created with until told otherwise. If the Start Date actually
-changes on save, Contracts asks whether to shift every not-yet-completed/
-cancelled session (and its pending payment's due date) by the same
-number of days; completed/cancelled sessions never move. Declining just
-leaves the schedule as-is.
+**Editing a contract's Start Date** automatically shifts every
+not-yet-completed/cancelled treatment's date (and its pending payment's
+due date) by the same number of days — no confirmation prompt, since
+Contracts is the source of truth and Treatments has no independent copy
+of these dates to protect. Completed/cancelled sessions never move.
 
 ## Managed dropdown lists
 

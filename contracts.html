@@ -518,7 +518,7 @@ function buildSchedule({ startDate, freq, sessions, totalAmount, warrantyMonths,
     const d = freq === 'one-time' ? new Date(startDate) : addMonths(startDate, interval * i);
     const isFirst = i === 0;
     treatments.push({
-      customerNo, contractType, sessionNo: i + 1,
+      sessionNo: i + 1,
       treatmentNo: `TRT-${String(i + 1).padStart(3, '0')}`,
       treatmentDate: toISO(d),
       status: isFirst ? 'scheduled' : 'need schedule',
@@ -1069,24 +1069,21 @@ $('btn-save-contract').addEventListener('click', async () => {
 
       await smartUpdateDoc(doc(db, 'contracts', editId), data, ['contracts']);
       await logAction('updated', 'contract', editId, `Updated contract: ${data.contractNumber || existing?.contractNumber || editId}`);
-      showToast('Contract updated successfully.');
 
-      // The contract's own dates just changed — offer to carry that
-      // through to the actual schedule, since nothing else does this
-      // automatically and the treatment/payment dates would otherwise
-      // silently keep the original schedule's dates forever.
+      // The contract's own dates just changed — Treatments has no
+      // independent copy of this to go stale, but the actual generated
+      // session dates need to move with it automatically (no prompt —
+      // this module is the source of truth, so this just happens).
       if (oldStartStr && newStartStr && oldStartStr !== newStartStr) {
         const deltaDays = Math.round((parseDateStr(newStartStr) - parseDateStr(oldStartStr)) / 86400000);
         if (deltaDays !== 0) {
-          const shiftConfirmed = confirm(
-            `Start date changed by ${deltaDays > 0 ? '+' : ''}${deltaDays} day(s).\n\n` +
-            `Shift all not-yet-completed session dates (and their pending payment due dates) by the same amount to match? Completed or cancelled sessions won't move.`
-          );
-          if (shiftConfirmed) {
-            await shiftContractSchedule(editId, deltaDays);
-            showToast('Schedule dates shifted to match.');
-          }
+          await shiftContractSchedule(editId, deltaDays);
+          showToast(`Contract updated — schedule shifted by ${deltaDays > 0 ? '+' : ''}${deltaDays} day(s) to match.`);
+        } else {
+          showToast('Contract updated successfully.');
         }
+      } else {
+        showToast('Contract updated successfully.');
       }
     } else {
       const downpaymentPaid = $('form-downpayment-status').value === 'Received';
@@ -1347,7 +1344,7 @@ async function addExtraTreatment(contractId) {
 
     const batch = writeBatch(db);
     batch.set(doc(collection(db, 'treatments')), {
-      contractId, customerNo: c?.customerNo || '', contractType: c?.contractType || '',
+      contractId,
       sessionNo: nextSessionNo, treatmentNo: `TRT-${String(nextSessionNo).padStart(3, '0')}`,
       treatmentDate: dateStr, status: 'scheduled',
       assignedTeam: c?.assignedTeam || '', chemicalsUsed: '', technician: '', notes: 'Added as an extra session.'

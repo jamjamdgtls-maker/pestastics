@@ -254,7 +254,8 @@
         </div>
         <div class="form-group">
           <label class="form-label">Contract Type / Description</label>
-          <input type="text" class="form-input" id="edit-contract-type" placeholder="e.g. General Pest Control" />
+          <input type="text" class="form-input" id="edit-contract-type" readonly disabled style="background:var(--bg-secondary);color:var(--text-muted);cursor:not-allowed" />
+          <div class="form-hint">Comes from the linked contract — edit it in Contracts instead.</div>
         </div>
       </div>
       <div class="form-row">
@@ -464,9 +465,10 @@
     </div>
     <div class="modal-body">
       <div style="background:var(--blue-bg);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--blue-text)">
-        <strong>Required columns:</strong> customerNo, treatmentType<br>
+        <strong>Required columns:</strong> contractNumber, treatmentType<br>
         <strong>Date column:</strong> treatmentDate — accepts any common format (2025-05-15, 05/15/2025, May 15 2025, etc.). Defaults to today if blank.<br>
-        <strong>Optional:</strong> contractNumber, treatmentTime, contractType, assignedTeam, technician, status (default: scheduled), notes
+        <strong>Optional:</strong> treatmentTime, assignedTeam, technician, status (default: scheduled), notes<br>
+        <em>Customer and Contract Type come from the linked contract automatically — a row with no matching contract number is skipped.</em>
       </div>
       <div class="upload-zone" id="tr-upload-zone">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -699,6 +701,14 @@ function cleanName(n) {
   return (n || '').replace(/\s*\(.*?\)\s*/g, '').trim() || '—';
 }
 
+/* Contract Type and Customer No. are contract-level facts, not treatment
+   facts — a treatment doc only stores contractId. These always resolve
+   live from the linked contract, so an edit to the contract (or its
+   customer) is reflected here immediately, with no stale copy to drift. */
+function tCustomerNo(t)   { return contractMap[t.contractId]?.customerNo || ''; }
+function tContractType(t) { return contractMap[t.contractId]?.contractType || ''; }
+function tClientName(t)   { const no = tCustomerNo(t); return cleanName(clientMap[no]?.name) !== '—' ? cleanName(clientMap[no]?.name) : (no || '—'); }
+
 /* ── Display status (overdue computed client-side) ── */
 function dispStatus(t) {
   return t.status || 'scheduled';
@@ -847,11 +857,13 @@ function matchesNonStatusFilters(t) {
   const dateTo   = $('filter-date-to').value;
 
   const ds         = dispStatus(t);
-  const clientName = (clientMap[t.customerNo]?.name || '').toLowerCase();
-  const matchQ     = !q || [t.treatmentNo, clientName, t.customerNo, t.assignedTeam, t.contractType, contractMap[t.contractId]?.contractNumber || '', t.technician || '', ds, t.treatmentType || '']
+  const custNo     = tCustomerNo(t);
+  const cType      = tContractType(t);
+  const clientName = (clientMap[custNo]?.name || '').toLowerCase();
+  const matchQ     = !q || [t.treatmentNo, clientName, custNo, t.assignedTeam, cType, contractMap[t.contractId]?.contractNumber || '', t.technician || '', ds, t.treatmentType || '']
                             .some(f => (f || '').toLowerCase().includes(q));
   const matchT     = !team   || t.assignedTeam === team;
-  const matchType  = !type   || t.contractType === type;
+  const matchType  = !type   || cType === type;
   let   matchD     = true;
   if (dateFrom || dateTo) {
     const td = toDate(t.treatmentDate);
@@ -1109,7 +1121,7 @@ async function deleteTreatment(id) {
   const t = allTreatments.find(x => x.id === id);
   if (!t) return;
   const label = t.treatmentNo || id;
-  const clientName = cleanName(t.clientName) || t.customerNo || '—';
+  const clientName = tClientName(t);
 
   const confirmed = confirm(
     `Delete treatment "${label}" for ${clientName}?\n\n` +
@@ -1155,8 +1167,8 @@ function renderTable() {
   $('treatments-tbody').innerHTML = page.map(t => {
     const ds          = dispStatus(t);
     const isOverdue   = ds === 'overdue';
-    const clientName  = cleanName(clientMap[t.customerNo]?.name || t.customerNo || '—');
-    const contractType = t.contractType || (contractMap[t.contractId]?.contractType) || '—';
+    const clientName  = tClientName(t);
+    const contractType = tContractType(t) || '—';
     const timeStr     = t.treatmentTime
       ? `<br><span style="font-size:11.5px;color:var(--text-muted)">${t.treatmentTime}</span>` : '';
     const reschedCount = (t.rescheduleHistory || []).length;
@@ -1187,7 +1199,7 @@ function renderTable() {
       <td style="font-size:12.5px;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${contractType}</td>
       <td style="font-size:12px"><select class="inline-type-select" data-id="${t.id}" data-current-type="${treatmentType}" title="Click to change treatment type">
         ${(() => {
-          const contractTypes = t.contractTypes || [];
+          const contractTypes = contractMap[t.contractId]?.contractTypes || [];
           const allTypes = [...new Set([...treatmentTypesList, ...contractTypes, ...(treatmentType && treatmentType !== '—' ? [treatmentType] : [])])];
           return '<option value="">—</option>' + allTypes.map(tt => '<option value="'+tt+'" '+(tt === treatmentType ? 'selected' : '')+'>'+tt+'</option>').join('');
         })()}
@@ -1236,14 +1248,15 @@ function renderTable() {
 
 /* ── Context banner ── */
 function contextBanner(t) {
-  const client       = clientMap[t.customerNo] || {};
-  const clientName   = cleanName(client.name || t.customerNo || '—');
-  const contractType = t.contractType || (contractMap[t.contractId]?.contractType) || '—';
+  const custNo       = tCustomerNo(t);
+  const client       = clientMap[custNo] || {};
+  const clientName   = tClientName(t);
+  const contractType = tContractType(t) || '—';
   const addr         = client.address || '';
   const timeStr      = t.treatmentTime ? ` at ${t.treatmentTime}` : '';
   return `
     <div class="cb-label">Client</div>        <div class="cb-val">${clientName}</div>
-    <div class="cb-label">Customer No.</div>  <div class="cb-val">${t.customerNo || '—'}</div>
+    <div class="cb-label">Customer No.</div>  <div class="cb-val">${custNo || '—'}</div>
     <div class="cb-label">Treatment #</div>   <div class="cb-val">${t.treatmentNo || '—'}</div>
     <div class="cb-label">Contract Type</div> <div class="cb-val">${contractType}</div>
     <div class="cb-label">Treatment Type</div><div class="cb-val">${t.treatmentType || '—'}</div>
@@ -1259,7 +1272,7 @@ function openCompleteModal(id) {
   const t = allTreatments.find(x => x.id === id);
   if (!t) return;
   $('complete-id').value            = id;
-  $('complete-subtitle').textContent = `${cleanName(clientMap[t.customerNo]?.name || '')} · ${t.treatmentNo || ''}`;
+  $('complete-subtitle').textContent = `${tClientName(t)} · ${t.treatmentNo || ''}`;
   $('complete-context').innerHTML   = contextBanner(t);
   $('complete-date').value          = toInputDate(new Date());
   // Populate technician dropdown from team members
@@ -1330,7 +1343,7 @@ function openCancelModal(id) {
   const t = allTreatments.find(x => x.id === id);
   if (!t) return;
   $('cancel-id').value             = id;
-  $('cancel-subtitle').textContent  = `${cleanName(clientMap[t.customerNo]?.name || '')} · ${t.treatmentNo || ''}`;
+  $('cancel-subtitle').textContent  = `${tClientName(t)} · ${t.treatmentNo || ''}`;
   $('cancel-context').innerHTML    = contextBanner(t);
   $('cancel-reason-select').value  = '';
   $('cancel-reason-other').value   = '';
@@ -1417,7 +1430,7 @@ function openRescheduleModal(id) {
   const t = allTreatments.find(x => x.id === id);
   if (!t) return;
   $('reschedule-id').value              = id;
-  $('reschedule-subtitle').textContent   = `${cleanName(clientMap[t.customerNo]?.name || '')} · ${t.treatmentNo || ''}`;
+  $('reschedule-subtitle').textContent   = `${tClientName(t)} · ${t.treatmentNo || ''}`;
   $('reschedule-context').innerHTML     = contextBanner(t);
   $('reschedule-original-date').value   = toInputDate(t.treatmentDate);
   $('reschedule-new-date').value        = '';
@@ -1527,8 +1540,8 @@ let columnFilters = {}; // { colName: Set of allowed values } — empty means al
 function getColValue(t, col) {
   if (col === 'treatmentNo')    return t.treatmentNo || '';
   if (col === 'contractNumber') return contractMap[t.contractId]?.contractNumber || t.contractId?.slice(0,8)?.toUpperCase() || '';
-  if (col === 'clientName')     return cleanName(clientMap[t.customerNo]?.name || t.customerNo || '');
-  if (col === 'contractType')   return t.contractType || contractMap[t.contractId]?.contractType || '';
+  if (col === 'clientName')     return tClientName(t);
+  if (col === 'contractType')   return tContractType(t);
   if (col === 'treatmentType')  return t.treatmentType || '';
   if (col === 'treatmentDate')  return fmtDate(t.treatmentDate);
   if (col === 'assignedTeam')   return t.assignedTeam || '';
@@ -1684,8 +1697,8 @@ function doSort() {
       av = (contractMap[a.contractId]?.contractNumber || '').toLowerCase();
       bv = (contractMap[b.contractId]?.contractNumber || '').toLowerCase();
     } else if (sortField === 'clientName') {
-      av = (clientMap[a.customerNo]?.name || '').toLowerCase();
-      bv = (clientMap[b.customerNo]?.name || '').toLowerCase();
+      av = (clientMap[tCustomerNo(a)]?.name || '').toLowerCase();
+      bv = (clientMap[tCustomerNo(b)]?.name || '').toLowerCase();
     } else if (sortField === 'status') {
       av = dispStatus(a).toLowerCase();
       bv = dispStatus(b).toLowerCase();
@@ -1798,7 +1811,7 @@ function openEditModal(id) {
 
   $('edit-id').value = id;
   $('edit-modal').querySelector('.modal-subtitle').textContent =
-    `${t.treatmentNo || id.slice(0,8)} — ${cleanName(clientMap[t.customerNo]?.name || t.customerNo)}`;
+    `${t.treatmentNo || id.slice(0,8)} — ${tClientName(t)}`;
 
   /* Treatment Type — build options: settings list + any extra from this record */
   const existing = t.treatmentType || '';
@@ -1808,7 +1821,7 @@ function openEditModal(id) {
     allTypes.map(tp => `<option value="${tp}" ${tp === existing ? 'selected' : ''}>${tp}</option>`).join('');
 
   /* Contract Type (text) */
-  $('edit-contract-type').value = t.contractType || (contractMap[t.contractId]?.contractType) || '';
+  $('edit-contract-type').value = tContractType(t) || '';
 
   /* Date & Time */
   const d = toDate(t.treatmentDate);
@@ -1863,7 +1876,6 @@ $('btn-save-edit').addEventListener('click', async () => {
   try {
     const updates = {
       treatmentType:  newType,
-      contractType:   $('edit-contract-type').value.trim(),
       treatmentDate:  newDate,
       treatmentTime:  $('edit-time').value || '',
       assignedTeam:   $('edit-team').value,
@@ -1877,7 +1889,6 @@ $('btn-save-edit').addEventListener('click', async () => {
     /* Update local cache */
     if (t) Object.assign(t, {
       treatmentType:  newType,
-      contractType:   updates.contractType,
       treatmentDate:  updates.treatmentDate,
       treatmentTime:  updates.treatmentTime,
       assignedTeam:   updates.assignedTeam,
@@ -1916,7 +1927,7 @@ function openDetailsModal(id) {
   const timeStr = t.treatmentTime ? ` at ${t.treatmentTime}` : '';
 
   $('details-title').textContent = t.treatmentNo || 'Treatment';
-  $('details-subtitle').innerHTML = `${cleanName(t.clientName)} · ${t.customerNo || '—'} ${statusBadge(dispS)}`;
+  $('details-subtitle').innerHTML = `${tClientName(t)} · ${tCustomerNo(t) || '—'} ${statusBadge(dispS)}`;
 
   const row = (label, value) =>
     `<div style="display:flex;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
@@ -1928,9 +1939,9 @@ function openDetailsModal(id) {
   html += row('Treatment No.', `<strong style="font-family:monospace">${t.treatmentNo || '—'}</strong>`);
   html += row('Contract', t.contractNumber || t.contractId || '—');
   html += row('Client', cleanName(t.clientName));
-  html += row('Customer No.', t.customerNo || '—');
+  html += row('Customer No.', tCustomerNo(t) || '—');
   html += row('Treatment Type', t.treatmentType || '—');
-  html += row('Contract Type', t.contractType || '—');
+  html += row('Contract Type', tContractType(t) || '—');
   html += row('Scheduled', `${fmtDate(t.treatmentDate)}${timeStr}`);
   html += row('Status', statusBadge(dispS));
   html += row('Assigned Team', t.assignedTeam || '—');
@@ -2153,9 +2164,7 @@ $('btn-save-new-treatment').addEventListener('click', async () => {
 
     const data = {
       treatmentNo,
-      customerNo,
       contractId:    contractId,
-      contractType:  $('nt-contract-type').value.trim() || '',
       treatmentType: treatType,
       sessionNo:     nextSessionNo,
       treatmentDate: dateStr,
@@ -2216,13 +2225,13 @@ $('btn-export-csv').addEventListener('click', () => {
   }
   const headers = ['Treatment #','Customer No','Client Name','Contract Type','Date','Time','Team','Technician','Status','Chemicals Used','Notes','Service Report URL'];
   const rows = filteredTreatments.map(t => {
-    const clientName = cleanName(clientMap[t.customerNo]?.name || t.customerNo || '');
+    const clientName = tClientName(t);
     const ds         = dispStatus(t);
     return [
       t.treatmentNo      || '',
-      t.customerNo       || '',
+      tCustomerNo(t)     || '',
       clientName,
-      t.contractType     || (contractMap[t.contractId]?.contractType) || '',
+      tContractType(t)   || '',
       fmtDate(t.treatmentDate),
       t.treatmentTime    || '',
       t.assignedTeam     || '',
@@ -2250,8 +2259,8 @@ $('btn-export-csv').addEventListener('click', () => {
    CSV TEMPLATE DOWNLOAD
 ══════════════════════════════════ */
 $('btn-download-template').addEventListener('click', () => {
-  const headers = 'customerNo,contractNumber,treatmentType,treatmentDate,treatmentTime,contractType,assignedTeam,technician,status,notes';
-  const example = 'PC-00001,CT-00001,General Pest Control,2025-05-15,09:00,Annual GPC,Team Alpha,Juan Cruz,scheduled,Check kitchen area';
+  const headers = 'contractNumber,treatmentType,treatmentDate,treatmentTime,assignedTeam,technician,status,notes';
+  const example = 'CT-00001,General Pest Control,2025-05-15,09:00,Team Alpha,Juan Cruz,scheduled,Check kitchen area';
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(new Blob([headers + '\n' + example], { type: 'text/csv' })),
     download: 'pestastic_treatments_template.csv'
@@ -2377,17 +2386,25 @@ $('btn-confirm-tr-import').addEventListener('click', async () => {
   const skipReasons = [];
 
   for (const row of csvTreatmentRows) {
-    const customerNo    = row.customerno     || '';
     const contractNum   = row.contractnumber || '';
     const treatmentType = row.treatmenttype  || '';
     const dateStr       = row.treatmentdate  || '';
 
-    // Skip rows missing all three key fields — but be lenient, skip only if ALL are blank
-    if (!customerNo && !treatmentType && !dateStr) { skipped++; continue; }
+    // Skip rows missing all key fields — but be lenient, skip only if ALL are blank
+    if (!contractNum && !treatmentType && !dateStr) { skipped++; continue; }
 
-    // Individual field fallbacks
-    const effectiveCustomerNo = customerNo || '(unknown)';
-    const effectiveType       = treatmentType || 'General Pest Control';
+    // A treatment must reference a real contract now — customerNo/contractType
+    // are no longer stored on the treatment doc, they're resolved live from
+    // whatever contract this links to, so without a valid link there's
+    // nothing to resolve them from.
+    const contractId = contractNum ? (contractNumberMap[contractNum] || '') : '';
+    if (!contractId) {
+      skipReasons.push(`Row skipped — no matching contract found for contract number "${contractNum || '(blank)'}"`);
+      skipped++;
+      continue;
+    }
+
+    const effectiveType = treatmentType || 'General Pest Control';
 
     // Date: try to parse, skip row only if completely unparseable
     let treatmentDate = null;
@@ -2403,19 +2420,13 @@ $('btn-confirm-tr-import').addEventListener('click', async () => {
       treatmentDate = new Date();
     }
 
-    const contractId = contractNum ? (contractNumberMap[contractNum] || '') : '';
-    const contract   = contractId  ? contractMap[contractId]           : null;
-
     const treatmentNo = `TR-${String(nextNum).padStart(5, '0')}`;
     nextNum++;
 
     const ref = doc(collection(db, 'treatments'));
     batch.set(ref, {
       treatmentNo,
-      customerNo:    effectiveCustomerNo,
-      contractId:    contractId,
-      contractNumber: contractNum,
-      contractType:  row.contracttype || contract?.contractType || '',
+      contractId,
       treatmentType: effectiveType,
       treatmentDate: `${treatmentDate.getFullYear()}-${String(treatmentDate.getMonth() + 1).padStart(2, '0')}-${String(treatmentDate.getDate()).padStart(2, '0')}`,
       treatmentTime: row.treatmenttime  || '',
