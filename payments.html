@@ -166,7 +166,6 @@
           <button class="btn btn-secondary" id="btn-dl-template"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV Template</button>
           <button class="btn btn-secondary" id="btn-import-csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV</button>
           <button class="btn btn-secondary" id="btn-export-csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
-          <button class="btn btn-primary" id="btn-add-payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Payment</button>
         </div>
       </div>
       <div class="sum-card-filter-note" id="filter-active-note"></div>
@@ -245,7 +244,7 @@
           <button type="button" class="seg-btn active" id="ptype-additional">Additional / Extra Charge</button>
           <button type="button" class="seg-btn" id="ptype-scheduled">Backfill a Missing Installment</button>
         </div>
-        <div class="form-hint" id="payment-type-hint">An ad-hoc charge tied to this contract (e.g. a rush fee) — the usual case for adding a payment here.</div>
+        <div class="form-hint" id="payment-type-hint">An ad-hoc charge tied to this contract (e.g. a rush fee), outside the original installment plan.</div>
       </div>
       <div class="form-group" id="additional-timing-group">
         <label class="form-label">When</label>
@@ -354,7 +353,7 @@ import {
   query, where, orderBy, serverTimestamp, writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {
-  cachedGetDocs, cachedGetDoc, smartAddDoc, smartUpdateDoc, invalidate
+  cachedGetDocs, cachedGetDoc, smartUpdateDoc, invalidate
 } from './js/firestore-cache.js';
 import { recalcContractRollup } from './js/contract-sync.js';
 import { getSettingsList, openListManager } from './js/list-manager.js';
@@ -681,8 +680,6 @@ function computeSummary(payments) {
 $('payments-tbody').addEventListener('click', function (e) {
   const editBtn = e.target.closest('.btn-edit');
   if (editBtn && editBtn.dataset.id) { openEditModal(editBtn.dataset.id); return; }
-  const addForBtn = e.target.closest('.btn-add-for-contract');
-  if (addForBtn && addForBtn.dataset.id) { openAddForContract(addForBtn.dataset.id); return; }
   const viewContract = e.target.closest('.btn-view-contract');
   if (viewContract && viewContract.dataset.contractId) { e.preventDefault(); goToContractDetail(viewContract.dataset.contractId); return; }
   const viewClient = e.target.closest('.btn-view-client');
@@ -724,8 +721,7 @@ function renderTable() {
     const noteHtml = recent ? `<div class="td-note"><span class="td-note-text" title="${esc(recent.text)}">${esc(recent.text)}</span><span class="td-note-meta">${recent.author ? esc(recent.author) : ''}${recent.author && recent.timestamp ? ' · ' : ''}${recent.timestamp ? fmtNoteTime(recent.timestamp) : ''}</span></div>` : '<span style="color:var(--text-muted);font-size:12px">—</span>';
     const typeBadge = p.isAdditional ? `<span class="payment-type-badge additional">Additional</span>` : '';
     const amtCell = fmtCur(p.amount) + (typeBadge ? `<div style="margin-top:2px">${typeBadge}</div>` : '');
-    const actionBtn = `<button class="btn btn-sm btn-secondary btn-edit" data-id="${p.id}" title="Edit this payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
-      <button class="btn btn-sm btn-secondary btn-add-for-contract" data-id="${p.id}" title="Add a new payment for this same customer/contract"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>`;
+    const actionBtn = `<button class="btn btn-sm btn-secondary btn-edit" data-id="${p.id}" title="Edit this payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>`;
     const rowClass = ov ? 'overdue-row' : '';
     const clientLink = clientMap[p.customerNo] !== undefined
       ? `<a href="#" class="btn-view-client" data-customer-no="${p.customerNo}" style="font-weight:600;color:var(--primary);text-decoration:none;cursor:pointer" title="View client">${clientName}</a>`
@@ -818,8 +814,8 @@ function setPaymentType(type) {
   $('ptype-scheduled').classList.toggle('active', !isAdditional);
   $('additional-timing-group').style.display = isAdditional ? '' : 'none';
   $('payment-type-hint').textContent = isAdditional
-    ? "An ad-hoc charge tied to this contract (e.g. a rush fee) — the usual case for adding a payment here."
-    : "Backfills a session that's missing its payment record — rare; every session normally gets one automatically when its contract is created.";
+    ? "An ad-hoc charge tied to this contract (e.g. a rush fee), outside the original installment plan."
+    : "Part of the contract's original installment plan.";
   if (isAdditional) setAdditionalTiming($('atime-scheduled').classList.contains('active') ? 'scheduled' : 'paid');
 }
 function setAdditionalTiming(timing) {
@@ -856,13 +852,6 @@ function clearForm() {
   formNotes = [];
 }
 
-$('btn-add-payment').addEventListener('click', () => {
-  clearForm();
-  $('form-modal-title').textContent = 'Add Payment'; $('save-btn-text').textContent = 'Save Payment';
-  formNotes = []; renderNotesThread();
-  openModal('payment-form-modal');
-});
-
 function openEditModal(id) {
   const p = allPayments.find(x => x.id === id); if (!p) return;
   clearForm();
@@ -887,18 +876,6 @@ function openEditModal(id) {
   openModal('payment-form-modal');
 }
 
-function openAddForContract(id) {
-  const p = allPayments.find(x => x.id === id); if (!p) return;
-  clearForm();
-  $('form-modal-title').textContent = 'Add Payment'; $('save-btn-text').textContent = 'Save Payment';
-  $('form-customer-no').value = p.customerNo || '';
-  const name = clientMap[p.customerNo]; $('customer-hint').textContent = name ? `✓ ${cleanName(name)}` : '';
-  loadContractsForCustomer(p.customerNo || '');
-  setTimeout(() => { $('form-contract').value = p.contractId || ''; }, 50);
-  formNotes = []; renderNotesThread();
-  openModal('payment-form-modal');
-}
-
 $('btn-save-payment').addEventListener('click', async () => {
   const customerNo = $('form-customer-no').value.trim(), contractId = $('form-contract').value,
     amount = parseFloat($('form-amount').value) || 0, dueDate = $('form-due-date').value, status = $('form-status').value;
@@ -906,10 +883,7 @@ $('btn-save-payment').addEventListener('click', async () => {
   if (!amount) { showToast('Amount is required.', 'error'); return; }
   if (!dueDate) { showToast('Due Date is required.', 'error'); return; }
   const editId = $('form-payment-id').value;
-  if (!editId && contractId && contractMap[contractId]?.status === 'cancelled') {
-    showToast("This contract is cancelled — new payments can't be added against it.", 'error');
-    return;
-  }
+  if (!editId) return; // this modal is edit-only now — new payments come from Contracts/Treatments' "Add Extra Treatment"
   const btn = $('btn-save-payment'); btn.disabled = true; $('save-btn-text').textContent = 'Saving…';
   const parseLocalDate = s => { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; };
   const pendingNote = $('form-new-note').value.trim();
@@ -922,20 +896,10 @@ $('btn-save-payment').addEventListener('click', async () => {
     receivedBy: $('form-received-by').value, notes: formNotes, updatedAt: serverTimestamp()
   };
   try {
-    let targetId = editId;
-    if (editId) {
-      await smartUpdateDoc(doc(db, 'payments', editId), data, ['payments']);
-      const idx = allPayments.findIndex(x => x.id === editId); if (idx >= 0) allPayments[idx] = { ...allPayments[idx], ...data };
-      await logAction('updated', 'payment', editId, `Updated payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
-      showToast('Payment updated.');
-    } else {
-      data.createdAt = serverTimestamp();
-      const ref = await smartAddDoc(collection(db, 'payments'), data, ['payments']);
-      allPayments.unshift({ id: ref.id, ...data });
-      targetId = ref.id;
-      await logAction('created', 'payment', ref.id, `Created payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
-      showToast('Payment added.');
-    }
+    await smartUpdateDoc(doc(db, 'payments', editId), data, ['payments']);
+    const idx = allPayments.findIndex(x => x.id === editId); if (idx >= 0) allPayments[idx] = { ...allPayments[idx], ...data };
+    await logAction('updated', 'payment', editId, `Updated payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
+    showToast('Payment updated.');
     // Keep the contract's rollup (totalPaid/balanceRemaining) in sync —
     // this is the gap the original file never closed.
     if (contractId) {
@@ -944,7 +908,7 @@ $('btn-save-payment').addEventListener('click', async () => {
     }
     closeModal('payment-form-modal'); applyFilters();
   } catch (err) { showToast('Failed: ' + err.message, 'error'); }
-  btn.disabled = false; $('save-btn-text').textContent = editId ? 'Update Payment' : 'Save Payment';
+  btn.disabled = false; $('save-btn-text').textContent = 'Update Payment';
 });
 
 /* ══════════════════════════════════
