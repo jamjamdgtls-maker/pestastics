@@ -180,6 +180,7 @@
           <button class="days-btn active" data-days="90">90 days</button>
           <button class="days-btn" data-days="60">60 days</button>
           <button class="days-btn" data-days="120">120 days</button>
+          <button class="days-btn" data-days="expired">All Expired</button>
         </div>
         <span style="font-size:13px;color:var(--text-muted)" id="window-label">Showing contracts expiring within 90 days</span>
       </div>
@@ -419,13 +420,24 @@ async function loadAll() {
   applyFilters();
 }
 
-function computeSummary() {
+/* Shared by computeSummary() and applyFilters() so the two windows can
+   never drift apart. daysWindow is either a forward-looking day count
+   (30/60/90/120 — includes already-expired contracts too, there's no
+   lower bound) or the sentinel 'expired', which flips to strictly
+   "already past its end date," with no upper bound on how long ago. */
+function matchesDateWindow(c) {
+  const end = toLocalDate(c.contractEndDate);
+  if (!end) return false;
   const today = todayLocal();
+  if (daysWindow === 'expired') return end < today;
   const windowEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysWindow);
+  return end <= windowEnd;
+}
+
+function computeSummary() {
   let total = 0, renewed = 0, pending = 0, declined = 0;
   allContracts.forEach(c => {
-    const end = toLocalDate(c.contractEndDate);
-    if (!end || end > windowEnd) return;
+    if (!matchesDateWindow(c)) return;
     total++;
     const rs = renewalMap[c.id]?.status || 'pending';
     if (rs === 'renewed') renewed++;
@@ -433,7 +445,7 @@ function computeSummary() {
     else pending++;
   });
   $('sc-total').textContent = total;
-  $('sc-total-sub').textContent = `Within ${daysWindow} days`;
+  $('sc-total-sub').textContent = daysWindow === 'expired' ? 'Currently expired' : `Within ${daysWindow} days`;
   $('sc-renewed').textContent = renewed;
   $('sc-pending').textContent = pending;
   $('sc-declined').textContent = declined;
@@ -443,8 +455,10 @@ VIEW_ROOT.querySelectorAll('.days-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     VIEW_ROOT.querySelectorAll('.days-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    daysWindow = Number(btn.dataset.days);
-    $('window-label').textContent = `Showing contracts expiring within ${daysWindow} days`;
+    daysWindow = btn.dataset.days === 'expired' ? 'expired' : Number(btn.dataset.days);
+    $('window-label').textContent = daysWindow === 'expired'
+      ? 'Showing all contracts past their end date'
+      : `Showing contracts expiring within ${daysWindow} days`;
     computeSummary(); applyFilters();
   });
 });
@@ -550,12 +564,9 @@ function doSort() {
 
 /* ── Filters ── */
 function applyFilters() {
-  const today = todayLocal();
-  const windowEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysWindow);
   const q = $('search-input').value.toLowerCase().trim();
   filteredContracts = allContracts.filter(c => {
-    const end = toLocalDate(c.contractEndDate);
-    if (!end || end > windowEnd) return false;
+    if (!matchesDateWindow(c)) return false;
     const renewalStatus = renewalMap[c.id]?.status || 'pending';
     const clientData = clientMap[c.customerNo];
     const clientName = cleanName(clientData?.clientName || '');
