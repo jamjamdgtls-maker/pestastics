@@ -83,6 +83,7 @@
       <a class="nav-item" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
       <div class="nav-section-label">Financial</div>
       <a class="nav-item" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
+      <a class="nav-item" href="#renewals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
       <div class="nav-section-label" id="contracts-admin-nav-label" style="display:none">Admin</div>
       <a class="nav-item" href="#admin" id="contracts-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
     </nav>
@@ -187,6 +188,13 @@
           </div>
 
           <div id="ftab-details" class="tab-panel">
+          <div id="renewal-banner" style="display:none;background:var(--primary-light);border:1px solid var(--primary-border);border-radius:var(--radius);padding:12px 16px;margin-bottom:16px">
+            <div style="font-size:12.5px;font-weight:600;color:var(--green-text);margin-bottom:8px">Renewing from contract <span id="renewal-old-number"></span> — fields below are pre-filled from it. Pick a Start Date to continue.</div>
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text);cursor:pointer">
+              <input type="checkbox" id="renewal-cancel-checkbox" style="width:16px;height:16px;accent-color:var(--primary);cursor:pointer" />
+              Cancel the old contract's remaining unfinished sessions
+            </label>
+          </div>
           <div class="form-section-title">Client &amp; Type</div>
           <div class="form-row c2">
             <div class="form-group">
@@ -368,7 +376,7 @@ import {
   query, where, orderBy, serverTimestamp, runTransaction, writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {
-  cachedGetDocs, cachedGetDoc, smartUpdateDoc, invalidate
+  cachedGetDocs, cachedGetDoc, smartAddDoc, smartUpdateDoc, invalidate
 } from './js/firestore-cache.js';
 import { recalcContractRollup, amendContractScope } from './js/contract-sync.js';
 import { getSettingsList, openListManager } from './js/list-manager.js';
@@ -395,6 +403,10 @@ const DEFAULT_SETTINGS = {
 /* ── State ── */
 let currentUser = null, currentRole = null;
 let allContracts = [], filteredContracts = [], currentPage = 1;
+// Set only when the New Contract form was opened via the pc:renew-contract
+// bridge from Renewals — carries the old contract's id through to the
+// save handler so it can be linked/updated once the new one is created.
+let pendingRenewal = null;
 const PER_PAGE = 20;
 let clientMap = {};
 let activeDetailId = null;
@@ -871,6 +883,9 @@ function clearForm() {
   $('form-downpayment-status').value = 'Pending';
   $('form-downpayment-date').disabled = true;
   $('client-name-hint').textContent = '';
+  pendingRenewal = null;
+  $('renewal-banner').style.display = 'none';
+  $('renewal-cancel-checkbox').checked = false;
   resetFormTabs();
   renderPreview();
 }
@@ -1103,6 +1118,7 @@ $('btn-save-contract').addEventListener('click', async () => {
         nextTreatmentDate: sched.treatments[0]?.treatmentDate || null,
         totalPaid: initialTotalPaid, balanceRemaining: amount - initialTotalPaid,
         lastPaymentDate: downpaymentPaid ? downpaymentDate : null,
+        ...(pendingRenewal ? { renewedFromContractId: pendingRenewal.oldContractId } : {}),
         createdAt: serverTimestamp()
       });
       sched.treatments.forEach(t => batch.set(doc(collection(db, 'treatments')), { ...t, contractId: contractRef.id }));
@@ -1111,6 +1127,20 @@ $('btn-save-contract').addEventListener('click', async () => {
       invalidate('contracts');
       await logAction('created', 'contract', contractRef.id, `Created contract: ${contractNumber} (${sched.treatments.length} sessions)`);
       showToast(`Contract ${contractNumber} created. ${sched.treatments.length} treatments & ${sched.payments.length} payments scheduled.`);
+
+      if (pendingRenewal) {
+        const cancelRemaining = $('renewal-cancel-checkbox').checked;
+        try {
+          await finalizeRenewal(pendingRenewal.oldContractId, contractRef.id, contractNumber, cancelRemaining, $('form-notes').value.trim());
+          showToast(cancelRemaining
+            ? `Renewal linked — old contract's remaining sessions cancelled.`
+            : `Renewal linked to the old contract.`);
+        } catch (err) {
+          console.error('Renewal linking error:', err);
+          showToast(`Contract ${contractNumber} was created, but linking it to the old contract failed: ${err.message}`, 'warning');
+        }
+        pendingRenewal = null;
+      }
     }
     closeModal('contract-form-modal');
     await loadAll();
@@ -1493,6 +1523,110 @@ window.addEventListener('pc:open-contract', e => {
   };
   tryOpen();
 });
+
+/* Lets Renewals hand off to this module's own New Contract form instead
+   of building a schedule itself — opens it pre-filled from the expiring
+   contract, with Start Date deliberately left blank (a renewal isn't
+   assumed to start immediately after the old one ends). Save then does
+   its normal buildSchedule() work, plus links the old contract and
+   updates its renewals record — see openRenewalPrefillModal() and the
+   save handler's pendingRenewal branch below. */
+window.addEventListener('pc:renew-contract', e => {
+  const detail = e.detail;
+  if (!detail?.oldContractId) return;
+  const tryOpen = (attempts = 0) => {
+    if (contractsInitialized) {
+      openRenewalPrefillModal(detail);
+    } else if (attempts < 50) {
+      setTimeout(() => tryOpen(attempts + 1), 100);
+    }
+  };
+  tryOpen();
+});
+
+function openRenewalPrefillModal(detail) {
+  clearForm();
+  $('form-modal-title').textContent = 'Renew Contract';
+  $('save-btn-text').textContent = 'Save & Generate Schedule';
+  $('form-contract-id').value = '';
+  $('form-contract-no').value = 'Auto-generated';
+  $('downpayment-status-row').style.display = '';
+
+  $('form-customer-no').value = detail.customerNo || '';
+  const client = clientMap[detail.customerNo];
+  $('client-name-hint').textContent = client ? `✓ ${client.name}` : '';
+  $('form-contract-type').value = detail.contractType || '';
+  $('form-treatment-method').value = detail.treatmentMethod || '';
+  $('form-frequency').value = detail.frequency || '';
+  $('form-sessions').value = detail.noOfSessions || '';
+  $('form-warranty').value = detail.warrantyPeriod || '';
+  $('form-amount').value = detail.totalAmount || '';
+  $('form-team').value = detail.assignedTeam || '';
+  $('form-sales-agent').value = detail.salesAgent || '';
+  $('form-comm-source').value = detail.communicationSource || '';
+  // Start Date stays blank on purpose — the person picks it explicitly,
+  // same as any other new contract requires.
+
+  pendingRenewal = { oldContractId: detail.oldContractId };
+  $('renewal-old-number').textContent = detail.oldContractNumber || detail.oldContractId.slice(0, 8).toUpperCase();
+  $('renewal-banner').style.display = '';
+
+  renderPreview();
+  openModal('contract-form-modal');
+}
+
+/* Cancels every not-yet-completed session on a renewed-away contract in
+   one pass, reusing the same per-session cancel + rollup math as
+   cancelTreatmentSession() (just applied to the whole remaining batch
+   instead of one session at a time). */
+async function cancelRemainingOpenSessions(contractId) {
+  const openStatuses = ['scheduled', 'need schedule', 'rescheduled'];
+  const treatSnap = await getDocs(query(collection(db, 'treatments'), where('contractId', '==', contractId)));
+  const openTreatments = treatSnap.docs.filter(d => openStatuses.includes(d.data().status));
+  if (!openTreatments.length) return;
+  const sessionNos = new Set(openTreatments.map(d => d.data().sessionNo).filter(n => n != null));
+
+  const paySnap = await getDocs(query(collection(db, 'payments'), where('contractId', '==', contractId), where('status', '==', 'Pending')));
+  const openPayments = paySnap.docs.filter(d => sessionNos.has(d.data().sessionNo));
+
+  const batch = writeBatch(db);
+  openTreatments.forEach(d => batch.update(d.ref, { status: 'cancelled' }));
+  openPayments.forEach(d => batch.update(d.ref, { status: 'Cancelled' }));
+  await batch.commit();
+
+  const cancelledAmount = openPayments.reduce((sum, d) => sum + Number(d.data().amount || 0), 0);
+  await amendContractScope(contractId, {
+    amountDelta: -cancelledAmount, sessionDelta: -openTreatments.length,
+    reason: 'Cancelled remaining sessions — contract was renewed',
+    performedBy: currentUser?.email || '', performedByUid: currentUser?.uid || ''
+  });
+}
+
+/* Links the old contract to its replacement and closes out its renewal
+   record. Runs after the new contract + schedule already exist, so a
+   failure here never leaves an incomplete contract behind — worst case,
+   the new contract exists but the old one's status/link needs a manual
+   follow-up. */
+async function finalizeRenewal(oldContractId, newContractId, newContractNumber, cancelRemaining, notes) {
+  await smartUpdateDoc(doc(db, 'contracts', oldContractId), {
+    status: 'renewed', renewedToContractId: newContractId, updatedAt: serverTimestamp()
+  }, ['contracts']);
+
+  const renewalSnap = await getDocs(query(collection(db, 'renewals'), where('contractId', '==', oldContractId)));
+  const renewalData = { contractId: oldContractId, newContractId, status: 'renewed', notes, updatedAt: serverTimestamp() };
+  if (!renewalSnap.empty) {
+    await smartUpdateDoc(doc(db, 'renewals', renewalSnap.docs[0].id), renewalData, ['renewals']);
+  } else {
+    const old = allContracts.find(x => x.id === oldContractId);
+    renewalData.customerNo = old?.customerNo || '';
+    renewalData.createdAt = serverTimestamp();
+    await smartAddDoc(collection(db, 'renewals'), renewalData, ['renewals']);
+  }
+
+  if (cancelRemaining) await cancelRemainingOpenSessions(oldContractId);
+
+  await logAction('created', 'renewal', newContractId, `Renewed contract ${oldContractId} → ${newContractNumber}${cancelRemaining ? ' (remaining old sessions cancelled)' : ''}`);
+}
 
 $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });

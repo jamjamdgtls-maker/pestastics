@@ -59,7 +59,8 @@ service cloud.firestore {
       allow read: if isApproved();
     }
     match /renewals/{id} {
-      allow read: if isApproved();
+      allow read, create, update: if isApproved();
+      allow delete: if isSuperAdmin();
     }
     match /inspections/{id} {
       allow read: if isApproved();

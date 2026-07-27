@@ -11,7 +11,8 @@ anywhere, ever.
 - `index.html` — the shell: register/login/pending/admin/forbidden/notfound
   views, the router wiring, and `#view-mount` (where feature modules get
   injected).
-- `clients.html` / `contracts.html` / `treatments.html` / `payments.html` —
+- `clients.html` / `contracts.html` / `treatments.html` / `payments.html` /
+  `renewals.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -46,7 +47,22 @@ anywhere, ever.
   tag so it actually executes (script content set via `innerHTML` never
   runs — this is why a real router is needed instead of just concatenating
   HTML strings). Every visit after the first is instant: nothing is
-  re-fetched, re-parsed, or re-executed.
+  re-fetched, re-parsed, or re-executed. Also dispatches a
+  `router:view-shown` event after every navigation, which is what the
+  cross-module bridges below wait on.
+- **Cross-module bridges** — modules jump into each other and act on a
+  specific record via `window` custom events rather than any direct
+  reference (they're independently loaded and don't import each other).
+  Pattern: navigate to the target route by hash, wait for
+  `router:view-shown` to confirm it's mounted (or skip the wait if
+  already on that route), then dispatch the actual request event; the
+  receiving module listens for it, waits for its own data to finish
+  loading if it was just mounted for the first time, then acts.
+  `pc:open-contract` / `pc:open-client` (open a specific record's detail
+  modal — used by Payments and Renewals to link out to Contracts/Clients)
+  and `pc:renew-contract` (open Contracts' New Contract form pre-filled
+  from an expiring contract — used by Renewals' "Renew" action and its
+  "Status → Renewed" shortcut) all follow this same shape.
 - `js/firestore-cache.js` — shared in-memory read cache + "smart write"
   wrappers (`cachedGetDocs`, `smartUpdateDoc`, etc.), used by every module
   so a collection is read once per session, not once per page visit.
@@ -126,6 +142,9 @@ anywhere, ever.
   `noOfSessions`, `status`, plus rollup fields kept in sync by
   `js/contract-sync.js`: `totalSessions`, `completedSessions`,
   `nextTreatmentDate`, `totalPaid`, `balanceRemaining`, `lastPaymentDate`.
+  A renewed contract gets `renewedToContractId` (pointing at its
+  replacement); the new contract gets `renewedFromContractId` pointing
+  back — the link is written on both sides, not just one.
 - `treatments/{id}` — one per session: `contractId`, `sessionNo`,
   `treatmentDate`, `status` (`scheduled`/`need schedule`/`completed`/
   `cancelled`/`rescheduled`, lowercase). Deliberately does **not** store
@@ -144,10 +163,19 @@ anywhere, ever.
   status field; the two were never unified and both modules agree on it).
   `isAdditional` marks a payment as an ad-hoc extra charge outside the
   original installment plan (set automatically by "Add Extra Treatment"
-  in both Contracts and Treatments, or manually via `payments.html`'s
-  own Add Payment flow) — display/reporting only, doesn't change rollup
-  math. `notes` is an array of `{text, author, timestamp}`, managed
-  from `payments.html`'s own notes thread.
+  in both Contracts and Treatments — `payments.html` itself is edit-only
+  now, it doesn't create new payments) — display/reporting only, doesn't
+  change rollup math. `notes` is an array of `{text, author, timestamp}`,
+  managed from `payments.html`'s own notes thread.
+- `renewals/{id}` — one per contract being tracked for renewal:
+  `contractId` (the *old* contract), `status` (`pending`/`proposal-sent`/
+  `awaiting-response`/`renewed`/`declined`, lowercase), `proposalAmount`,
+  `notes`. `status` can only ever become `'renewed'` as a side effect of
+  an actual new contract being created — `renewals.html` never writes
+  that value directly; picking "Renewed" from its own Update Status
+  modal redirects into Contracts' creation flow instead (see below).
+  Once a renewal completes, gets `newContractId` pointing at the
+  contract that replaced it.
 - `teams/{id}` — `teamName` + a `members`/`technicians` roster. Kept as
   its own collection rather than folded into config/settings (unlike
   Contract Type, Sales Agent, etc.) because Treatments cascades a
