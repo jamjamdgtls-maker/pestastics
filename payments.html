@@ -1,0 +1,1127 @@
+<!-- ════════════════════════════════════════════════════════════════
+     Payments module — fetched + mounted once by js/router.js on first
+     visit to #payments, then left in the DOM (hidden) for every visit
+     after. Sits alongside index.html, firebase-config.js, and js/.
+════════════════════════════════════════════════════════════════ -->
+<style>
+
+#view-payments *, #view-payments *::before, #view-payments *::after {box-sizing:border-box;margin:0;padding:0}#view-payments {
+      --primary:hsl(142,76%,36%);--primary-hover:hsl(142,76%,30%);--primary-light:hsl(142,76%,95%);--primary-border:hsl(142,76%,80%);
+      --bg:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;
+      --sidebar-bg:#0f1b12;--sidebar-text:#c8d6ca;--sidebar-muted:#6b7f6e;
+      --text:#111827;--text-secondary:#4b5563;--text-muted:#9ca3af;
+      --border:#e5e7eb;--border-hover:#d1d5db;
+      --radius:8px;--radius-sm:4px;--radius-lg:12px;
+      --shadow:0 2px 8px rgba(0,0,0,.10);--shadow-lg:0 8px 24px rgba(0,0,0,.12);
+      --green:hsl(142,76%,36%);--green-bg:hsl(142,76%,95%);--green-text:hsl(142,76%,28%);
+      --blue:hsl(213,94%,47%);--blue-bg:hsl(213,94%,95%);--blue-text:hsl(213,94%,35%);
+      --amber:hsl(38,92%,50%);--amber-bg:hsl(38,92%,95%);--amber-text:hsl(38,92%,32%);
+      --red:hsl(0,84%,50%);--red-bg:hsl(0,84%,96%);--red-text:hsl(0,84%,38%);
+      --purple:hsl(262,83%,58%);--purple-bg:hsl(262,83%,96%);--purple-text:hsl(262,83%,42%);
+      --gray:hsl(220,9%,46%);--gray-bg:hsl(220,9%,95%);--gray-text:hsl(220,9%,35%);
+      --sidebar-width:260px;--topbar-height:60px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif
+    }#view-payments html, #view-payments body {height:100%;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg-secondary);line-height:1.5;-webkit-font-smoothing:antialiased}#view-payments a {color:inherit;text-decoration:none}#view-payments button {font-family:var(--font);cursor:pointer}#view-payments input, #view-payments select, #view-payments textarea {font-family:var(--font);font-size:14px}#view-payments /* AUTH */
+    #auth-screen {display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f1b12 0%,#1a2e1d 50%,#0d1f0f 100%)}#view-payments .auth-card {background:white;border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);text-align:center}#view-payments .auth-logo {width:64px;height:64px;background:var(--primary-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-payments .auth-logo svg {width:36px;height:36px}#view-payments .auth-card h1 {font-size:24px;font-weight:700;margin-bottom:4px}#view-payments .auth-card>p {color:var(--text-muted);font-size:14px;margin-bottom:32px}#view-payments .btn-google {width:100%;padding:12px 20px;border:1.5px solid var(--border);background:white;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:500;color:var(--text);transition:all .15s;cursor:pointer}#view-payments .btn-google:hover {background:var(--bg-secondary)}#view-payments .btn-google svg {width:20px;height:20px}#view-payments .auth-error {margin-top:16px;padding:10px 14px;background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);font-size:13px;border:1px solid #fca5a5;display:none}#view-payments .pending-icon {width:72px;height:72px;background:var(--amber-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-payments .pending-icon svg {width:36px;height:36px;color:var(--amber)}#view-payments .btn-pending-check {width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;margin-bottom:12px;cursor:pointer}#view-payments .btn-signout-pending {width:100%;padding:12px;background:transparent;color:var(--text-secondary);border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;cursor:pointer}#view-payments /* APP SHELL */
+    #app-shell {display:none;height:100vh;overflow:hidden}#view-payments /* SIDEBAR */
+    .sidebar {position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);display:flex;flex-direction:column;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);overflow:hidden}#view-payments .sidebar-logo {display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.06)}#view-payments .sidebar-logo-icon {width:36px;height:36px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}#view-payments .sidebar-logo-icon svg {width:20px;height:20px;color:white}#view-payments .sidebar-logo-text span {display:block;font-size:15px;font-weight:700;color:white;line-height:1.2}#view-payments .sidebar-logo-text small {font-size:10px;color:var(--sidebar-muted);text-transform:uppercase;letter-spacing:.08em}#view-payments .sidebar-nav {flex:1;overflow-y:auto;padding:12px 10px}#view-payments .sidebar-nav::-webkit-scrollbar {width:4px}#view-payments .sidebar-nav::-webkit-scrollbar-thumb {background:rgba(255,255,255,.1);border-radius:2px}#view-payments .nav-section-label {font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sidebar-muted);padding:12px 10px 6px}#view-payments .nav-item {display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);color:var(--sidebar-text);font-size:13.5px;font-weight:450;cursor:pointer;transition:all .15s;position:relative;user-select:none}#view-payments .nav-item:hover {background:rgba(255,255,255,.07);color:white}#view-payments .nav-item.active {background:rgba(34,197,94,.15);color:hsl(142,76%,65%)}#view-payments .nav-item.active::before {content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--primary);border-radius:0 2px 2px 0}#view-payments .nav-item svg {width:16px;height:16px;flex-shrink:0;opacity:.85}#view-payments .nav-item.active svg {opacity:1}#view-payments .nav-badge {margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}#view-payments .nav-badge.amber {background:var(--amber)}#view-payments .sidebar-footer {padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)}#view-payments .sidebar-user {display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}#view-payments .sidebar-user:hover {background:rgba(255,255,255,.07)}#view-payments .user-avatar {width:34px;height:34px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0;overflow:hidden}#view-payments .user-avatar img {width:100%;height:100%;object-fit:cover}#view-payments .user-info {flex:1;min-width:0}#view-payments .user-name {font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#view-payments .user-role {font-size:11px;color:var(--sidebar-muted);text-transform:capitalize}#view-payments .btn-signout {background:none;border:none;padding:6px;color:var(--sidebar-muted);border-radius:var(--radius-sm);transition:all .15s;display:flex;align-items:center;cursor:pointer}#view-payments .btn-signout:hover {color:var(--red);background:rgba(239,68,68,.1)}#view-payments .btn-signout svg {width:16px;height:16px}#view-payments .sidebar-overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}#view-payments /* MAIN */
+    .main-wrapper {margin-left:var(--sidebar-width);width:calc(100vw - var(--sidebar-width));height:100vh;display:flex;flex-direction:column;overflow:hidden}#view-payments .topbar {height:var(--topbar-height);background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}#view-payments .hamburger {display:none;background:none;border:none;padding:6px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer}#view-payments .hamburger svg {width:20px;height:20px}#view-payments .topbar-title {font-size:16px;font-weight:700;color:var(--text)}#view-payments .topbar-spacer {flex:1}#view-payments .topbar-btn {width:34px;height:34px;background:none;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer;position:relative}#view-payments .topbar-btn svg {width:16px;height:16px}#view-payments .topbar-notif-dot {position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid white}#view-payments .page-content {flex:1;overflow:hidden;padding:24px;display:flex;flex-direction:column}#view-payments /* BUTTONS */
+    .btn {display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}#view-payments .btn svg {width:15px;height:15px}#view-payments .btn-primary {background:var(--primary);color:white}#view-payments .btn-primary:hover {background:var(--primary-hover)}#view-payments .btn-primary:active {transform:scale(.98)}#view-payments .btn-primary:disabled {opacity:.6;cursor:not-allowed;transform:none}#view-payments .btn-secondary {background:white;color:var(--text);border:1px solid var(--border)}#view-payments .btn-secondary:hover {background:var(--bg-secondary)}#view-payments .btn-danger {background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}#view-payments .btn-danger:hover {background:#fee2e2}#view-payments .btn-amber {background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}#view-payments .btn-amber:hover {background:#fef3c7}#view-payments .btn-ghost {background:none;color:var(--text-secondary);border:none;padding:6px 10px}#view-payments .btn-ghost:hover {background:var(--bg-secondary);color:var(--text)}#view-payments .btn-sm {padding:5px 10px;font-size:12px}#view-payments .btn-sm svg {width:13px;height:13px}#view-payments /* BADGES */
+    .badge {display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}#view-payments .badge::before {content:'';width:5px;height:5px;border-radius:50%;background:currentColor}#view-payments .badge-green {background:var(--green-bg);color:var(--green-text)}#view-payments .badge-blue {background:var(--blue-bg);color:var(--blue-text)}#view-payments .badge-amber {background:var(--amber-bg);color:var(--amber-text)}#view-payments .badge-red {background:var(--red-bg);color:var(--red-text)}#view-payments .badge-purple {background:var(--purple-bg);color:var(--purple-text)}#view-payments .badge-gray {background:var(--gray-bg);color:var(--gray-text)}#view-payments /* PAGE */
+    .page-header {display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;flex-shrink:0}#view-payments .page-header-left h2 {font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}#view-payments .page-header-left p {font-size:13px;color:var(--text-muted);margin-top:3px}#view-payments .page-header-right {display:flex;gap:8px;flex-wrap:wrap}#view-payments /* SUMMARY CARDS */
+    .summary-grid {display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;flex-shrink:0}#view-payments .sum-card {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative;overflow:hidden}#view-payments .sum-card:hover {box-shadow:var(--shadow);transform:translateY(-1px)}#view-payments .sum-card.active {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-payments .sum-card::before {content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}#view-payments .sum-card.total::before {background:var(--blue)}#view-payments .sum-card.completed::before {background:var(--green)}#view-payments .sum-card.scheduled::before {background:var(--blue)}#view-payments .sum-card.overdue::before {background:var(--red)}#view-payments .sum-card.cancelled::before {background:var(--gray)}#view-payments .sum-card-val {font-size:28px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px;letter-spacing:-.5px}#view-payments .sum-card-lbl {font-size:12px;color:var(--text-muted);font-weight:500}#view-payments .sum-card-icon {position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.08}#view-payments .sum-card-icon svg {width:48px;height:48px}#view-payments /* FILTERS */
+    .filters-bar {display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}#view-payments .search-wrap {position:relative;flex:1;min-width:220px}#view-payments .search-wrap svg {position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}#view-payments .search-input {width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white;outline:none;transition:border-color .15s,box-shadow .15s}#view-payments .search-input:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-filter-group {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:3px 6px 3px 10px;height:36px;transition:border-color .15s,box-shadow .15s}#view-payments .date-filter-group:focus-within {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-filter-field {display:flex;align-items:center;gap:6px}#view-payments .date-filter-field + .date-filter-field {padding-left:8px;border-left:1px solid var(--border)}#view-payments .date-filter-field label {font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}#view-payments .date-filter-input {border:none;outline:none;background:transparent;font-size:13px;color:var(--text);padding:4px 2px;font-family:var(--font);min-width:120px;cursor:pointer}#view-payments .date-filter-input::-webkit-calendar-picker-indicator {cursor:pointer;opacity:.5;transition:opacity .15s}#view-payments .date-filter-input::-webkit-calendar-picker-indicator:hover {opacity:1}#view-payments .date-filter-clear {background:none;border:none;padding:5px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}#view-payments .date-filter-clear svg {width:13px;height:13px}#view-payments .date-filter-clear:hover {background:var(--bg-secondary);color:var(--red)}#view-payments .date-filter-clear.hidden {display:none}#view-payments .date-quick-filters {display:flex;align-items:center;gap:4px;height:36px}#view-payments .date-quick-btn {height:36px;padding:0 12px;border:1px solid var(--border);background:white;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}#view-payments .date-quick-btn:hover {background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}#view-payments .date-quick-btn.active {background:var(--primary-light);border-color:var(--primary-border);color:var(--primary);font-weight:600}#view-payments .filter-select {padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}#view-payments .filter-select:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-range {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px}#view-payments .date-range input[type="date"] {border:none;font-size:13px;color:var(--text);outline:none;background:transparent;cursor:pointer}#view-payments .date-range span {font-size:12px;color:var(--text-muted)}#view-payments /* TABLE */
+    .table-card {background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}#view-payments .table-wrapper {overflow-x:auto}#view-payments table {width:100%;border-collapse:collapse}#view-payments thead th {padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;text-align:left;position:sticky;top:0;z-index:1}#view-payments tbody tr {border-bottom:1px solid var(--bg-tertiary);transition:background .1s}#view-payments tbody tr:last-child {border-bottom:none}#view-payments tbody tr:hover {background:var(--bg-secondary)}#view-payments tbody td {padding:10px 14px;font-size:13.5px;color:var(--text);vertical-align:middle;white-space:nowrap}#view-payments td.muted {color:var(--text-muted);font-size:12.5px}#view-payments td.mono {font-family:monospace;font-size:12.5px;color:var(--text-secondary)}#view-payments .actions-cell {display:flex;align-items:center;gap:5px;flex-wrap:nowrap}#view-payments tbody tr.overdue-row {background:hsl(0,84%,99%)}#view-payments tbody tr.overdue-row:hover {background:hsl(0,84%,97%)}#view-payments /* PAGINATION */
+    .pagination {display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-top:1px solid var(--border);background:white;flex-wrap:wrap;gap:10px}#view-payments .pagination-info {font-size:13px;color:var(--text-muted)}#view-payments .pagination-controls {display:flex;align-items:center;gap:4px}#view-payments .page-btn {min-width:32px;height:32px;padding:0 10px;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font)}#view-payments .page-btn:hover:not(:disabled) {background:var(--bg-secondary);color:var(--text)}#view-payments .page-btn.active {background:var(--primary);color:white;border-color:var(--primary);font-weight:600}#view-payments .page-btn:disabled {opacity:.4;cursor:not-allowed}#view-payments .date-nav-btn {min-width:32px;height:32px;padding:0;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}#view-payments .date-nav-btn:hover {background:var(--bg-secondary);color:var(--text)}#view-payments .date-nav-btn svg {width:16px;height:16px}#view-payments /* FORMS */
+    .form-group {margin-bottom:16px}#view-payments .form-label {display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}#view-payments .form-label .req {color:var(--red);margin-left:2px}#view-payments .form-input, #view-payments .form-select, #view-payments .form-textarea {width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none}#view-payments .form-select {appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:32px;cursor:pointer}#view-payments .form-input:focus, #view-payments .form-select:focus, #view-payments .form-textarea:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}#view-payments .form-input::placeholder, #view-payments .form-textarea::placeholder {color:var(--text-muted)}#view-payments .form-textarea {resize:vertical;min-height:80px}#view-payments .form-hint {font-size:11.5px;color:var(--text-muted);margin-top:4px}#view-payments .form-row {display:grid;grid-template-columns:1fr 1fr;gap:14px}#view-payments .form-input[readonly] {background:var(--bg-secondary);color:var(--text-secondary)}#view-payments /* MODAL */
+    .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}#view-payments .modal-overlay.open {opacity:1;pointer-events:all}#view-payments .modal {background:white;border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}#view-payments .modal-overlay.open .modal {transform:translateY(0) scale(1)}#view-payments .modal-header {display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);flex-shrink:0}#view-payments .modal-title {font-size:16px;font-weight:700;color:var(--text)}#view-payments .modal-subtitle {font-size:12px;color:var(--text-muted);margin-top:2px}#view-payments .modal-close {width:30px;height:30px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);cursor:pointer;transition:all .15s}#view-payments .modal-close:hover {background:var(--bg-secondary);color:var(--text)}#view-payments .modal-close svg {width:15px;height:15px}#view-payments .modal-body {padding:22px;overflow-y:auto;flex:1}#view-payments .modal-footer {display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0}#view-payments /* CSV UPLOAD */
+    .upload-zone {border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg-secondary)}#view-payments .upload-zone:hover, #view-payments .upload-zone.drag {border-color:var(--primary);background:var(--primary-light)}#view-payments .upload-zone svg {width:32px;height:32px;color:var(--text-muted);margin-bottom:10px}#view-payments .upload-zone p {font-size:13.5px;color:var(--text-secondary);margin-bottom:4px}#view-payments .upload-zone small {font-size:12px;color:var(--text-muted)}#view-payments .upload-preview {margin-top:14px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12.5px}#view-payments /* CONTEXT BANNER */
+    .context-banner {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:18px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}#view-payments .context-banner .cb-label {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}#view-payments .context-banner .cb-val {font-size:13px;font-weight:600;color:var(--text)}#view-payments /* EMPTY STATE */
+    .empty-state {text-align:center;padding:52px 20px}#view-payments .empty-state svg {width:40px;height:40px;color:var(--text-muted);margin-bottom:14px;opacity:.5}#view-payments .empty-state h3 {font-size:15px;font-weight:600;margin-bottom:6px}#view-payments .empty-state p {font-size:13px;color:var(--text-muted);max-width:340px;margin:0 auto}#view-payments /* SPINNER / TOAST */
+    .spinner {width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}#view-payments #toast-container {position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}#view-payments .toast {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-width:280px;max-width:380px;box-shadow:var(--shadow-lg);display:flex;align-items:flex-start;gap:10px;pointer-events:all;animation:toastIn .2s ease;border-left:4px solid var(--primary)}#view-payments .toast.error {border-left-color:var(--red)}#view-payments .toast.warning {border-left-color:var(--amber)}#view-payments .toast-icon svg {width:16px;height:16px}#view-payments .toast-body {flex:1}#view-payments .toast-title {font-size:13.5px;font-weight:600}#view-payments .toast-msg {font-size:12.5px;color:var(--text-secondary);margin-top:2px}#view-payments .toast-close {background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0}#view-payments .toast-close svg {width:14px;height:14px}
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}#view-payments /* TREATMENT TYPE RECONFIGURE */
+    .inline-type-select {border:1px solid transparent;background:var(--green-bg);color:var(--green-text);font-size:11.5px;font-weight:600;cursor:pointer;border-radius:14px;padding:3px 22px 3px 8px;outline:none;font-family:var(--font);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2316a34a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;background-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .15s,box-shadow .15s}#view-payments .inline-type-select:hover {border-color:var(--primary)}#view-payments .inline-type-select:focus {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-payments /* RESCHEDULE HISTORY */
+    .reschedule-history {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:12.5px}#view-payments .reschedule-history-title {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px}#view-payments .reschedule-history-item {display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}#view-payments .reschedule-history-item:last-child {border-bottom:none}#view-payments .reschedule-history-item .rh-dot {width:7px;height:7px;background:var(--amber);border-radius:50%;flex-shrink:0;margin-top:5px}#view-payments .reschedule-history-item .rh-text {font-size:12px;color:var(--text-secondary)}#view-payments /* DRIVE LINK SECTION */
+    .drive-link-section {background:var(--blue-bg);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;margin-top:4px}#view-payments .drive-link-section label {font-size:12px;font-weight:700;color:var(--blue-text);display:block;margin-bottom:6px}#view-payments /* PAGE LOAD SCREEN */
+    #loading-screen {position:fixed;inset:0;background:#0f1b12;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .25s}#view-payments #loading-screen.fade-out {opacity:0;pointer-events:none}#view-payments .ls-logo {display:flex;align-items:center;justify-content:center;background:white;border-radius:12px;padding:10px 20px}#view-payments .ls-logo svg {width:34px;height:34px;color:white}#view-payments .ls-spinner {width:28px;height:28px;border:3px solid rgba(255,255,255,.15);border-top-color:hsl(142,76%,60%);border-radius:50%;animation:spin .7s linear infinite}#view-payments .ls-text {font-size:13px;color:rgba(255,255,255,.45);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.02em}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){#view-payments .summary-grid {grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1024px){#view-payments .sidebar {transform:translateX(-100%)}#view-payments .sidebar.open {transform:translateX(0)}#view-payments .sidebar-overlay.open {display:block}#view-payments .main-wrapper {margin-left:0}#view-payments .hamburger {display:flex}#view-payments .form-row {grid-template-columns:1fr}
+    }
+    @media(max-width:768px){#view-payments .page-content {padding:16px}#view-payments .summary-grid {grid-template-columns:1fr 1fr}#view-payments .filters-bar {flex-direction:column;align-items:stretch}#view-payments .date-filter-group {flex-wrap:wrap;height:auto;width:100%}#view-payments .date-filter-input {min-width:0;flex:1}#view-payments .date-filter-field {flex:1}#view-payments .date-quick-filters {flex-wrap:wrap;width:100%;height:auto}#view-payments .date-quick-btn {flex:1;min-width:0}}
+    @media(max-width:480px){#view-payments .summary-grid {grid-template-columns:1fr}}#view-payments .sort-icon { font-size:10px; margin-left:3px; color:var(--primary); }#view-payments /* Inline status select */
+    .inline-status-select {
+      border:none; background:transparent; font-size:12px; font-weight:600;
+      cursor:pointer; border-radius:20px; padding:3px 8px; outline:none;
+      font-family:var(--font); appearance:none; -webkit-appearance:none;
+      text-align:center;
+    }#view-payments .inline-status-select.status-scheduled { background:var(--blue-bg);  color:var(--blue-text); }#view-payments .inline-status-select.status-overdue { background:var(--red-bg);   color:var(--red-text);  }#view-payments .inline-status-select.status-completed { background:var(--green-bg); color:var(--green-text);}#view-payments .inline-status-select.status-rescheduled { background:var(--amber-bg); color:var(--amber-text);}#view-payments .inline-status-select.status-cancelled { background:var(--gray-bg);  color:var(--gray-text); }#view-payments /* Column header dropdown menu (Google Sheets style) */
+    .col-header { position:relative; cursor:pointer; user-select:none; white-space:nowrap; }#view-payments .col-header:hover { background:var(--bg-tertiary); }#view-payments .col-header-inner { display:flex; align-items:center; gap:4px; }#view-payments .col-menu-btn { background:none; border:none; color:var(--text-muted); font-size:10px; padding:2px 3px; cursor:pointer; border-radius:2px; line-height:1; opacity:0; transition:opacity .15s; }#view-payments .col-header:hover .col-menu-btn { opacity:1; }#view-payments .col-menu-btn:hover { background:var(--border); color:var(--text); }#view-payments .col-dropdown { position:absolute; top:100%; left:0; z-index:100; background:white; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); min-width:200px; padding:6px 0; font-size:13px; font-weight:400; text-transform:none; letter-spacing:0; }#view-payments .col-dropdown-item { display:flex; align-items:center; gap:8px; padding:7px 14px; cursor:pointer; color:var(--text); transition:background .1s; white-space:nowrap; }#view-payments .col-dropdown-item:hover { background:var(--bg-secondary); }#view-payments .col-dropdown-item svg { width:14px; height:14px; color:var(--text-muted); flex-shrink:0; }#view-payments .col-dropdown-sep { height:1px; background:var(--border); margin:4px 0; }#view-payments .col-dropdown-search { padding:6px 10px; }#view-payments .col-dropdown-search input { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:12.5px; outline:none; }#view-payments .col-dropdown-search input:focus { border-color:var(--primary); box-shadow:0 0 0 2px rgba(34,197,94,.12); }#view-payments .col-dropdown-values { max-height:180px; overflow-y:auto; }#view-payments .col-dropdown-values label { display:flex; align-items:center; gap:8px; padding:5px 14px; cursor:pointer; font-size:12.5px; color:var(--text); }#view-payments .col-dropdown-values label:hover { background:var(--bg-secondary); }#view-payments .col-dropdown-values input[type="checkbox"] { accent-color:var(--primary); }#view-payments .col-dropdown-actions { display:flex; gap:6px; padding:6px 10px; border-top:1px solid var(--border); margin-top:4px; }#view-payments .col-dropdown-actions button { flex:1; padding:5px 8px; font-size:12px; border-radius:var(--radius-sm); cursor:pointer; }#view-payments /* Fixed table within screen */
+    .table-wrapper::-webkit-scrollbar { width:8px; height:8px; }#view-payments .table-wrapper::-webkit-scrollbar-thumb { background:var(--border-hover); border-radius:4px; }#view-payments .table-wrapper::-webkit-scrollbar-track { background:var(--bg-secondary); }#view-payments .table-wrapper::-webkit-scrollbar-corner { background:var(--bg-secondary); }#view-payments thead th { position:sticky; top:0; z-index:10; background:var(--bg-secondary); }
+
+    #view-payments #app-shell { display: flex; }
+#view-payments .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
+#view-payments .manage-list-link:hover{color:hsl(142,76%,28%)}
+
+
+/* ── Payments-specific additions ── */
+#view-payments .segmented-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+#view-payments .seg-btn{flex:1;padding:9px 12px;background:white;border:none;border-right:1px solid var(--border);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font)}
+#view-payments .seg-btn:last-child{border-right:none}
+#view-payments .seg-btn:hover{background:var(--bg-secondary)}
+#view-payments .seg-btn.active{background:var(--primary);color:white;font-weight:600}
+#view-payments .payment-type-badge{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;padding:1px 6px;border-radius:3px;vertical-align:middle;margin-left:4px}
+#view-payments .payment-type-badge.additional{background:#ede9fe;color:#5b21b6}
+#view-payments tbody tr.overdue-row{background:hsl(0,84%,99.2%)}
+#view-payments tbody tr.overdue-row:hover{background:hsl(0,84%,97%)}
+#view-payments .sum-card{position:relative;overflow:hidden}
+#view-payments .sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+#view-payments .sum-card.receivable::before{background:var(--blue)}
+#view-payments .sum-card.collected::before{background:var(--green)}
+#view-payments .sum-card.outstanding::before{background:var(--amber)}
+#view-payments .sum-card.overdue-card::before{background:var(--red)}
+#view-payments .sum-card-filter-note{font-size:11.5px;color:var(--primary);font-weight:600;text-align:center;margin-top:-8px;margin-bottom:12px;display:none}
+#view-payments .sum-card-filter-note.visible{display:block}
+#view-payments .summary-grid.is-filtered .sum-card-label::after{content:'filtered';display:inline-block;margin-left:7px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;background:var(--primary);color:white;padding:1px 5px;border-radius:3px;vertical-align:middle;opacity:.85}
+
+/* Notes thread */
+#view-payments .notes-section{margin-top:4px}
+#view-payments .notes-section-label{font-size:13px;font-weight:600;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+#view-payments .notes-section-label svg{width:14px;height:14px;color:var(--text-muted)}
+#view-payments .notes-count{font-size:11px;font-weight:500;color:var(--text-muted)}
+#view-payments .notes-list{max-height:200px;overflow-y:auto;margin-bottom:10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg-secondary)}
+#view-payments .notes-list:empty::after{content:'No notes yet.';display:block;padding:16px;text-align:center;font-size:12.5px;color:var(--text-muted);font-style:italic}
+#view-payments .note-item{padding:10px 12px;border-bottom:1px solid var(--border)}
+#view-payments .note-item:last-child{border-bottom:none}
+#view-payments .note-item-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:3px}
+#view-payments .note-author{font-size:11.5px;font-weight:600;color:var(--primary)}
+#view-payments .note-time{font-size:10.5px;color:var(--text-muted)}
+#view-payments .note-text{font-size:13px;color:var(--text);line-height:1.45;word-break:break-word}
+#view-payments .notes-input-row{display:flex;gap:8px;align-items:flex-start}
+#view-payments .notes-input-row textarea{flex:1;min-height:40px;max-height:100px;resize:vertical;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:var(--font);outline:none;transition:border-color .15s}
+#view-payments .notes-input-row textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+#view-payments .btn-add-note{padding:8px 14px;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-size:12.5px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .15s;height:40px}
+#view-payments .btn-add-note:hover{background:var(--primary-hover)}
+#view-payments .btn-add-note:disabled{opacity:.5;cursor:not-allowed}
+#view-payments .td-note{max-width:180px;font-size:12px;color:var(--text-secondary);line-height:1.35}
+#view-payments .td-note-text{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#view-payments .td-note-meta{font-size:10px;color:var(--text-muted);margin-top:1px}
+#view-payments .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
+#view-payments .manage-list-link:hover{color:hsl(142,76%,28%)}
+
+</style>
+
+<div data-view="payments" id="view-payments">
+<div id="app-shell">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="#dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a class="nav-item" href="#clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</a>
+      <a class="nav-item" href="#contracts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Contracts</a>
+      <a class="nav-item" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
+      <div class="nav-section-label">Financial</div>
+      <a class="nav-item active" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
+      <div class="nav-section-label" id="payments-admin-nav-label" style="display:none">Admin</div>
+      <a class="nav-item" href="#admin" id="payments-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar"><span id="user-initials">?</span></div>
+        <div class="user-info">
+          <div class="user-name" id="user-display-name">Loading…</div>
+          <div class="user-role" id="user-role-label">—</div>
+        </div>
+        <button class="btn-signout" id="btn-signout" title="Sign out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title">Payments</span>
+      <div class="topbar-spacer"></div>
+      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+    </header>
+
+    <main class="page-content">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h2>Payments</h2>
+          <p>Track all payment transactions and outstanding balances</p>
+        </div>
+        <div class="page-header-right">
+          <button class="btn btn-secondary" id="btn-dl-template"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV Template</button>
+          <button class="btn btn-secondary" id="btn-import-csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV</button>
+          <button class="btn btn-secondary" id="btn-export-csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
+          <button class="btn btn-primary" id="btn-add-payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Payment</button>
+        </div>
+      </div>
+      <div class="sum-card-filter-note" id="filter-active-note"></div>
+      <div class="summary-grid">
+        <div class="sum-card receivable"><div class="sum-card-label">Total Receivable</div><div class="sum-card-value" id="sc-receivable">—</div><div class="sum-card-sub" id="sc-receivable-sub">All payment records</div></div>
+        <div class="sum-card collected"><div class="sum-card-label">Total Collected</div><div class="sum-card-value" id="sc-collected" style="color:var(--green)">—</div><div class="sum-card-sub">Received + Deposited + Remitted</div></div>
+        <div class="sum-card outstanding"><div class="sum-card-label">Outstanding Balance</div><div class="sum-card-value" id="sc-outstanding" style="color:var(--amber)">—</div><div class="sum-card-sub" id="sc-outstanding-sub">Receivable − collected</div></div>
+        <div class="sum-card overdue-card"><div class="sum-card-label">Overdue Payments</div><div class="sum-card-value" id="sc-overdue" style="color:var(--red)">—</div><div class="sum-card-sub" id="sc-overdue-sub">Past due, status = Pending</div></div>
+      </div>
+      <div class="filters-bar">
+        <div class="search-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" class="search-input" id="search-input" placeholder="Search client name, customer #, OR number…" /></div>
+        <div class="date-quick-filters" id="date-quick-filters">
+          <button type="button" class="date-quick-btn" data-range="today">Today</button>
+          <button type="button" class="date-quick-btn" data-range="tomorrow">Tomorrow</button>
+        </div>
+        <div class="date-range"><input type="date" id="filter-date-from" title="Due date from" /><span>to</span><input type="date" id="filter-date-to" title="Due date to" /></div>
+        <button class="btn btn-ghost btn-sm" id="btn-clear-filters">Clear</button>
+      </div>
+      <div class="table-card" style="flex:1;min-height:0">
+        <div class="table-wrapper" style="flex:1;overflow:auto;min-height:0">
+          <table id="payments-table">
+            <thead>
+              <tr>
+                <th class="col-header" data-sort="customerNo" data-col="customerNo"><div class="col-header-inner"><span>Customer No</span><span class="sort-icon" id="sort-customerNo"></span><button class="col-menu-btn" data-col="customerNo">▾</button></div></th>
+                <th class="col-header" data-sort="clientName" data-col="clientName"><div class="col-header-inner"><span>Client Name</span><span class="sort-icon" id="sort-clientName"></span><button class="col-menu-btn" data-col="clientName">▾</button></div></th>
+                <th class="col-header" data-sort="contractNo" data-col="contractNo"><div class="col-header-inner"><span>Contract No</span><span class="sort-icon" id="sort-contractNo"></span><button class="col-menu-btn" data-col="contractNo">▾</button></div></th>
+                <th class="col-header" data-sort="dueDate" data-col="dueDate"><div class="col-header-inner"><span>Due Date</span><span class="sort-icon" id="sort-dueDate">▼</span><button class="col-menu-btn" data-col="dueDate">▾</button></div></th>
+                <th class="col-header" data-sort="amount" data-col="amount"><div class="col-header-inner"><span>Amount (₱)</span><span class="sort-icon" id="sort-amount"></span><button class="col-menu-btn" data-col="amount">▾</button></div></th>
+                <th class="col-header" data-sort="orNumber" data-col="orNumber"><div class="col-header-inner"><span>OR No.</span><span class="sort-icon" id="sort-orNumber"></span><button class="col-menu-btn" data-col="orNumber">▾</button></div></th>
+                <th class="col-header" data-sort="paymentDate" data-col="paymentDate"><div class="col-header-inner"><span>Payment Date</span><span class="sort-icon" id="sort-paymentDate"></span><button class="col-menu-btn" data-col="paymentDate">▾</button></div></th>
+                <th class="col-header" data-sort="paymentMode" data-col="paymentMode"><div class="col-header-inner"><span>Mode</span><span class="sort-icon" id="sort-paymentMode"></span><button class="col-menu-btn" data-col="paymentMode">▾</button></div></th>
+                <th class="col-header" data-sort="status" data-col="status"><div class="col-header-inner"><span>Status</span><span class="sort-icon" id="sort-status"></span><button class="col-menu-btn" data-col="status">▾</button></div></th>
+                <th class="col-header" data-sort="receivedBy" data-col="receivedBy"><div class="col-header-inner"><span>Received By</span><span class="sort-icon" id="sort-receivedBy"></span><button class="col-menu-btn" data-col="receivedBy">▾</button></div></th>
+                <th class="col-header" data-col="recentNote"><div class="col-header-inner"><span>Recent Note</span><span class="sort-icon" id="sort-recentNote"></span><button class="col-menu-btn" data-col="recentNote">▾</button></div></th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="payments-tbody">
+              <tr><td colspan="12" style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination" id="pagination-wrap">
+          <span class="pagination-info" id="pagination-info">Loading…</span>
+          <div class="pagination-controls" id="pagination-controls"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ADD / EDIT PAYMENT MODAL -->
+<div class="modal-overlay" id="payment-form-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <span class="modal-title" id="form-modal-title">Add Payment</span>
+      <button class="modal-close" data-close="payment-form-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="form-payment-id" />
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Customer No <span class="req">*</span></label>
+          <input type="text" class="form-input" id="form-customer-no" placeholder="Type to search (e.g. PC-00001)" list="customer-datalist" autocomplete="off" />
+          <datalist id="customer-datalist"></datalist>
+          <div class="form-hint" id="customer-hint" style="color:var(--green-text);font-weight:500"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Contract <span class="req">*</span></label>
+          <select class="form-select" id="form-contract"><option value="">— Select Customer first —</option></select>
+        </div>
+      </div>
+      <div class="form-group" id="payment-type-group">
+        <label class="form-label">Payment Type</label>
+        <div class="segmented-toggle">
+          <button type="button" class="seg-btn active" id="ptype-additional">Additional / Extra Charge</button>
+          <button type="button" class="seg-btn" id="ptype-scheduled">Backfill a Missing Installment</button>
+        </div>
+        <div class="form-hint" id="payment-type-hint">An ad-hoc charge tied to this contract (e.g. a rush fee) — the usual case for adding a payment here.</div>
+      </div>
+      <div class="form-group" id="additional-timing-group">
+        <label class="form-label">When</label>
+        <div class="segmented-toggle">
+          <button type="button" class="seg-btn active" id="atime-paid">Already Paid (today)</button>
+          <button type="button" class="seg-btn" id="atime-scheduled">Scheduled for later</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Amount (₱) <span class="req">*</span></label>
+          <input type="number" class="form-input" id="form-amount" min="0" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Due Date <span class="req">*</span></label>
+          <input type="date" class="form-input" id="form-due-date" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Payment Date</label>
+          <input type="date" class="form-input" id="form-payment-date" />
+          <div class="form-hint">Leave blank if not yet paid</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Mode<button type="button" class="manage-list-link" data-field="paymentModes" data-title="Manage Payment Modes" data-target="form-mode">Manage list</button></label>
+          <select class="form-select" id="form-mode"><option value="">— Select Mode —</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">OR Number</label>
+          <input type="text" class="form-input" id="form-or-number" placeholder="Official Receipt No." />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Received By</label>
+          <select class="form-select" id="form-received-by"><option value="">— Select Agent —</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status <span class="req">*</span><button type="button" class="manage-list-link" data-field="paymentStatuses" data-title="Manage Payment Statuses" data-target="form-status">Manage list</button></label>
+        <select class="form-select" id="form-status"><option value="Pending">Pending</option></select>
+      </div>
+      <!-- NOTES THREAD -->
+      <div class="notes-section">
+        <div class="notes-section-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Notes &amp; Remarks <span class="notes-count" id="notes-count"></span>
+        </div>
+        <div class="notes-list" id="notes-list"></div>
+        <div class="notes-input-row">
+          <textarea id="form-new-note" placeholder="Add a remark, comment, or note…" rows="2"></textarea>
+          <button type="button" class="btn-add-note" id="btn-add-note">Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="payment-form-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-save-payment"><span id="save-btn-text">Save Payment</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- CSV IMPORT MODAL -->
+<div class="modal-overlay" id="csv-import-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">Import Payments from CSV</span>
+      <button class="modal-close" data-close="csv-import-modal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="modal-body">
+      <div style="background:var(--blue-bg);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--blue-text)">
+        <strong>Required:</strong> contractNumber, amount, dueDate<br>
+        <strong>Optional:</strong> paymentDate, paymentMode, orNumber, receivedBy, status, remarks<br>
+        <em>Customer comes from the linked contract automatically — a row with no matching contract number is skipped.</em>
+      </div>
+      <div class="upload-zone" id="csv-upload-zone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <p>Drop CSV file here or click to browse</p><small>Only .csv files accepted</small>
+        <input type="file" accept=".csv" id="csv-file-input" style="display:none" />
+      </div>
+      <div class="upload-preview" id="upload-preview" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <strong id="preview-filename" style="font-size:13px"></strong>
+          <span id="preview-count" style="font-size:12px;color:var(--text-muted)"></span>
+        </div>
+        <div style="max-height:160px;overflow-y:auto;font-size:12px" id="preview-table-wrap"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" data-close="csv-import-modal">Cancel</button>
+      <button class="btn btn-primary" id="btn-confirm-import" disabled><span id="import-btn-text">Import</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+</div>
+
+
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import {
+  collection, doc, getDoc, getDocs, addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, serverTimestamp, writeBatch
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import {
+  cachedGetDocs, cachedGetDoc, smartAddDoc, smartUpdateDoc, invalidate
+} from './js/firestore-cache.js';
+import { recalcContractRollup } from './js/contract-sync.js';
+import { getSettingsList, openListManager } from './js/list-manager.js';
+
+/* Fallback payment modes/statuses — empty-friendly like every other
+   managed list; "Manage list" builds these up from here. */
+const DEFAULT_PAYMENT_MODES = [];
+const DEFAULT_PAYMENT_STATUSES = ['Pending', 'Received', 'Deposited', 'Remitted', 'Collected'];
+const COLLECTED_STATUSES = ['Received', 'Deposited', 'Remitted', 'Collected'];
+
+/* ── State ── */
+let currentUser = null, currentRole = null;
+let allPayments = [], filteredPayments = [];
+let clientMap = {}, contractMap = {}, contractsByCustomer = {};
+let salesAgents = [], currentPage = 1;
+const PER_PAGE = 20;
+let formNotes = [];
+
+const $ = id => document.getElementById(id);
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function showToast(msg, type = 'success', title = '') {
+  const c = $('toast-container'), el = document.createElement('div');
+  el.className = `toast ${type === 'success' ? '' : type}`;
+  const icons = {
+    success: `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(142,76%,36%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    error:   `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(0,84%,50%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    warning: `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(38,92%,50%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`
+  };
+  const titles = { success: 'Saved', error: 'Error', warning: 'Warning' };
+  el.innerHTML = `<div class="toast-icon">${icons[type] || icons.success}</div><div class="toast-body"><div class="toast-title">${title || titles[type] || 'Done'}</div><div class="toast-msg">${msg}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+  c.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 5000);
+}
+
+function openModal(id) { $(id).classList.add('open'); }
+function closeModal(id) { $(id).classList.remove('open'); }
+document.querySelectorAll('#view-payments [data-close]').forEach(b => b.addEventListener('click', () => closeModal(b.dataset.close)));
+document.querySelectorAll('#view-payments .modal-overlay').forEach(ov => {
+  let downOnOverlay = false;
+  ov.addEventListener('mousedown', e => { downOnOverlay = (e.target === ov); });
+  ov.addEventListener('click', e => { if (e.target === ov && downOnOverlay) closeModal(ov.id); downOnOverlay = false; });
+});
+
+/* ── Date/format helpers ── */
+function fmtDate(v) { if (!v) return '—'; const d = v.toDate ? v.toDate() : new Date(v); if (isNaN(d)) return '—'; return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }); }
+function fmtCur(n) { return '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function toDate(v) { if (!v) return null; if (v.toDate) return v.toDate(); const d = new Date(v); return isNaN(d) ? null : d; }
+function toInputDate(v) { const d = toDate(v); if (!d) return ''; return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function cleanName(n) { return (n || '').replace(/\s*\(.*?\)\s*/g, '').trim() || '—'; }
+function fmtNoteTime(v) { if (!v) return ''; const d = v.toDate ? v.toDate() : (v.seconds ? new Date(v.seconds * 1000) : new Date(v)); if (isNaN(d)) return ''; return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) + ' ' + d.toLocaleTimeString('en-PH', { hour: 'numeric', minute: '2-digit', hour12: true }); }
+
+function isOverdue(p) {
+  const due = toDate(p.dueDate);
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const hasPaymentDate = !!toDate(p.paymentDate);
+  return p.status === 'Pending' && !hasPaymentDate && due && due < today;
+}
+function statusBadge(p) {
+  if (isOverdue(p)) return `<span class="badge badge-red">Overdue</span>`;
+  const m = { Pending: 'amber', Received: 'green', Deposited: 'green', Remitted: 'green', Collected: 'green' };
+  return `<span class="badge badge-${m[p.status] || 'gray'}">${p.status || '—'}</span>`;
+}
+function getRecentNote(p) {
+  const notes = p.notes || [];
+  if (!notes.length) return null;
+  return [...notes].sort((a, b) => {
+    const ta = a.timestamp?.seconds || (a.timestamp ? new Date(a.timestamp).getTime() / 1000 : 0);
+    const tb = b.timestamp?.seconds || (b.timestamp ? new Date(b.timestamp).getTime() / 1000 : 0);
+    return tb - ta;
+  })[0];
+}
+
+async function logAction(action, entityType, entityId, description) {
+  try {
+    await addDoc(collection(db, 'audit_log'), {
+      action, entityType, entityId, description,
+      performedBy: currentUser?.email || '', performedByUid: currentUser?.uid || '',
+      createdAt: serverTimestamp()
+    });
+  } catch {}
+}
+
+/* Merge a payment's rollup effect into the local contract cache so the
+   Contract # column / any open contract stays consistent without a
+   refetch, mirroring how Contracts/Treatments patch their own state. */
+function patchLocalContract(contractId, patch) {
+  if (contractMap[contractId]) Object.assign(contractMap[contractId], patch);
+}
+
+/* ══════════════════════════════════
+   LOAD
+══════════════════════════════════ */
+async function loadAll() {
+  // Clients — shared 'clients' cache key with Clients/Contracts/Treatments.
+  const clients = await cachedGetDocs(collection(db, 'clients'), 'clients');
+  clientMap = {}; contractsByCustomer = {};
+  clients.forEach(c => { clientMap[c.customerNo] = c.clientName; });
+  $('customer-datalist').innerHTML = clients.map(c => `<option value="${c.customerNo}">${c.customerNo} — ${cleanName(c.clientName)}</option>`).join('');
+
+  // Contracts — shared 'contracts' cache key.
+  const contracts = await cachedGetDocs(collection(db, 'contracts'), 'contracts');
+  contractMap = {};
+  contracts.forEach(c => {
+    contractMap[c.id] = c;
+    if (!contractsByCustomer[c.customerNo]) contractsByCustomer[c.customerNo] = [];
+    contractsByCustomer[c.customerNo].push(c);
+  });
+
+  // Settings — shared config/settings doc + cache key.
+  let cfg = null;
+  try { cfg = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings'); } catch {}
+  salesAgents = cfg?.salesAgents || [];
+  const paymentModes = cfg?.paymentModes || DEFAULT_PAYMENT_MODES;
+  const paymentStatuses = cfg?.paymentStatuses?.length ? cfg.paymentStatuses : DEFAULT_PAYMENT_STATUSES;
+
+  $('form-received-by').innerHTML = '<option value="">— Select Agent —</option>' + salesAgents.map(a => `<option>${a}</option>`).join('');
+  $('form-mode').innerHTML = '<option value="">— Select Mode —</option>' + paymentModes.map(m => `<option value="${m}">${m}</option>`).join('');
+  $('form-status').innerHTML = paymentStatuses.map(s => `<option value="${s}">${s}</option>`).join('');
+
+  // Payments — own cache key, not shared (nothing else needs the bulk list;
+  // Contracts/Treatments only ever query a single contract's payments).
+  allPayments = await cachedGetDocs(query(collection(db, 'payments'), orderBy('dueDate', 'desc')), 'payments');
+
+  computeSummary(allPayments);
+  applyFilters();
+}
+
+/* ══════════════════════════════════
+   SORT + COLUMN FILTER ENGINE
+══════════════════════════════════ */
+let sortField = 'dueDate', sortDir = 'desc';
+let activeColDropdown = null;
+let columnFilters = {};
+
+const MODE_LABELS = { 'cash': 'Cash', 'check': 'Check', 'bank-transfer': 'Bank Transfer', 'credit-card': 'Credit Card', 'gcash': 'GCash', 'maya': 'Maya' };
+
+function getColValue(p, col) {
+  if (col === 'customerNo')  return p.customerNo || '';
+  if (col === 'contractNo')  return contractMap[p.contractId]?.contractNumber || '';
+  if (col === 'clientName')  return cleanName(clientMap[p.customerNo] || '');
+  if (col === 'dueDate')     return fmtDate(p.dueDate);
+  if (col === 'amount')      return Number(p.amount || 0);
+  if (col === 'orNumber')    return p.orNumber || '';
+  if (col === 'paymentDate') return fmtDate(p.paymentDate);
+  if (col === 'paymentMode') return MODE_LABELS[p.paymentMode] || p.paymentMode || '';
+  if (col === 'status')      return isOverdue(p) ? 'Overdue' : (p.status || '');
+  if (col === 'receivedBy')  return p.receivedBy || '';
+  return '';
+}
+function getUniqueColValues(col) {
+  const vals = new Set();
+  allPayments.forEach(p => { const v = getColValue(p, col).toString().trim(); if (v && v !== '—') vals.add(v); });
+  return [...vals].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+}
+function closeColDropdown() { if (activeColDropdown) { activeColDropdown.remove(); activeColDropdown = null; } document.removeEventListener('click', onDocClickCloseDropdown, true); }
+function onDocClickCloseDropdown(e) { if (activeColDropdown && !activeColDropdown.contains(e.target) && !e.target.closest('.col-menu-btn')) closeColDropdown(); }
+
+function openColDropdown(col, th) {
+  closeColDropdown();
+  const values = getUniqueColValues(col);
+  const currentFilter = columnFilters[col];
+  const hasSortField = th.dataset.sort;
+  const dd = document.createElement('div');
+  dd.className = 'col-dropdown';
+  dd.innerHTML = `
+    ${hasSortField ? `
+      <div class="col-dropdown-item" data-action="sort-asc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg>Sort A → Z</div>
+      <div class="col-dropdown-item" data-action="sort-desc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>Sort Z → A</div>
+      <div class="col-dropdown-sep"></div>` : ''}
+    <div class="col-dropdown-search"><input type="text" placeholder="Search…" id="col-search-input" /></div>
+    <div class="col-dropdown-values" id="col-values-list">
+      ${values.map(v => `<label><input type="checkbox" value="${v.replace(/"/g, '&quot;')}" ${!currentFilter || currentFilter.has(v) ? 'checked' : ''} />${v}</label>`).join('')}
+    </div>
+    <div class="col-dropdown-actions">
+      <button class="btn btn-ghost btn-sm" data-action="select-all" style="border:1px solid var(--border)">All</button>
+      <button class="btn btn-ghost btn-sm" data-action="select-none" style="border:1px solid var(--border)">None</button>
+      <button class="btn btn-primary btn-sm" data-action="apply">Apply</button>
+    </div>`;
+  th.style.position = 'relative'; th.appendChild(dd); activeColDropdown = dd;
+  dd.querySelector('#col-search-input').addEventListener('input', e => {
+    const q = e.target.value.toLowerCase();
+    dd.querySelectorAll('#col-values-list label').forEach(lbl => { lbl.style.display = lbl.textContent.toLowerCase().includes(q) ? '' : 'none'; });
+  });
+  dd.querySelectorAll('[data-action="sort-asc"],[data-action="sort-desc"]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      sortField = th.dataset.sort; sortDir = btn.dataset.action === 'sort-asc' ? 'asc' : 'desc';
+      document.querySelectorAll('#view-payments .sort-icon').forEach(el => el.textContent = '');
+      const icon = document.getElementById('sort-' + sortField); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+      doSort(); closeColDropdown();
+    });
+  });
+  dd.querySelector('[data-action="select-all"]')?.addEventListener('click', () => { dd.querySelectorAll('#col-values-list input[type="checkbox"]').forEach(cb => cb.checked = true); });
+  dd.querySelector('[data-action="select-none"]')?.addEventListener('click', () => { dd.querySelectorAll('#col-values-list input[type="checkbox"]').forEach(cb => cb.checked = false); });
+  dd.querySelector('[data-action="apply"]')?.addEventListener('click', () => {
+    const checked = [...dd.querySelectorAll('#col-values-list input[type="checkbox"]:checked')].map(cb => cb.value);
+    if (checked.length === values.length) delete columnFilters[col]; else columnFilters[col] = new Set(checked);
+    th.style.background = columnFilters[col] ? 'var(--primary-light)' : '';
+    closeColDropdown(); applyFilters();
+  });
+  setTimeout(() => document.addEventListener('click', onDocClickCloseDropdown, true), 10);
+  dd.querySelector('#col-search-input').focus();
+}
+document.querySelectorAll('#view-payments .col-menu-btn').forEach(btn => { btn.addEventListener('click', e => { e.stopPropagation(); openColDropdown(btn.dataset.col, btn.closest('th')); }); });
+document.querySelectorAll('#view-payments th.col-header').forEach(th => {
+  th.addEventListener('click', e => {
+    if (e.target.closest('.col-menu-btn') || e.target.closest('.col-dropdown')) return;
+    const field = th.dataset.sort; if (!field) return;
+    if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc'; else { sortField = field; sortDir = 'asc'; }
+    document.querySelectorAll('#view-payments .sort-icon').forEach(el => el.textContent = '');
+    const icon = document.getElementById('sort-' + field); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+    doSort();
+  });
+});
+
+function doSort() {
+  filteredPayments.sort((a, b) => {
+    let av, bv;
+    if (sortField === 'dueDate' || sortField === 'paymentDate') {
+      av = toDate(a[sortField])?.getTime() || 0; bv = toDate(b[sortField])?.getTime() || 0;
+    } else if (sortField === 'amount') { av = Number(a.amount) || 0; bv = Number(b.amount) || 0; }
+    else { av = getColValue(a, sortField).toString().toLowerCase(); bv = getColValue(b, sortField).toString().toLowerCase(); }
+    if (av < bv) return sortDir === 'asc' ? -1 : 1;
+    if (av > bv) return sortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
+  currentPage = 1; renderTable();
+}
+
+function hasActiveFilters() { return !!($('search-input').value.trim() || Object.keys(columnFilters).length || $('filter-date-from').value || $('filter-date-to').value); }
+
+function applyFilters() {
+  const q = $('search-input').value.toLowerCase().trim();
+  const dateFrom = $('filter-date-from').value, dateTo = $('filter-date-to').value;
+  filteredPayments = allPayments.filter(p => {
+    const clientName = (clientMap[p.customerNo] || '').toLowerCase();
+    const contractNo = (contractMap[p.contractId]?.contractNumber || '').toLowerCase();
+    const matchQ = !q || [p.customerNo, clientName, (p.orNumber || ''), (p.paymentMode || ''), (p.status || ''), (p.receivedBy || ''), contractNo]
+      .some(f => (f || '').toLowerCase().includes(q));
+    let matchD = true;
+    if (dateFrom || dateTo) {
+      const due = toDate(p.dueDate);
+      if (due) {
+        if (dateFrom) { const f = new Date(dateFrom); f.setHours(0, 0, 0, 0); if (due < f) matchD = false; }
+        if (dateTo) { const t = new Date(dateTo); t.setHours(23, 59, 59, 999); if (due > t) matchD = false; }
+      } else matchD = false;
+    }
+    let matchCol = true;
+    for (const [col, allowed] of Object.entries(columnFilters)) { if (!allowed.has(getColValue(p, col).toString().trim())) { matchCol = false; break; } }
+    return matchQ && matchD && matchCol;
+  });
+  currentPage = 1; computeSummary(filteredPayments); doSort();
+}
+['search-input', 'filter-date-from', 'filter-date-to'].forEach(id => {
+  $(id).addEventListener('input', applyFilters);
+  $(id).addEventListener('change', applyFilters);
+});
+$('btn-clear-filters').addEventListener('click', () => {
+  $('search-input').value = ''; $('filter-date-from').value = ''; $('filter-date-to').value = '';
+  columnFilters = {};
+  document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#view-payments thead th').forEach(th => th.style.background = '');
+  applyFilters();
+});
+$('btn-refresh').addEventListener('click', () => {
+  invalidate('clients', 'contracts', 'config:settings', 'payments');
+  loadAll();
+  showToast('Data refreshed.');
+});
+
+const fmtDateInput = d => { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}`; };
+const clearQuickActive = () => document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
+document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.classList.contains('active')) {
+      btn.classList.remove('active'); $('filter-date-from').value = ''; $('filter-date-to').value = ''; applyFilters(); return;
+    }
+    const now = new Date(); const target = new Date(now);
+    if (btn.dataset.range === 'tomorrow') target.setDate(now.getDate() + 1);
+    const val = fmtDateInput(target);
+    $('filter-date-from').value = val; $('filter-date-to').value = val;
+    clearQuickActive(); btn.classList.add('active'); applyFilters();
+  });
+});
+['filter-date-from', 'filter-date-to'].forEach(id => $(id).addEventListener('input', clearQuickActive));
+
+/* ══════════════════════════════════
+   SUMMARY CARDS
+══════════════════════════════════ */
+function computeSummary(payments) {
+  const set = payments || allPayments, filtered = hasActiveFilters();
+  let receivable = 0, collected = 0, overdueAmt = 0, overdueCount = 0;
+  set.forEach(p => {
+    const amt = Number(p.amount || 0);
+    receivable += amt;
+    if (COLLECTED_STATUSES.includes(p.status)) collected += amt;
+    if (isOverdue(p)) { overdueAmt += amt; overdueCount++; }
+  });
+  const outstanding = Math.max(0, receivable - collected);
+  $('sc-receivable').textContent = fmtCur(receivable);
+  $('sc-receivable-sub').textContent = `${set.length} payment record${set.length === 1 ? '' : 's'}${filtered ? ' (filtered)' : ''}`;
+  $('sc-collected').textContent = fmtCur(collected);
+  $('sc-outstanding').textContent = fmtCur(outstanding);
+  $('sc-outstanding-sub').textContent = outstanding === 0 ? '✓ Fully collected' : 'Receivable − collected';
+  $('sc-overdue').textContent = overdueCount;
+  $('sc-overdue-sub').textContent = `${fmtCur(overdueAmt)} past due`;
+  const grid = document.querySelector('#view-payments .summary-grid'), note = $('filter-active-note');
+  if (filtered) {
+    grid?.classList.add('is-filtered');
+    if (note) {
+      const parts = []; const q = $('search-input').value.trim(); const df = $('filter-date-from').value; const dt = $('filter-date-to').value;
+      if (q) parts.push(`search: "${q}"`);
+      Object.entries(columnFilters).forEach(([col, vals]) => { parts.push(`${col}: ${[...vals].slice(0, 3).join(', ')}${[...vals].length > 3 ? '…' : ''}`); });
+      if (df || dt) parts.push(`due date: ${df || 'start'}${dt ? ' → ' + dt : ''}`);
+      note.textContent = `Totals reflect ${set.length} filtered record${set.length === 1 ? '' : 's'} — ${parts.join(' · ')}`;
+      note.classList.add('visible');
+    }
+  } else { grid?.classList.remove('is-filtered'); if (note) { note.textContent = ''; note.classList.remove('visible'); } }
+}
+
+/* ══════════════════════════════════
+   TABLE
+══════════════════════════════════ */
+$('payments-tbody').addEventListener('click', function (e) {
+  const editBtn = e.target.closest('.btn-edit');
+  if (editBtn && editBtn.dataset.id) { openEditModal(editBtn.dataset.id); return; }
+  const addForBtn = e.target.closest('.btn-add-for-contract');
+  if (addForBtn && addForBtn.dataset.id) { openAddForContract(addForBtn.dataset.id); return; }
+  const viewContract = e.target.closest('.btn-view-contract');
+  if (viewContract && viewContract.dataset.contractId) { e.preventDefault(); goToContractDetail(viewContract.dataset.contractId); return; }
+  const viewClient = e.target.closest('.btn-view-client');
+  if (viewClient && viewClient.dataset.customerNo) { e.preventDefault(); goToClientDetail(viewClient.dataset.customerNo); return; }
+});
+
+/* Cross-module bridges — same pattern used for Treatments → Contracts:
+   jump to the module (mounting it if needed), then ask it to open the
+   right record's detail modal once it's ready. */
+function jumpAndOpen(routeName, eventName, detail) {
+  const requestOpen = () => window.dispatchEvent(new CustomEvent(eventName, { detail }));
+  if ((window.location.hash || '').replace('#', '') === routeName) { requestOpen(); return; }
+  const handler = e => {
+    if (e.detail && e.detail.name === routeName) {
+      window.removeEventListener('router:view-shown', handler);
+      requestOpen();
+    }
+  };
+  window.addEventListener('router:view-shown', handler);
+  window.location.hash = '#' + routeName;
+}
+function goToContractDetail(contractId) { jumpAndOpen('contracts', 'pc:open-contract', { contractId }); }
+function goToClientDetail(customerNo) { jumpAndOpen('clients', 'pc:open-client', { customerNo }); }
+
+function renderTable() {
+  const total = filteredPayments.length, totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  currentPage = Math.min(currentPage, totalPages);
+  const start = (currentPage - 1) * PER_PAGE, end = Math.min(start + PER_PAGE, total), page = filteredPayments.slice(start, end);
+  $('pagination-info').textContent = total === 0 ? 'No records found' : `Showing ${start + 1}–${end} of ${total} payments`;
+  if (!page.length) {
+    $('payments-tbody').innerHTML = `<tr><td colspan="12"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg><h3>No payments found</h3><p>Try adjusting your search or filters.</p></div></td></tr>`;
+    $('pagination-controls').innerHTML = ''; return;
+  }
+  $('payments-tbody').innerHTML = page.map(p => {
+    const ov = isOverdue(p), clientName = cleanName(clientMap[p.customerNo] || p.customerNo || '—');
+    const contractNo = contractMap[p.contractId]?.contractNumber || p.contractId?.slice(0, 8)?.toUpperCase() || '—';
+    const modeLabel = MODE_LABELS[p.paymentMode] || p.paymentMode || '—';
+    const recent = getRecentNote(p);
+    const noteHtml = recent ? `<div class="td-note"><span class="td-note-text" title="${esc(recent.text)}">${esc(recent.text)}</span><span class="td-note-meta">${recent.author ? esc(recent.author) : ''}${recent.author && recent.timestamp ? ' · ' : ''}${recent.timestamp ? fmtNoteTime(recent.timestamp) : ''}</span></div>` : '<span style="color:var(--text-muted);font-size:12px">—</span>';
+    const typeBadge = p.isAdditional ? `<span class="payment-type-badge additional">Additional</span>` : '';
+    const amtCell = fmtCur(p.amount) + (typeBadge ? `<div style="margin-top:2px">${typeBadge}</div>` : '');
+    const actionBtn = `<button class="btn btn-sm btn-secondary btn-edit" data-id="${p.id}" title="Edit this payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
+      <button class="btn btn-sm btn-secondary btn-add-for-contract" data-id="${p.id}" title="Add a new payment for this same customer/contract"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>`;
+    const rowClass = ov ? 'overdue-row' : '';
+    const clientLink = clientMap[p.customerNo] !== undefined
+      ? `<a href="#" class="btn-view-client" data-customer-no="${p.customerNo}" style="font-weight:600;color:var(--primary);text-decoration:none;cursor:pointer" title="View client">${clientName}</a>`
+      : clientName;
+    const contractLink = p.contractId && contractMap[p.contractId]
+      ? `<a href="#" class="btn-view-contract" data-contract-id="${p.contractId}" style="color:var(--primary);text-decoration:none;cursor:pointer">${contractNo}</a>`
+      : contractNo;
+
+    return `<tr class="${rowClass}">
+      <td class="mono">${p.customerNo || '—'}</td>
+      <td style="max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${clientName}">${clientLink}</td>
+      <td class="mono" style="font-size:12px">${contractLink}</td>
+      <td style="white-space:nowrap${ov ? ';color:var(--red-text);font-weight:600' : ''}">${fmtDate(p.dueDate)}</td>
+      <td class="currency">${amtCell}</td>
+      <td class="mono" style="font-size:12px">${p.orNumber || '—'}</td>
+      <td class="muted">${fmtDate(p.paymentDate) || '—'}</td>
+      <td class="muted" style="font-size:12.5px">${modeLabel}</td>
+      <td>${statusBadge(p)}</td>
+      <td class="muted">${p.receivedBy || '—'}</td>
+      <td>${noteHtml}</td>
+      <td><div class="actions-cell">${actionBtn}</div></td>
+    </tr>`;
+  }).join('');
+  const ctrl = $('pagination-controls');
+  if (totalPages <= 1) { ctrl.innerHTML = ''; return; }
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) { if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) pages.push(i); else if (pages[pages.length - 1] !== '…') pages.push('…'); }
+  ctrl.innerHTML = `<button class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} data-p="${currentPage - 1}">‹</button>${pages.map(p => p === '…' ? `<button class="page-btn" disabled>…</button>` : `<button class="page-btn${p === currentPage ? ' active' : ''}" data-p="${p}">${p}</button>`).join('')}<button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} data-p="${currentPage + 1}">›</button>`;
+  ctrl.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => { currentPage = Number(b.dataset.p); renderTable(); }));
+}
+
+/* ══════════════════════════════════
+   NOTES THREAD
+══════════════════════════════════ */
+function renderNotesThread() {
+  const list = $('notes-list'), count = $('notes-count');
+  count.textContent = formNotes.length ? `(${formNotes.length})` : '';
+  if (!formNotes.length) { list.innerHTML = ''; return; }
+  const sorted = [...formNotes].sort((a, b) => {
+    const ta = a.timestamp?.seconds || (a.timestamp ? new Date(a.timestamp).getTime() / 1000 : 0);
+    const tb = b.timestamp?.seconds || (b.timestamp ? new Date(b.timestamp).getTime() / 1000 : 0);
+    return tb - ta;
+  });
+  list.innerHTML = sorted.map(n => `<div class="note-item"><div class="note-item-header"><span class="note-author">${esc(n.author || 'Unknown')}</span><span class="note-time">${fmtNoteTime(n.timestamp)}</span></div><div class="note-text">${esc(n.text)}</div></div>`).join('');
+  list.scrollTop = 0;
+}
+$('btn-add-note').addEventListener('click', async () => {
+  const text = $('form-new-note').value.trim(); if (!text) return;
+  const entry = { text, author: currentUser?.email || 'Unknown', timestamp: new Date() };
+  const editId = $('form-payment-id').value;
+  if (editId) {
+    const payment = allPayments.find(x => x.id === editId);
+    if (payment) {
+      const existing = Array.isArray(payment.notes) ? [...payment.notes] : [];
+      existing.push(entry);
+      await smartUpdateDoc(doc(db, 'payments', editId), { notes: existing, updatedAt: serverTimestamp() }, ['payments']);
+      payment.notes = existing; formNotes = existing; renderNotesThread();
+      showToast('Note added.');
+    }
+  } else { formNotes.push(entry); renderNotesThread(); }
+  $('form-new-note').value = '';
+});
+
+/* ══════════════════════════════════
+   FORM: customer/contract lookup
+══════════════════════════════════ */
+$('form-customer-no').addEventListener('input', () => {
+  const no = $('form-customer-no').value.trim();
+  const name = clientMap[no];
+  $('customer-hint').textContent = name ? `✓ ${cleanName(name)}` : (no ? 'Client not found' : '');
+  loadContractsForCustomer(no);
+});
+function loadContractsForCustomer(customerNo) {
+  const contracts = contractsByCustomer[customerNo] || [];
+  if (!contracts.length) { $('form-contract').innerHTML = '<option value="">— No contracts found —</option>'; return; }
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  $('form-contract').innerHTML = '<option value="">— Select Contract —</option>' + contracts.map(c => {
+    const end = toDate(c.contractEndDate);
+    const dispS = (c.status === 'active' && end && end < today) ? 'expired' : c.status;
+    return `<option value="${c.id}">${c.contractNumber || c.id.slice(0, 8)} — ${c.contractType} (${dispS})</option>`;
+  }).join('');
+}
+
+/* ══════════════════════════════════
+   Payment Type toggle
+══════════════════════════════════ */
+function setPaymentType(type) {
+  const isAdditional = type === 'additional';
+  $('ptype-additional').classList.toggle('active', isAdditional);
+  $('ptype-scheduled').classList.toggle('active', !isAdditional);
+  $('additional-timing-group').style.display = isAdditional ? '' : 'none';
+  $('payment-type-hint').textContent = isAdditional
+    ? "An ad-hoc charge tied to this contract (e.g. a rush fee) — the usual case for adding a payment here."
+    : "Backfills a session that's missing its payment record — rare; every session normally gets one automatically when its contract is created.";
+  if (isAdditional) setAdditionalTiming($('atime-scheduled').classList.contains('active') ? 'scheduled' : 'paid');
+}
+function setAdditionalTiming(timing) {
+  const isPaid = timing === 'paid';
+  $('atime-paid').classList.toggle('active', isPaid);
+  $('atime-scheduled').classList.toggle('active', !isPaid);
+  const todayStr = toInputDate(new Date());
+  if (isPaid) {
+    $('form-payment-date').value = todayStr;
+    $('form-due-date').value = todayStr;
+    const availableOpts = [...$('form-status').options].map(o => o.value);
+    const collectedOpt = COLLECTED_STATUSES.find(s => availableOpts.includes(s));
+    if (collectedOpt) $('form-status').value = collectedOpt;
+  } else {
+    $('form-payment-date').value = '';
+    $('form-status').value = 'Pending';
+  }
+}
+$('ptype-additional').addEventListener('click', () => setPaymentType('additional'));
+$('ptype-scheduled').addEventListener('click', () => setPaymentType('scheduled'));
+$('atime-paid').addEventListener('click', () => setAdditionalTiming('paid'));
+$('atime-scheduled').addEventListener('click', () => setAdditionalTiming('scheduled'));
+
+/* ══════════════════════════════════
+   MODALS: Add / Edit / Add-for-contract
+══════════════════════════════════ */
+function clearForm() {
+  ['form-payment-id', 'form-customer-no', 'form-amount', 'form-due-date', 'form-payment-date', 'form-or-number', 'form-new-note'].forEach(id => $(id).value = '');
+  ['form-contract', 'form-mode', 'form-received-by'].forEach(id => $(id).value = '');
+  $('form-status').value = 'Pending'; $('customer-hint').textContent = '';
+  $('form-contract').innerHTML = '<option value="">— Select Customer first —</option>';
+  $('payment-type-group').style.display = '';
+  setPaymentType('additional');
+  formNotes = [];
+}
+
+$('btn-add-payment').addEventListener('click', () => {
+  clearForm();
+  $('form-modal-title').textContent = 'Add Payment'; $('save-btn-text').textContent = 'Save Payment';
+  formNotes = []; renderNotesThread();
+  openModal('payment-form-modal');
+});
+
+function openEditModal(id) {
+  const p = allPayments.find(x => x.id === id); if (!p) return;
+  clearForm();
+  $('form-modal-title').textContent = 'Edit Payment'; $('save-btn-text').textContent = 'Update Payment';
+  $('form-payment-id').value = id; $('form-customer-no').value = p.customerNo || '';
+  const name = clientMap[p.customerNo]; $('customer-hint').textContent = name ? `✓ ${cleanName(name)}` : '';
+  loadContractsForCustomer(p.customerNo || '');
+  setTimeout(() => { $('form-contract').value = p.contractId || ''; }, 50);
+  $('form-amount').value = p.amount || ''; $('form-due-date').value = toInputDate(p.dueDate);
+  $('form-payment-date').value = toInputDate(p.paymentDate); $('form-mode').value = p.paymentMode || '';
+  $('form-or-number').value = p.orNumber || ''; $('form-received-by').value = p.receivedBy || '';
+  $('form-status').value = p.status || 'Pending';
+  setPaymentType(p.isAdditional ? 'additional' : 'scheduled');
+  // setAdditionalTiming() inside setPaymentType() pre-fills date/status for
+  // a *new* payment — restore this payment's actual saved values now.
+  $('form-amount').value = p.amount || '';
+  $('form-due-date').value = toInputDate(p.dueDate);
+  $('form-payment-date').value = toInputDate(p.paymentDate);
+  $('form-status').value = p.status || 'Pending';
+  formNotes = Array.isArray(p.notes) ? [...p.notes] : [];
+  renderNotesThread();
+  openModal('payment-form-modal');
+}
+
+function openAddForContract(id) {
+  const p = allPayments.find(x => x.id === id); if (!p) return;
+  clearForm();
+  $('form-modal-title').textContent = 'Add Payment'; $('save-btn-text').textContent = 'Save Payment';
+  $('form-customer-no').value = p.customerNo || '';
+  const name = clientMap[p.customerNo]; $('customer-hint').textContent = name ? `✓ ${cleanName(name)}` : '';
+  loadContractsForCustomer(p.customerNo || '');
+  setTimeout(() => { $('form-contract').value = p.contractId || ''; }, 50);
+  formNotes = []; renderNotesThread();
+  openModal('payment-form-modal');
+}
+
+$('btn-save-payment').addEventListener('click', async () => {
+  const customerNo = $('form-customer-no').value.trim(), contractId = $('form-contract').value,
+    amount = parseFloat($('form-amount').value) || 0, dueDate = $('form-due-date').value, status = $('form-status').value;
+  if (!customerNo) { showToast('Customer No is required.', 'error'); return; }
+  if (!amount) { showToast('Amount is required.', 'error'); return; }
+  if (!dueDate) { showToast('Due Date is required.', 'error'); return; }
+  const editId = $('form-payment-id').value;
+  if (!editId && contractId && contractMap[contractId]?.status === 'cancelled') {
+    showToast("This contract is cancelled — new payments can't be added against it.", 'error');
+    return;
+  }
+  const btn = $('btn-save-payment'); btn.disabled = true; $('save-btn-text').textContent = 'Saving…';
+  const parseLocalDate = s => { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; };
+  const pendingNote = $('form-new-note').value.trim();
+  if (pendingNote) { formNotes.push({ text: pendingNote, author: currentUser?.email || 'Unknown', timestamp: new Date() }); $('form-new-note').value = ''; }
+  const isAdditional = $('ptype-additional').classList.contains('active');
+  const data = {
+    customerNo, contractId, amount, status, isAdditional,
+    dueDate: parseLocalDate(dueDate), paymentDate: parseLocalDate($('form-payment-date').value),
+    paymentMode: $('form-mode').value, orNumber: $('form-or-number').value.trim(),
+    receivedBy: $('form-received-by').value, notes: formNotes, updatedAt: serverTimestamp()
+  };
+  try {
+    let targetId = editId;
+    if (editId) {
+      await smartUpdateDoc(doc(db, 'payments', editId), data, ['payments']);
+      const idx = allPayments.findIndex(x => x.id === editId); if (idx >= 0) allPayments[idx] = { ...allPayments[idx], ...data };
+      await logAction('updated', 'payment', editId, `Updated payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
+      showToast('Payment updated.');
+    } else {
+      data.createdAt = serverTimestamp();
+      const ref = await smartAddDoc(collection(db, 'payments'), data, ['payments']);
+      allPayments.unshift({ id: ref.id, ...data });
+      targetId = ref.id;
+      await logAction('created', 'payment', ref.id, `Created payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
+      showToast('Payment added.');
+    }
+    // Keep the contract's rollup (totalPaid/balanceRemaining) in sync —
+    // this is the gap the original file never closed.
+    if (contractId) {
+      const rollup = await recalcContractRollup(contractId);
+      if (rollup) patchLocalContract(contractId, rollup);
+    }
+    closeModal('payment-form-modal'); applyFilters();
+  } catch (err) { showToast('Failed: ' + err.message, 'error'); }
+  btn.disabled = false; $('save-btn-text').textContent = editId ? 'Update Payment' : 'Save Payment';
+});
+
+/* ══════════════════════════════════
+   Manage list buttons (Payment Mode / Status)
+══════════════════════════════════ */
+document.querySelectorAll('#view-payments .manage-list-link').forEach(btn => {
+  btn.addEventListener('click', () => {
+    openListManager({
+      fieldName: btn.dataset.field,
+      title: btn.dataset.title,
+      onSaved: items => {
+        const sel = $(btn.dataset.target);
+        const current = sel.value;
+        const placeholder = sel.querySelector('option[value=""]');
+        sel.innerHTML = (placeholder ? placeholder.outerHTML : '') + items.map(x => `<option value="${x}">${x}</option>`).join('');
+        if ([...sel.options].some(o => o.value === current)) sel.value = current;
+      }
+    });
+  });
+});
+
+/* ══════════════════════════════════
+   CSV export / template / print
+══════════════════════════════════ */
+$('btn-export-csv').addEventListener('click', () => {
+  const headers = ['customerNo', 'clientName', 'contractNo', 'dueDate', 'amount', 'orNumber', 'paymentDate', 'paymentMode', 'status', 'computedStatus', 'receivedBy', 'recentNote', 'isAdditional', 'contractId'];
+  const rows = filteredPayments.map(p => {
+    const r = getRecentNote(p);
+    const contractNo = contractMap[p.contractId]?.contractNumber || '';
+    return [p.customerNo, cleanName(clientMap[p.customerNo] || ''), contractNo, fmtDate(p.dueDate), Number(p.amount || 0), p.orNumber || '', fmtDate(p.paymentDate), p.paymentMode || '', p.status, isOverdue(p) ? 'Overdue' : p.status, p.receivedBy || '', r ? r.text : '', p.isAdditional ? 'yes' : 'no', p.contractId || ''];
+  });
+  const csv = [headers, ...rows].map(r => r.map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([csv], { type: 'text/csv' })), download: `pestastic_payments_${Date.now()}.csv` });
+  a.click(); showToast(`Exported ${filteredPayments.length} payment records.`);
+});
+
+$('btn-dl-template').addEventListener('click', () => {
+  const h = 'contractNumber,amount,dueDate,paymentDate,paymentMode,orNumber,receivedBy,status,remarks';
+  const ex = 'CT-00001,0.00,2024-01-15,2024-01-20,gcash,OR-00001,Agent Name,Received,';
+  const a = Object.assign(document.createElement('a'), { href: URL.createObjectURL(new Blob([h + '\n' + ex], { type: 'text/csv' })), download: 'pestastic_payments_template.csv' });
+  a.click();
+});
+
+/* ══════════════════════════════════
+   CSV import — requires a valid contract link, same policy as Treatments
+══════════════════════════════════ */
+let csvRows = [];
+$('btn-import-csv').addEventListener('click', () => { csvRows = []; $('upload-preview').style.display = 'none'; $('btn-confirm-import').disabled = true; $('csv-file-input').value = ''; openModal('csv-import-modal'); });
+const csvZone = $('csv-upload-zone');
+csvZone.addEventListener('click', () => $('csv-file-input').click());
+csvZone.addEventListener('dragover', e => { e.preventDefault(); csvZone.classList.add('drag'); });
+csvZone.addEventListener('dragleave', () => csvZone.classList.remove('drag'));
+csvZone.addEventListener('drop', e => { e.preventDefault(); csvZone.classList.remove('drag'); handleCSV(e.dataTransfer.files[0]); });
+$('csv-file-input').addEventListener('change', e => handleCSV(e.target.files[0]));
+
+function parseFlexDate(val) {
+  if (!val) return null;
+  const s = String(val).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+  if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(s)) { const [m, d, y] = s.split('/').map(Number); return new Date(y, m - 1, d); }
+  const months = { jan: 0, feb: 1, mar: 2, apr: 3, may: 4, jun: 5, jul: 6, aug: 7, sep: 8, oct: 9, nov: 10, dec: 11 };
+  const m2 = /^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/i.exec(s);
+  if (m2) { const [, d, mon, y] = m2; return new Date(Number(y), months[mon.toLowerCase()], Number(d)); }
+  const d = new Date(s); return isNaN(d) ? null : d;
+}
+function isoFromDate(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+
+function handleCSV(file) {
+  if (!file || !file.name.endsWith('.csv')) { showToast('Please upload a .csv file.', 'error'); return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split(/\r?\n/).filter(l => l.trim());
+    const headers = lines[0].split(',').map(h => h.replace(/"/g, '').trim().toLowerCase());
+    csvRows = lines.slice(1).map(line => {
+      const vals = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g) || [];
+      const row = {}; headers.forEach((h, i) => { row[h] = (vals[i] || '').replace(/^"|"$/g, '').trim(); });
+      return row;
+    }).filter(r => r.contractnumber);
+    $('preview-filename').textContent = file.name; $('preview-count').textContent = `${csvRows.length} records`;
+    $('preview-table-wrap').innerHTML = `<table style="width:100%;border-collapse:collapse">${[headers.slice(0, 5), ...csvRows.slice(0, 4).map(r => headers.slice(0, 5).map(h => r[h] || ''))].map((row, i) => `<tr style="${i === 0 ? 'background:var(--bg-secondary);font-weight:700' : ''}"><td style="padding:4px 6px;border-bottom:1px solid var(--border)">${row.join('</td><td style="padding:4px 6px;border-bottom:1px solid var(--border)">')}</td></tr>`).join('')}</table>`;
+    $('upload-preview').style.display = ''; $('btn-confirm-import').disabled = csvRows.length === 0; $('import-btn-text').textContent = `Import ${csvRows.length} Records`;
+  };
+  reader.readAsText(file);
+}
+
+$('btn-confirm-import').addEventListener('click', async () => {
+  if (!csvRows.length) return;
+  $('btn-confirm-import').disabled = true; $('import-btn-text').textContent = 'Importing…';
+
+  // Build contractNumber → contract lookup once.
+  const contractNumberMap = {};
+  Object.values(contractMap).forEach(c => { if (c.contractNumber) contractNumberMap[c.contractNumber.trim()] = c; });
+
+  const batch = writeBatch(db);
+  let count = 0, skipped = 0;
+  const skipReasons = [];
+  const touchedContracts = new Set();
+
+  for (const row of csvRows) {
+    const g = k => row[k.toLowerCase()] || row[k] || '';
+    const contractNum = g('contractnumber') || g('contractNumber');
+    const contract = contractNum ? contractNumberMap[contractNum.trim()] : null;
+    if (!contract) {
+      skipReasons.push(`Row skipped — no matching contract found for contract number "${contractNum || '(blank)'}"`);
+      skipped++; continue;
+    }
+    const dueDateVal = parseFlexDate(g('dueDate')) || new Date();
+    const paymentDateVal = parseFlexDate(g('paymentDate'));
+    const remarksVal = g('remarks');
+    const notesArr = remarksVal ? [{ text: remarksVal, author: currentUser?.email || 'CSV Import', timestamp: new Date() }] : [];
+    const ref = doc(collection(db, 'payments'));
+    batch.set(ref, {
+      customerNo: contract.customerNo, contractId: contract.id,
+      amount: parseFloat(g('amount')) || 0,
+      dueDate: isoFromDate(dueDateVal),
+      paymentDate: paymentDateVal ? isoFromDate(paymentDateVal) : null,
+      paymentMode: g('paymentMode') || '', orNumber: g('orNumber') || '',
+      receivedBy: g('receivedBy') || '', status: g('status') || 'Pending',
+      isAdditional: true, notes: notesArr,
+      createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+    });
+    touchedContracts.add(contract.id);
+    count++;
+  }
+  if (count > 0) await batch.commit();
+  invalidate('payments');
+
+  for (const contractId of touchedContracts) {
+    const rollup = await recalcContractRollup(contractId);
+    if (rollup) patchLocalContract(contractId, rollup);
+  }
+
+  await logAction('bulk_import', 'payment', 'batch', `Imported ${count} payment records via CSV${skipped ? `, skipped ${skipped}` : ''}`);
+  closeModal('csv-import-modal');
+  showToast(skipped ? `Imported ${count} records, skipped ${skipped} (no matching contract).` : `Successfully imported ${count} payment records.`, skipped ? 'warning' : 'success');
+  await loadAll();
+  $('import-btn-text').textContent = 'Import';
+});
+
+/* ══════════════════════════════════
+   Auth wiring — same pattern as every other module
+══════════════════════════════════ */
+let paymentsInitialized = false;
+
+async function applyProfile(p) {
+  currentUser = { uid: p.uid, email: p.email };
+  currentRole = p.role;
+
+  const name = p.name || p.email || 'there';
+  $('user-display-name').textContent = name;
+  $('user-role-label').textContent = (p.role || 'user').replace('_', ' ');
+  $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const isSuperAdmin = p.role === 'superadmin';
+  $('payments-admin-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('payments-nav-admin').style.display = isSuperAdmin ? '' : 'none';
+
+  if (!paymentsInitialized) {
+    paymentsInitialized = true;
+    await loadAll();
+  } else {
+    applyFilters();
+  }
+}
+
+if (window.__pcProfile) applyProfile(window.__pcProfile);
+window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+$('btn-signout').addEventListener('click', () => {
+  if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
+});
+
+/* ── Mobile sidebar ── */
+const sidebar = $('sidebar'), overlay = $('sidebar-overlay'), hamburger = $('hamburger');
+const openSB = () => { sidebar.classList.add('open'); overlay.classList.add('open'); };
+const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
+hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
+overlay.addEventListener('click', closeSB);
+
+</script>

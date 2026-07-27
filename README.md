@@ -11,11 +11,24 @@ anywhere, ever.
 - `index.html` — the shell: register/login/pending/admin/forbidden/notfound
   views, the router wiring, and `#view-mount` (where feature modules get
   injected).
-- `clients.html` / `contracts.html` / `treatments.html` — self-contained feature modules. Each
-  has its own `<style>` (scoped under `#view-clients` / `#view-contracts`
-  so they can't clash with each other or the shell) and its own
-  `<script type="module">`. Not meant to be opened directly in a browser —
-  they're fragments the router assembles into the running app.
+- `clients.html` / `contracts.html` / `treatments.html` / `payments.html` —
+  self-contained feature modules. Each has its own `<style>` (scoped
+  under `#view-clients` / `#view-contracts` / etc. so they can't clash
+  with each other or the shell) and its own `<script type="module">`.
+  Not meant to be opened directly in a browser — they're fragments the
+  router assembles into the running app.
+
+  **Known caveat:** each module's own element IDs (`sidebar`,
+  `btn-signout`, `search-input`, and others) are *not* unique across
+  modules — every module reuses the same names. Since the router leaves
+  every visited module mounted forever (just hidden), all of them can
+  be in the DOM at once, and `document.getElementById()` returns the
+  first match in the whole document, not necessarily the one belonging
+  to whichever module just mounted. This predates Payments — it's
+  already true across Clients/Contracts/Treatments — and hasn't been
+  fixed. The safe fix is scoping every module's element lookups to its
+  own `#view-{name}` root instead of the whole document; that's a
+  cross-cutting change touching all four files, not done yet.
 - `js/router.js` — fetches a module's HTML file the first time its route
   is visited, injects its styles into `<head>`, moves its own
   `[data-view]` element into `#view-mount`, and re-creates its `<script>`
@@ -118,6 +131,12 @@ anywhere, ever.
   `sessionNo`, `amount`, `status` (`Pending`/`Received`/`Cancelled`,
   capitalized — a different, older vocabulary than treatments' own
   status field; the two were never unified and both modules agree on it).
+  `isAdditional` marks a payment as an ad-hoc extra charge outside the
+  original installment plan (set automatically by "Add Extra Treatment"
+  in both Contracts and Treatments, or manually via `payments.html`'s
+  own Add Payment flow) — display/reporting only, doesn't change rollup
+  math. `notes` is an array of `{text, author, timestamp}`, managed
+  from `payments.html`'s own notes thread.
 - `teams/{id}` — `teamName` + a `members`/`technicians` roster. Kept as
   its own collection rather than folded into config/settings (unlike
   Contract Type, Sales Agent, etc.) because Treatments cascades a

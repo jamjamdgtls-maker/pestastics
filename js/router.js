@@ -18,7 +18,8 @@
 const LAZY_VIEWS = {
   clients: 'clients.html',
   contracts: 'contracts.html',
-  treatments: 'treatments.html'
+  treatments: 'treatments.html',
+  payments: 'payments.html'
 };
 
 const mountedLazyViews = new Set();
