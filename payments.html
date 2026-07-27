@@ -67,6 +67,17 @@
 
 
 /* ── Payments-specific additions ── */
+/* 12 columns makes this table wide enough to need horizontal scroll on
+   most screens — pin Actions to the right edge so Edit is always
+   reachable without hunting for it. */
+#view-payments td.col-actions, #view-payments th.col-actions {
+  position: sticky; right: 0; background: white; z-index: 2;
+  box-shadow: -1px 0 0 var(--border);
+}
+#view-payments th.col-actions { z-index: 11; background: var(--bg-secondary); }
+#view-payments tbody tr:hover td.col-actions { background: var(--bg-secondary); }
+#view-payments tbody tr.overdue-row td.col-actions { background: hsl(0,84%,99%); }
+#view-payments tbody tr.overdue-row:hover td.col-actions { background: hsl(0,84%,97%); }
 #view-payments .segmented-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 #view-payments .seg-btn{flex:1;padding:9px 12px;background:white;border:none;border-right:1px solid var(--border);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font)}
 #view-payments .seg-btn:last-child{border-right:none}
@@ -200,7 +211,7 @@
                 <th class="col-header" data-sort="status" data-col="status"><div class="col-header-inner"><span>Status</span><span class="sort-icon" id="sort-status"></span><button class="col-menu-btn" data-col="status">▾</button></div></th>
                 <th class="col-header" data-sort="receivedBy" data-col="receivedBy"><div class="col-header-inner"><span>Received By</span><span class="sort-icon" id="sort-receivedBy"></span><button class="col-menu-btn" data-col="receivedBy">▾</button></div></th>
                 <th class="col-header" data-col="recentNote"><div class="col-header-inner"><span>Recent Note</span><span class="sort-icon" id="sort-recentNote"></span><button class="col-menu-btn" data-col="recentNote">▾</button></div></th>
-                <th>Actions</th>
+                <th class="col-actions">Actions</th>
               </tr>
             </thead>
             <tbody id="payments-tbody">
@@ -742,7 +753,7 @@ function renderTable() {
       <td>${statusBadge(p)}</td>
       <td class="muted">${p.receivedBy || '—'}</td>
       <td>${noteHtml}</td>
-      <td><div class="actions-cell">${actionBtn}</div></td>
+      <td class="col-actions"><div class="actions-cell">${actionBtn}</div></td>
     </tr>`;
   }).join('');
   const ctrl = $('pagination-controls');
