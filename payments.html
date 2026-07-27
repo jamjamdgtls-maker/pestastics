@@ -249,21 +249,6 @@
           <select class="form-select" id="form-contract"><option value="">— Select Customer first —</option></select>
         </div>
       </div>
-      <div class="form-group" id="payment-type-group">
-        <label class="form-label">Payment Type</label>
-        <div class="segmented-toggle">
-          <button type="button" class="seg-btn active" id="ptype-additional">Additional / Extra Charge</button>
-          <button type="button" class="seg-btn" id="ptype-scheduled">Backfill a Missing Installment</button>
-        </div>
-        <div class="form-hint" id="payment-type-hint">An ad-hoc charge tied to this contract (e.g. a rush fee), outside the original installment plan.</div>
-      </div>
-      <div class="form-group" id="additional-timing-group">
-        <label class="form-label">When</label>
-        <div class="segmented-toggle">
-          <button type="button" class="seg-btn active" id="atime-paid">Already Paid (today)</button>
-          <button type="button" class="seg-btn" id="atime-scheduled">Scheduled for later</button>
-        </div>
-      </div>
       <div class="form-row">
         <div class="form-group">
           <label class="form-label">Amount (₱) <span class="req">*</span></label>
@@ -817,40 +802,6 @@ function loadContractsForCustomer(customerNo) {
 }
 
 /* ══════════════════════════════════
-   Payment Type toggle
-══════════════════════════════════ */
-function setPaymentType(type) {
-  const isAdditional = type === 'additional';
-  $('ptype-additional').classList.toggle('active', isAdditional);
-  $('ptype-scheduled').classList.toggle('active', !isAdditional);
-  $('additional-timing-group').style.display = isAdditional ? '' : 'none';
-  $('payment-type-hint').textContent = isAdditional
-    ? "An ad-hoc charge tied to this contract (e.g. a rush fee), outside the original installment plan."
-    : "Part of the contract's original installment plan.";
-  if (isAdditional) setAdditionalTiming($('atime-scheduled').classList.contains('active') ? 'scheduled' : 'paid');
-}
-function setAdditionalTiming(timing) {
-  const isPaid = timing === 'paid';
-  $('atime-paid').classList.toggle('active', isPaid);
-  $('atime-scheduled').classList.toggle('active', !isPaid);
-  const todayStr = toInputDate(new Date());
-  if (isPaid) {
-    $('form-payment-date').value = todayStr;
-    $('form-due-date').value = todayStr;
-    const availableOpts = [...$('form-status').options].map(o => o.value);
-    const collectedOpt = COLLECTED_STATUSES.find(s => availableOpts.includes(s));
-    if (collectedOpt) $('form-status').value = collectedOpt;
-  } else {
-    $('form-payment-date').value = '';
-    $('form-status').value = 'Pending';
-  }
-}
-$('ptype-additional').addEventListener('click', () => setPaymentType('additional'));
-$('ptype-scheduled').addEventListener('click', () => setPaymentType('scheduled'));
-$('atime-paid').addEventListener('click', () => setAdditionalTiming('paid'));
-$('atime-scheduled').addEventListener('click', () => setAdditionalTiming('scheduled'));
-
-/* ══════════════════════════════════
    MODALS: Add / Edit / Add-for-contract
 ══════════════════════════════════ */
 function clearForm() {
@@ -858,8 +809,6 @@ function clearForm() {
   ['form-contract', 'form-mode', 'form-received-by'].forEach(id => $(id).value = '');
   $('form-status').value = 'Pending'; $('customer-hint').textContent = '';
   $('form-contract').innerHTML = '<option value="">— Select Customer first —</option>';
-  $('payment-type-group').style.display = '';
-  setPaymentType('additional');
   formNotes = [];
 }
 
@@ -874,13 +823,6 @@ function openEditModal(id) {
   $('form-amount').value = p.amount || ''; $('form-due-date').value = toInputDate(p.dueDate);
   $('form-payment-date').value = toInputDate(p.paymentDate); $('form-mode').value = p.paymentMode || '';
   $('form-or-number').value = p.orNumber || ''; $('form-received-by').value = p.receivedBy || '';
-  $('form-status').value = p.status || 'Pending';
-  setPaymentType(p.isAdditional ? 'additional' : 'scheduled');
-  // setAdditionalTiming() inside setPaymentType() pre-fills date/status for
-  // a *new* payment — restore this payment's actual saved values now.
-  $('form-amount').value = p.amount || '';
-  $('form-due-date').value = toInputDate(p.dueDate);
-  $('form-payment-date').value = toInputDate(p.paymentDate);
   $('form-status').value = p.status || 'Pending';
   formNotes = Array.isArray(p.notes) ? [...p.notes] : [];
   renderNotesThread();
@@ -899,9 +841,8 @@ $('btn-save-payment').addEventListener('click', async () => {
   const parseLocalDate = s => { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; };
   const pendingNote = $('form-new-note').value.trim();
   if (pendingNote) { formNotes.push({ text: pendingNote, author: currentUser?.email || 'Unknown', timestamp: new Date() }); $('form-new-note').value = ''; }
-  const isAdditional = $('ptype-additional').classList.contains('active');
   const data = {
-    customerNo, contractId, amount, status, isAdditional,
+    customerNo, contractId, amount, status,
     dueDate: parseLocalDate(dueDate), paymentDate: parseLocalDate($('form-payment-date').value),
     paymentMode: $('form-mode').value, orNumber: $('form-or-number').value.trim(),
     receivedBy: $('form-received-by').value, notes: formNotes, updatedAt: serverTimestamp()
