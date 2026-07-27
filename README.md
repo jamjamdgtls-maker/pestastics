@@ -33,9 +33,15 @@ anywhere, ever.
   change the contract's actual committed value, not just its status.
 - `js/list-manager.js` — a shared, self-contained "manage this dropdown's
   options" modal for config/settings array fields (Contract Type,
-  Treatment Method, Assigned Team, Sales Agent, Communication Source).
-  Both Clients and Contracts open the same modal for Sales Agent/Comm.
-  Source since they're the same shared list either way.
+  Treatment Method, Sales Agent, Communication Source, Cancel/Reschedule
+  Reasons). Both Clients and Contracts open the same modal for Sales
+  Agent/Comm. Source since they're the same shared list either way.
+- `js/team-manager.js` — a separate manager for the `teams` collection
+  specifically (name + technician roster) — not a config/settings array,
+  since Treatments cascades a Technician dropdown from each team's
+  roster. Shared by Contracts' "Assigned Team" and Treatments' team
+  fields/Manage Teams button, so a team added from either place shows
+  up in both.
 - `firebase-config.js` — shared Firebase init.
 - `firestore.rules` — security rules for every collection above.
 
@@ -109,12 +115,14 @@ anywhere, ever.
   its own collection rather than folded into config/settings (unlike
   Contract Type, Sales Agent, etc.) because Treatments cascades a
   Technician dropdown from each team's roster — a flat settings array
-  can't represent that relationship.
+  can't represent that relationship. Managed via `js/team-manager.js`,
+  shared by both Contracts' "Assigned Team" and Treatments.
 - `config/settings` — shared dropdown options: `salesAgents`,
   `commSources` (shared between Clients and Contracts), `contractTypesList`,
-  `treatmentMethods`, `teamsList` *(Contracts' own team select — not the
-  same as the `teams` collection Treatments uses)*, `treatmentTypesList`,
-  `bookingStatuses`, `cancelReasons`, `rescheduleReasons` (Treatments' own).
+  `treatmentMethods` (shared between Contracts' "Treatment Method" and
+  Treatments' "Treatment Type" — same underlying list, different label
+  per module), `bookingStatuses`, `cancelReasons`, `rescheduleReasons`
+  (Treatments' own).
 - `config/counters` — `clientCounter`/`contractCounter`/`treatmentCounter`,
   incremented via Firestore transactions for auto-generated numbers.
 - `audit_log/{id}` — append-only trail of creates/updates/deletes/
@@ -128,6 +136,14 @@ Two tiers of contract update, by design:
   then recalculates the rollup on top. Both Contracts' "Cancel Session"/
   "Add Extra Treatment" and Treatments' "Cancel"/"Add Extra Treatment"
   (the old "New Treatment" modal, now billable) go through this same path.
+
+**Editing a contract's Start Date** doesn't automatically touch the
+already-generated `treatments`/`payments` — those keep whatever dates
+they were created with until told otherwise. If the Start Date actually
+changes on save, Contracts asks whether to shift every not-yet-completed/
+cancelled session (and its pending payment's due date) by the same
+number of days; completed/cancelled sessions never move. Declining just
+leaves the schedule as-is.
 
 ## Managed dropdown lists
 

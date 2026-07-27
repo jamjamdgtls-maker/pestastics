@@ -154,6 +154,10 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export CSV
           </button>
+          <button class="btn btn-secondary" id="btn-manage-teams">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Manage Teams
+          </button>
           <button class="btn btn-primary" id="btn-new-treatment">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Extra Treatment
@@ -243,7 +247,7 @@
       <input type="hidden" id="edit-id" />
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label">Treatment Type <span class="req">*</span><button type="button" class="manage-list-link" data-field="treatmentTypesList" data-title="Manage Treatment Types" data-target="edit-treatment-type">Manage list</button></label>
+          <label class="form-label">Treatment Type <span class="req">*</span><button type="button" class="manage-list-link" data-field="treatmentMethods" data-title="Manage Treatment Types" data-target="edit-treatment-type">Manage list</button></label>
           <select class="form-select" id="edit-treatment-type">
             <option value="">— Select Type —</option>
           </select>
@@ -521,7 +525,7 @@
           <div class="form-hint" id="nt-contract-hint"></div>
         </div>
         <div class="form-group">
-          <label class="form-label">Treatment Type <span class="req">*</span><button type="button" class="manage-list-link" data-field="treatmentTypesList" data-title="Manage Treatment Types" data-target="nt-treatment-type">Manage list</button></label>
+          <label class="form-label">Treatment Type <span class="req">*</span><button type="button" class="manage-list-link" data-field="treatmentMethods" data-title="Manage Treatment Types" data-target="nt-treatment-type">Manage list</button></label>
           <select class="form-select" id="nt-treatment-type">
             <option value="">— Select Type —</option>
           </select>
@@ -597,6 +601,7 @@ import {
 } from './js/firestore-cache.js';
 import { recalcContractRollup, amendContractScope } from './js/contract-sync.js';
 import { getSettingsList, openListManager } from './js/list-manager.js';
+import { openTeamManager } from './js/team-manager.js';
 
 /* ── App state ── */
 let currentUser = null, currentRole = null;
@@ -667,7 +672,7 @@ document.querySelectorAll('.manage-list-link').forEach(btn => {
         const optsHtml = items.map(x => `<option>${x}</option>`).join('') + (isReasonList ? '<option>Other</option>' : '');
         sel.innerHTML = (placeholder ? placeholder.outerHTML : '') + optsHtml;
         if ([...sel.options].some(o => o.value === current)) sel.value = current;
-        if (btn.dataset.field === 'treatmentTypesList') treatmentTypesList = items;
+        if (btn.dataset.field === 'treatmentMethods') treatmentTypesList = items;
       }
     });
   });
@@ -727,6 +732,19 @@ async function logAction(action, entityType, entityId, description) {
 }
 
 /* ── Load all data ── */
+async function refreshTeamDropdowns() {
+  teamsData = await cachedGetDocs(collection(db, 'teams'), 'teams');
+  const teamNames = [...new Set(teamsData.map(d => d.teamName).filter(Boolean))].sort();
+  const teamOpts  = teamNames.map(t => `<option>${t}</option>`).join('');
+  $('filter-team').innerHTML         = '<option value="">All Teams</option>'           + teamOpts;
+  $('reschedule-new-team').innerHTML = '<option value="">— Keep current team —</option>' + teamOpts;
+  $('new-treatment-team').innerHTML  = '<option value="">— Select Team —</option>'      + teamOpts;
+}
+
+$('btn-manage-teams').addEventListener('click', () => {
+  openTeamManager({ onSaved: () => refreshTeamDropdowns() });
+});
+
 async function loadAll() {
   try {
     // Clients — shared 'clients' cache key with the Clients module.
@@ -753,7 +771,7 @@ async function loadAll() {
     let cancelReasons = [], rescheduleReasons = [];
     try {
       const cfg = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings');
-      treatmentTypesList = cfg?.treatmentTypesList || [];
+      treatmentTypesList = cfg?.treatmentMethods || [];  // shared field name with Contracts' "Treatment Method"
       contractTypesFromSettings = cfg?.contractTypesList || DEFAULT_CONTRACT_TYPES;
       bookingStatuses = cfg?.bookingStatuses || DEFAULT_BOOKING_STATUSES;
       cancelReasons = cfg?.cancelReasons || [];
@@ -783,14 +801,10 @@ async function loadAll() {
     // like Contract Type/Sales Agent/etc.): each team doc carries a
     // members/technicians roster that the Complete and New Treatment
     // modals cascade a Technician dropdown from, which a flat settings
-    // array can't represent. cachedGetDocs still gives this the same
-    // once-per-session caching as everything else.
-    teamsData = await cachedGetDocs(collection(db, 'teams'), 'teams');
-    const teamNames = [...new Set(teamsData.map(d => d.teamName).filter(Boolean))].sort();
-    const teamOpts  = teamNames.map(t => `<option>${t}</option>`).join('');
-    $('filter-team').innerHTML         = '<option value="">All Teams</option>'           + teamOpts;
-    $('reschedule-new-team').innerHTML = '<option value="">— Keep current team —</option>' + teamOpts;
-    $('new-treatment-team').innerHTML  = '<option value="">— Select Team —</option>'      + teamOpts;
+    // array can't represent. Shared with Contracts' own "Assigned Team"
+    // dropdown via js/team-manager.js, so a team added from either module
+    // shows up in both.
+    await refreshTeamDropdowns();
 
     // Treatments — sorted ascending by date then time. Cached like
     // everything else; every write path below invalidates('treatments')
@@ -1049,19 +1063,42 @@ $('btn-date-next').addEventListener('click', () => shiftDateRange(1));
 
 /* ── Event delegation for table action buttons ── */
 $('treatments-tbody').addEventListener('click', e => {
-  const view       = e.target.closest('.btn-view-details');
-  const edit       = e.target.closest('.btn-edit');
-  const complete   = e.target.closest('.btn-complete');
-  const cancel     = e.target.closest('.btn-cancel');
-  const reschedule = e.target.closest('.btn-reschedule');
-  const del        = e.target.closest('.btn-delete');
-  if (view       && view.dataset.id)       { e.preventDefault(); openDetailsModal(view.dataset.id); return; }
+  const view        = e.target.closest('.btn-view-details');
+  const viewContract = e.target.closest('.btn-view-contract');
+  const edit        = e.target.closest('.btn-edit');
+  const complete    = e.target.closest('.btn-complete');
+  const cancel      = e.target.closest('.btn-cancel');
+  const reschedule  = e.target.closest('.btn-reschedule');
+  const del         = e.target.closest('.btn-delete');
+  if (view        && view.dataset.id)               { e.preventDefault(); openDetailsModal(view.dataset.id); return; }
+  if (viewContract && viewContract.dataset.contractId) { e.preventDefault(); goToContractDetail(viewContract.dataset.contractId); return; }
   if (edit       && edit.dataset.id)       { openEditModal(edit.dataset.id);             return; }
   if (complete   && complete.dataset.id)   { openCompleteModal(complete.dataset.id);     return; }
   if (cancel     && cancel.dataset.id)     { openCancelModal(cancel.dataset.id);         return; }
   if (reschedule && reschedule.dataset.id) { openRescheduleModal(reschedule.dataset.id); return; }
   if (del        && del.dataset.id)        { deleteTreatment(del.dataset.id);            return; }
 });
+
+/* Jumps to Contracts (mounting it if this is the first visit) and asks
+   it to open the given contract's detail modal, instead of opening a
+   dead contracts.html?id=... link in a new tab (Contracts is a lazy-
+   loaded module, not a standalone page, so that link never worked). */
+function goToContractDetail(contractId) {
+  const requestOpen = () => window.dispatchEvent(new CustomEvent('pc:open-contract', { detail: { contractId } }));
+  if ((window.location.hash || '').replace('#', '') === 'contracts') {
+    requestOpen();
+    return;
+  }
+  const handler = e => {
+    if (e.detail && e.detail.name === 'contracts') {
+      window.removeEventListener('router:view-shown', handler);
+      requestOpen();
+    }
+  };
+  window.addEventListener('router:view-shown', handler);
+  window.location.hash = '#contracts';
+}
+
 
 /* ── Delete treatment (superadmin only) ── */
 async function deleteTreatment(id) {
@@ -1142,7 +1179,7 @@ function renderTable() {
         const contract = contractMap[t.contractId];
         const contractNo = contract?.contractNumber || t.contractId?.slice(0,8)?.toUpperCase() || '—';
         if (t.contractId && contract) {
-          return '<a href="contracts.html?id=' + t.contractId + '" target="_blank" rel="noopener" style="color:var(--primary);font-weight:600;font-family:monospace;font-size:12.5px;text-decoration:none" title="View contract">' + contractNo + '</a>';
+          return '<a href="#" class="btn-view-contract" data-contract-id="' + t.contractId + '" style="color:var(--primary);font-weight:600;font-family:monospace;font-size:12.5px;text-decoration:none" title="View contract">' + contractNo + '</a>';
         }
         return '<span class="muted" style="font-size:12.5px">' + contractNo + '</span>';
       })()}</td>
@@ -1254,12 +1291,11 @@ $('btn-confirm-complete').addEventListener('click', async () => {
   btn.disabled = true;
   $('complete-btn-text').textContent = 'Saving…';
 
-  const [y, m, d] = date.split('-').map(Number);
   try {
     const driveUrl = $('complete-drive-url').value.trim();
     const update = {
       status:        'completed',
-      treatmentDate: new Date(y, m - 1, d),
+      treatmentDate: date,
       technician:    tech,
       chemicalsUsed: $('complete-chemicals').value.trim(),
       notes:         $('complete-notes').value.trim(),
@@ -1432,7 +1468,6 @@ $('btn-confirm-reschedule').addEventListener('click', async () => {
   btn.disabled = true;
   $('reschedule-btn-text').textContent = 'Saving…';
 
-  const [y, m, d] = newDateStr.split('-').map(Number);
   const newTime = $('reschedule-new-time').value;
   const newTeam = $('reschedule-new-team').value;
 
@@ -1441,8 +1476,8 @@ $('btn-confirm-reschedule').addEventListener('click', async () => {
     const historyEntry = {
       from:          t?.treatmentDate || null,
       fromFormatted: fmtDate(t?.treatmentDate),
-      to:            new Date(y, m - 1, d),
-      toFormatted:   new Date(y, m - 1, d).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }),
+      to:            newDateStr,
+      toFormatted:   fmtDate(newDateStr),
       reason,
       notes: $('reschedule-notes').value.trim(),
       by:    currentUser?.email || '',
@@ -1451,7 +1486,7 @@ $('btn-confirm-reschedule').addEventListener('click', async () => {
     const prevHistory = t?.rescheduleHistory || [];
     const update = {
       status:             'rescheduled',
-      treatmentDate:      new Date(y, m - 1, d),
+      treatmentDate:      newDateStr,
       rescheduleReason:   reason,
       rescheduleHistory:  [...prevHistory, historyEntry],
       notes:              $('reschedule-notes').value.trim() || t?.notes || '',
@@ -1829,7 +1864,7 @@ $('btn-save-edit').addEventListener('click', async () => {
     const updates = {
       treatmentType:  newType,
       contractType:   $('edit-contract-type').value.trim(),
-      treatmentDate:  new Date(newDate + 'T00:00:00'),
+      treatmentDate:  newDate,
       treatmentTime:  $('edit-time').value || '',
       assignedTeam:   $('edit-team').value,
       technician:     $('edit-technician').value,
@@ -2058,7 +2093,8 @@ $('nt-contract-select').addEventListener('change', () => {
   // Auto-fill contract type
   $('nt-contract-type').value = contract.contractType || '';
   const contractNo = contract.contractNumber || contractId.slice(0,8).toUpperCase();
-  $('nt-contract-hint').innerHTML = '<a href="#contracts" style="color:var(--primary);font-size:11.5px">View in Contracts →</a>';
+  $('nt-contract-hint').innerHTML = `<a href="#" id="nt-view-contract-link" style="color:var(--primary);font-size:11.5px">View in Contracts →</a>`;
+  $('nt-view-contract-link').addEventListener('click', ev => { ev.preventDefault(); goToContractDetail(contractId); });
 
   // Populate treatment types from contract
   const contractTypeSet = new Set();
@@ -2106,7 +2142,6 @@ $('btn-save-new-treatment').addEventListener('click', async () => {
   $('nt-btn-text').textContent = 'Saving…';
 
   try {
-    const [y, m, d] = dateStr.split('-').map(Number);
     const treatmentNo = await getNextTreatmentNo();
 
     // This extra session needs its own sessionNo so it pairs correctly
@@ -2123,7 +2158,7 @@ $('btn-save-new-treatment').addEventListener('click', async () => {
       contractType:  $('nt-contract-type').value.trim() || '',
       treatmentType: treatType,
       sessionNo:     nextSessionNo,
-      treatmentDate: new Date(y, m - 1, d),
+      treatmentDate: dateStr,
       treatmentTime: $('nt-time').value || '',
       assignedTeam:  $('new-treatment-team').value || '',
       technician:    $('nt-technician').value || '',
@@ -2144,7 +2179,7 @@ $('btn-save-new-treatment').addEventListener('click', async () => {
     // This is a billable addition to the contract, not just a schedule
     // entry — create its paired payment and grow the contract's total/
     // session count the same way Contracts' "Add Extra Treatment" does.
-    const dueDateStr = `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dueDateStr = dateStr;
     await addDoc(collection(db, 'payments'), {
       contractId, customerNo, sessionNo: nextSessionNo,
       amount: billedAmount, dueDate: dueDateStr,
@@ -2382,7 +2417,7 @@ $('btn-confirm-tr-import').addEventListener('click', async () => {
       contractNumber: contractNum,
       contractType:  row.contracttype || contract?.contractType || '',
       treatmentType: effectiveType,
-      treatmentDate,
+      treatmentDate: `${treatmentDate.getFullYear()}-${String(treatmentDate.getMonth() + 1).padStart(2, '0')}-${String(treatmentDate.getDate()).padStart(2, '0')}`,
       treatmentTime: row.treatmenttime  || '',
       assignedTeam:  row.assignedteam   || '',
       technician:    row.technician     || '',

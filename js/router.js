@@ -123,10 +123,12 @@ export async function showView(name) {
   const el = document.querySelector(`[data-view="${name}"]`);
   if (el) {
     el.classList.add('active');
+    window.dispatchEvent(new CustomEvent('router:view-shown', { detail: { name } }));
     return el;
   }
   const nf = document.querySelector('[data-view="notfound"]');
   if (nf) nf.classList.add('active');
+  window.dispatchEvent(new CustomEvent('router:view-shown', { detail: { name: 'notfound' } }));
   return null;
 }
 

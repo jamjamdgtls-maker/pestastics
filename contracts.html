@@ -271,7 +271,7 @@
           <div class="form-section-title">Assignment</div>
           <div class="form-row c2">
             <div class="form-group">
-              <label class="form-label">Assigned Team<button type="button" class="manage-list-link" data-field="teamsList" data-title="Manage Teams" data-target="form-team">Manage list</button></label>
+              <label class="form-label">Assigned Team<button type="button" class="manage-list-link" data-field="teams" data-title="Manage Teams" data-target="form-team">Manage list</button></label>
               <select class="form-select" id="form-team"><option value="">— Select Team —</option></select>
             </div>
             <div class="form-group">
@@ -370,6 +370,7 @@ import {
 } from './js/firestore-cache.js';
 import { recalcContractRollup, amendContractScope } from './js/contract-sync.js';
 import { getSettingsList, openListManager } from './js/list-manager.js';
+import { getTeamNames, openTeamManager } from './js/team-manager.js';
 
 /* ── Fallback settings — used for whatever config/settings doesn't
    already have. Contract Type, Treatment Method, Assigned Team, Sales
@@ -386,8 +387,7 @@ const DEFAULT_SETTINGS = {
   treatmentMethods: [],
   contractFrequencies: ['Monthly', 'Bi-Monthly', 'Quarterly', 'Semi-Annual', 'Annual', 'One-Time'],
   commSources: [],
-  contractStatuses: ['Active', 'Expired', 'Renewed', 'Cancelled'],
-  teamsList: []
+  contractStatuses: ['Active', 'Expired', 'Renewed', 'Cancelled']
 };
 
 /* ── State ── */
@@ -430,16 +430,21 @@ document.querySelectorAll('#view-contracts .modal-overlay').forEach(ov => {
    its <select> with whatever the list looks like afterward. ── */
 document.querySelectorAll('#view-contracts .manage-list-link').forEach(btn => {
   btn.addEventListener('click', () => {
+    const repopulate = items => {
+      const sel = $(btn.dataset.target);
+      const current = sel.value;
+      sel.innerHTML = sel.querySelector('option[value=""]').outerHTML +
+        items.map(x => `<option value="${x}">${x}</option>`).join('');
+      if (items.includes(current)) sel.value = current;
+    };
+    if (btn.dataset.field === 'teams') {
+      openTeamManager({ onSaved: repopulate });
+      return;
+    }
     openListManager({
       fieldName: btn.dataset.field,
       title: btn.dataset.title,
-      onSaved: items => {
-        const sel = $(btn.dataset.target);
-        const current = sel.value;
-        sel.innerHTML = sel.querySelector('option[value=""]').outerHTML +
-          items.map(x => `<option value="${x}">${x}</option>`).join('');
-        if (items.includes(current)) sel.value = current;
-      }
+      onSaved: repopulate
     });
   });
 });
@@ -455,7 +460,13 @@ async function logAction(action, entityType, entityId, description) {
   } catch {}
 }
 
-function parseDateStr(s) { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+function parseDateStr(s) {
+  if (!s) return null;
+  if (s.toDate) return s.toDate(); // Firestore Timestamp, in case any record predates the string-date convention
+  if (typeof s !== 'string') { const d = new Date(s); return isNaN(d) ? null : d; }
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
 function fmtDate(v) { if (!v) return '—'; const d = (v instanceof Date) ? v : parseDateStr(v); if (!d || isNaN(d)) return '—'; return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }); }
 function fmtCurrency(n) { return '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
 function toISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
@@ -561,7 +572,11 @@ async function loadAll() {
   clients.forEach(c => { clientMap[c.customerNo] = { name: c.clientName, id: c.id }; });
   $('customer-datalist').innerHTML = clients.map(c => `<option value="${c.customerNo}">${c.customerNo} — ${c.clientName}</option>`).join('');
 
-  $('form-team').innerHTML = '<option value="">— Select Team —</option>' + settings.teamsList.map(t => `<option value="${t}">${t}</option>`).join('');
+  // Shared with Treatments — same `teams` collection (not
+  // config/settings.teamsList), so a team added from either module
+  // shows up in both.
+  const teamNames = await getTeamNames();
+  $('form-team').innerHTML = '<option value="">— Select Team —</option>' + teamNames.map(t => `<option value="${t}">${t}</option>`).join('');
   $('form-contract-type').innerHTML = '<option value="">— Select Contract Type —</option>' + settings.contractTypesList.map(t => `<option value="${t}">${t}</option>`).join('');
   $('form-treatment-method').innerHTML = '<option value="">— Select or add —</option>' + settings.treatmentMethods.map(m => `<option value="${m}">${m}</option>`).join('');
   $('form-frequency').innerHTML = '<option value="">— Select —</option>' + settings.contractFrequencies.map(f => `<option value="${f.toLowerCase().replace(/\s+/g, '-')}">${f}</option>`).join('');
@@ -1048,9 +1063,31 @@ $('btn-save-contract').addEventListener('click', async () => {
       // from this contract's own rollup, so no extra read is needed.
       const existing = allContracts.find(x => x.id === editId);
       data.balanceRemaining = amount - Number(existing?.totalPaid || 0);
+
+      const oldStartStr = existing?.contractStartDate || '';
+      const newStartStr = data.contractStartDate;
+
       await smartUpdateDoc(doc(db, 'contracts', editId), data, ['contracts']);
       await logAction('updated', 'contract', editId, `Updated contract: ${data.contractNumber || existing?.contractNumber || editId}`);
       showToast('Contract updated successfully.');
+
+      // The contract's own dates just changed — offer to carry that
+      // through to the actual schedule, since nothing else does this
+      // automatically and the treatment/payment dates would otherwise
+      // silently keep the original schedule's dates forever.
+      if (oldStartStr && newStartStr && oldStartStr !== newStartStr) {
+        const deltaDays = Math.round((parseDateStr(newStartStr) - parseDateStr(oldStartStr)) / 86400000);
+        if (deltaDays !== 0) {
+          const shiftConfirmed = confirm(
+            `Start date changed by ${deltaDays > 0 ? '+' : ''}${deltaDays} day(s).\n\n` +
+            `Shift all not-yet-completed session dates (and their pending payment due dates) by the same amount to match? Completed or cancelled sessions won't move.`
+          );
+          if (shiftConfirmed) {
+            await shiftContractSchedule(editId, deltaDays);
+            showToast('Schedule dates shifted to match.');
+          }
+        }
+      }
     } else {
       const downpaymentPaid = $('form-downpayment-status').value === 'Received';
       const downpaymentDate = downpaymentPaid ? ($('form-downpayment-date').value || toISO(new Date())) : null;
@@ -1222,6 +1259,40 @@ async function markTreatmentCompleted(contractId, treatmentId) {
   } catch (err) {
     showToast('Failed to update treatment: ' + err.message, 'error');
   }
+}
+
+/* Shifts every not-yet-completed/cancelled treatment's date (and its
+   paired payment's due date) by deltaDays — used when a contract's own
+   Start Date is edited, so the actual schedule catches up instead of
+   silently drifting from what the contract now says. */
+async function shiftContractSchedule(contractId, deltaDays) {
+  function shiftISODate(iso, days) {
+    const d = parseDateStr(iso);
+    if (!d) return iso;
+    d.setDate(d.getDate() + days);
+    return toISO(d);
+  }
+
+  const [treatSnap, paySnap] = await Promise.all([
+    getDocs(query(collection(db, 'treatments'), where('contractId', '==', contractId))),
+    getDocs(query(collection(db, 'payments'), where('contractId', '==', contractId)))
+  ]);
+
+  const treatDocs = treatSnap.docs.filter(d => !['completed', 'cancelled'].includes(d.data().status));
+  const payDocs = paySnap.docs.filter(d => d.data().status === 'Pending');
+  const allDocs = [
+    ...treatDocs.map(d => ({ ref: d.ref, field: 'treatmentDate', value: shiftISODate(d.data().treatmentDate, deltaDays) })),
+    ...payDocs.map(d => ({ ref: d.ref, field: 'dueDate', value: shiftISODate(d.data().dueDate, deltaDays) }))
+  ];
+
+  for (let i = 0; i < allDocs.length; i += 450) {
+    const batch = writeBatch(db);
+    allDocs.slice(i, i + 450).forEach(({ ref, field, value }) => batch.update(ref, { [field]: value }));
+    await batch.commit();
+  }
+
+  const rollup = await recalcContractRollup(contractId);
+  if (rollup) applyLocalContractPatch(contractId, rollup);
 }
 
 /* Cancels a session's treatment AND its paired payment (same contractId +
@@ -1405,6 +1476,23 @@ async function applyProfile(p) {
 
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+/* Lets other modules (e.g. Treatments' "View in Contracts" link) jump
+   straight to a specific contract's detail modal instead of just
+   landing on the list. Waits for this module's own data to be ready
+   first, since it might be the very first time this module is mounted. */
+window.addEventListener('pc:open-contract', e => {
+  const contractId = e.detail?.contractId;
+  if (!contractId) return;
+  const tryOpen = (attempts = 0) => {
+    if (contractsInitialized) {
+      openDetailModal(contractId);
+    } else if (attempts < 50) {
+      setTimeout(() => tryOpen(attempts + 1), 100);
+    }
+  };
+  tryOpen();
+});
 
 $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
