@@ -1074,6 +1074,18 @@ $('btn-save-contract').addEventListener('click', async () => {
     updatedAt: serverTimestamp()
   };
 
+  // A contract can't legitimately be "Expired" with an end date that's
+  // still in the future — that only happens when someone extends a
+  // contract's dates without separately flipping its status dropdown
+  // back to Active. Since the dates are what's actually changing here
+  // and are the more trustworthy signal (auto-recalculated, not a
+  // manual field), silently correct the contradiction rather than let
+  // it get saved.
+  const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
+  if (data.status === 'expired' && endDate >= todayMidnight) {
+    data.status = 'active';
+  }
+
   try {
     if (editId) {
       // Editing core fields doesn't regenerate the schedule — only
