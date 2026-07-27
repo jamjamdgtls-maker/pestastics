@@ -507,7 +507,13 @@ function computeStatus(c) {
   if (c.status === 'active') { const end = parseDateStr(c.contractEndDate); if (end && end < today) return 'expired'; }
   return c.status || 'active';
 }
-function statusBadge(s) { const m = { active: 'green', expired: 'red', renewed: 'purple', cancelled: 'gray' }; return `<span class="badge badge-${m[s] || 'gray'}">${s}</span>`; }
+// Display label only — the underlying stored/compared value stays
+// 'renewed' everywhere (filters, exclusions, column filters); this is
+// purely what gets shown, so "renewed" reads as what it actually is:
+// a contract that expired and was then renewed, not one that's still
+// open in some other sense.
+const STATUS_LABELS = { renewed: 'expired/R' };
+function statusBadge(s) { const m = { active: 'green', expired: 'red', renewed: 'purple', cancelled: 'gray' }; return `<span class="badge badge-${m[s] || 'gray'}">${STATUS_LABELS[s] || s}</span>`; }
 
 function computeInstallmentAmounts(totalAmount, sessions, downpaymentPct, planType, settings) {
   const usePlanType = planType || settings.defaultPaymentPlanType;
@@ -660,7 +666,7 @@ function getColValue(c, col) {
   if (col === 'contractStartDate') return c.contractStartDate || '';
   if (col === 'contractEndDate') return c.contractEndDate || '';
   if (col === 'totalAmount') return Number(c.totalAmount) || 0;
-  if (col === 'status') return computeStatus(c);
+  if (col === 'status') { const s = computeStatus(c); return STATUS_LABELS[s] || s; }
   return '';
 }
 function getUniqueColValues(col) {
@@ -1093,6 +1099,14 @@ $('btn-save-contract').addEventListener('click', async () => {
   const todayMidnight = new Date(); todayMidnight.setHours(0, 0, 0, 0);
   if (data.status === 'expired' && endDate >= todayMidnight) {
     data.status = 'active';
+  }
+
+  // Renewal provenance goes on the note unconditionally — appended after
+  // whatever the person typed, not instead of it, and not dependent on
+  // them remembering to write it themselves.
+  if (pendingRenewal) {
+    const renewalNote = `Renewed from contract ${pendingRenewal.oldContractNumber}.`;
+    data.notes = data.notes ? `${data.notes}\n\n${renewalNote}` : renewalNote;
   }
 
   try {
@@ -1588,7 +1602,7 @@ function openRenewalPrefillModal(detail) {
   // Start Date stays blank on purpose — the person picks it explicitly,
   // same as any other new contract requires.
 
-  pendingRenewal = { oldContractId: detail.oldContractId };
+  pendingRenewal = { oldContractId: detail.oldContractId, oldContractNumber: detail.oldContractNumber || detail.oldContractId.slice(0, 8).toUpperCase() };
   $('renewal-old-number').textContent = detail.oldContractNumber || detail.oldContractId.slice(0, 8).toUpperCase();
   $('renewal-banner').style.display = '';
 
