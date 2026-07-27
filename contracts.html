@@ -232,6 +232,7 @@
             <div class="form-group">
               <label class="form-label">Warranty (mo.)</label>
               <input type="number" class="form-input" id="form-warranty" min="0" placeholder="6" />
+              <div class="form-hint">Coverage duration only — doesn't affect End Date, which always follows the treatment schedule.</div>
             </div>
           </div>
           <div class="form-row c3">
@@ -487,8 +488,16 @@ function fmtCurrency(n) { return '₱' + Number(n || 0).toLocaleString('en-PH', 
 function toISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
 function addMonths(date, n) { const d = new Date(date); d.setMonth(d.getMonth() + n); return d; }
 function getIntervalMonths(freq) { return { monthly: 1, 'bi-monthly': 2, quarterly: 3, 'semi-annual': 6, annual: 12, 'one-time': null }[freq] || 1; }
-function computeEndDate(startDate, freq, sessions, warrantyMonths) {
-  if (warrantyMonths && warrantyMonths > 0) return addMonths(startDate, warrantyMonths);
+function computeEndDate(startDate, freq, sessions) {
+  // End Date is always when the last scheduled treatment happens — the
+  // warranty period is separate coverage metadata (stored as its own
+  // warrantyPeriod field) and must never override the actual schedule.
+  // It previously did exactly that: any contract with a warranty set
+  // got its End Date computed from the warranty duration instead of
+  // from frequency × sessions, silently decoupling "End Date" from
+  // what the schedule actually says — a contract could be fully
+  // serviced and done while still showing months or years of
+  // remaining time, because of an unrelated warranty length.
   if (freq === 'one-time') return new Date(startDate);
   const interval = getIntervalMonths(freq);
   return addMonths(startDate, interval * (sessions - 1));
@@ -957,7 +966,7 @@ function renderPreview() {
     return;
   }
   const startDate = parseDateStr(startStr);
-  const endDate = computeEndDate(startDate, freq, sessions, warranty);
+  const endDate = computeEndDate(startDate, freq, sessions);
   $('form-end-date').value = toISO(endDate);
 
   const dpPctInput = parseFloat($('form-downpayment-pct').value);
@@ -1053,7 +1062,7 @@ $('btn-save-contract').addEventListener('click', async () => {
 
   const startDate = parseDateStr(startStr);
   const warrantyPeriod = parseInt($('form-warranty').value) || 0;
-  const endDate = computeEndDate(startDate, freq, sessions, warrantyPeriod);
+  const endDate = computeEndDate(startDate, freq, sessions);
   const dpPctInput = parseFloat($('form-downpayment-pct').value);
   const settings = cachedSettingsForForm;
   const dpPct = !isNaN(dpPctInput) ? dpPctInput : settings.defaultDownpaymentPct;

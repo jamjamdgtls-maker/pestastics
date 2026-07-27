@@ -420,24 +420,30 @@ async function loadAll() {
   applyFilters();
 }
 
+/* Mirrors contracts.html's own computeStatus() exactly, so "All Expired"
+   shows precisely what Contracts itself calls Expired in its own Status
+   column — a contract counts as expired either because it's literally
+   stored that way, or because it's still marked active but its end date
+   (now always schedule-based, never inflated by an unrelated warranty
+   period — see computeEndDate() in contracts.html) has passed. */
+function computeContractStatus(c) {
+  if (c.status === 'active') {
+    const end = toLocalDate(c.contractEndDate);
+    if (end && end < todayLocal()) return 'expired';
+  }
+  return c.status || 'active';
+}
+
 /* Shared by computeSummary() and applyFilters() so the two windows can
    never drift apart. daysWindow is either a forward-looking day count
    (30/60/90/120 — includes already-expired contracts too, there's no
-   lower bound) or the sentinel 'expired', which switches to strictly
-   "the contract's own schedule end date has passed."
-
-   Deliberately NOT based on the stored status field — contractEndDate
-   auto-recalculates every time a contract is edited (it's read-only,
-   derived from start date/frequency/sessions in Contracts' own form),
-   so it can't go stale the way a manually-set status can if someone
-   extends a contract's dates without separately flipping its status
-   back from "Expired" to "Active". The schedule itself is the more
-   trustworthy signal. */
+   lower bound) or the sentinel 'expired', which switches to matching
+   Contracts' own Status column directly instead of a date window. */
 function matchesDateWindow(c) {
+  if (daysWindow === 'expired') return computeContractStatus(c) === 'expired';
   const end = toLocalDate(c.contractEndDate);
   if (!end) return false;
   const today = todayLocal();
-  if (daysWindow === 'expired') return end < today;
   const windowEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + daysWindow);
   return end <= windowEnd;
 }
@@ -613,7 +619,7 @@ function renderTable() {
   if (!page.length) {
     const emptyTitle = daysWindow === 'expired' ? 'No expired contracts' : 'No expiring contracts';
     const emptyHint = daysWindow === 'expired'
-      ? "No contracts are past their end date."
+      ? "No contracts are currently marked as expired."
       : 'No contracts are expiring within the selected window. Try increasing the days filter.';
     $('renewals-tbody').innerHTML = `<tr><td colspan="9"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg><h3>${emptyTitle}</h3><p>${emptyHint}</p></div></td></tr>`;
     $('pagination-controls').innerHTML = ''; return;
