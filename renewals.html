@@ -788,21 +788,6 @@ async function applyProfile(p) {
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
 
-/* pc:profile only ever fires once per sign-in — it's not what re-fires
-   on a later re-visit to an already-mounted module. Renewals exists
-   specifically to reflect the current state of contracts that are
-   changing elsewhere (Contracts editing dates/status, a renewal being
-   created), so unlike a module where a bit of staleness is harmless,
-   showing an out-of-date expiring/expired list defeats the point of
-   this page. Re-fetch every time it's actually navigated to, not just
-   the first. */
-window.addEventListener('router:view-shown', e => {
-  if (e.detail?.name === 'renewals' && renewalsInitialized) {
-    invalidate('clients', 'contracts', 'renewals');
-    loadAll();
-  }
-});
-
 $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
 });

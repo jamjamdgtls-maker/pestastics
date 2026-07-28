@@ -12,7 +12,7 @@ anywhere, ever.
   views, the router wiring, and `#view-mount` (where feature modules get
   injected).
 - `clients.html` / `contracts.html` / `treatments.html` / `payments.html` /
-  `renewals.html` —
+  `renewals.html` / `complaints.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -58,11 +58,13 @@ anywhere, ever.
   already on that route), then dispatch the actual request event; the
   receiving module listens for it, waits for its own data to finish
   loading if it was just mounted for the first time, then acts.
-  `pc:open-contract` / `pc:open-client` (open a specific record's detail
-  modal — used by Payments and Renewals to link out to Contracts/Clients)
-  and `pc:renew-contract` (open Contracts' New Contract form pre-filled
-  from an expiring contract — used by Renewals' "Renew" action and its
-  "Status → Renewed" shortcut) all follow this same shape.
+  `pc:open-contract` / `pc:open-client` / `pc:open-complaint` (open a
+  specific record's detail modal — used by Payments/Renewals/Complaints
+  to link out to each other) and `pc:renew-contract` / 
+  `pc:book-treatment-from-complaint` (open another module's own creation
+  form pre-filled with context — Renewals' "Renew" hands off to
+  Contracts' New Contract form; Complaints' "Book Treatment" hands off
+  to Treatments' Add Extra Treatment form) all follow this same shape.
 - `js/firestore-cache.js` — shared in-memory read cache + "smart write"
   wrappers (`cachedGetDocs`, `smartUpdateDoc`, etc.), used by every module
   so a collection is read once per session, not once per page visit.
@@ -176,6 +178,22 @@ anywhere, ever.
   modal redirects into Contracts' creation flow instead (see below).
   Once a renewal completes, gets `newContractId` pointing at the
   contract that replaced it.
+- `complaints/{id}` — `customerNo`, `contractType` (a plain reported
+  category, independent of `contractId`), `contractId` (nullable —
+  deliberately optional; a complaint can be logged before the specific
+  contract has been verified, then attached later via the Detail view's
+  "Connect Contract" action), `priority` (lowercase), `status`
+  (`Open`/`In Progress`/`Scheduled`/`Completed`/`Closed`), `assignedTo`,
+  `description`, `dateReported` (string, same convention as everywhere
+  else), `comments` (array of `{text, author, type, createdAt}` — `type`
+  is `comment`/`status_change`/`treatment`/`contract_link`, driving the
+  small colored tag shown on each entry). Deliberately does **not**
+  store `clientName` — resolved live via `cClientName()`, same principle
+  as Treatments' `tClientName()`. "Book Treatment" doesn't create a
+  treatment record itself; it hands off to Treatments' own "Add Extra
+  Treatment" flow via `pc:book-treatment-from-complaint`, pre-filled
+  from the complaint, so the one correct implementation of
+  session-numbering + paired payment + rollup update stays the only one.
 - `teams/{id}` — `teamName` + a `members`/`technicians` roster. Kept as
   its own collection rather than folded into config/settings (unlike
   Contract Type, Sales Agent, etc.) because Treatments cascades a

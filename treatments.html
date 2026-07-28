@@ -82,6 +82,9 @@
       <a class="nav-item active" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
       <div class="nav-section-label">Financial</div>
       <a class="nav-item" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
+      <a class="nav-item" href="#renewals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
+      <div class="nav-section-label">Service</div>
+      <a class="nav-item" href="#complaints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Complaints</a>
       <div class="nav-section-label" id="treatments-admin-nav-label" style="display:none">Admin</div>
       <a class="nav-item" href="#admin" id="treatments-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
     </nav>
@@ -160,6 +163,10 @@
           <button class="btn btn-secondary" id="btn-manage-teams">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Manage Teams
+          </button>
+          <button class="btn btn-secondary" id="btn-manage-statuses">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Manage Statuses
           </button>
           <button class="btn btn-primary" id="btn-new-treatment">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -620,7 +627,7 @@ let bookingStatuses = [];
 let csvTreatmentRows = [];
 
 const DEFAULT_CONTRACT_TYPES = [];
-const DEFAULT_BOOKING_STATUSES = [];
+const DEFAULT_BOOKING_STATUSES = ['Scheduled', 'Need Schedule', 'Completed', 'Cancelled', 'Rescheduled'];
 let teamsData = [];
 let sortField = 'treatmentDate', sortDir = 'asc';
 
@@ -756,6 +763,23 @@ async function refreshTeamDropdowns() {
 
 $('btn-manage-teams').addEventListener('click', () => {
   openTeamManager({ onSaved: () => refreshTeamDropdowns() });
+});
+
+$('btn-manage-statuses').addEventListener('click', () => {
+  openListManager({
+    fieldName: 'bookingStatuses',
+    title: 'Manage Treatment Statuses',
+    onSaved: items => {
+      bookingStatuses = items.length ? items : DEFAULT_BOOKING_STATUSES;
+      $('filter-status').innerHTML = '<option value="">All Status</option>' +
+        bookingStatuses.map(s => `<option value="${s.toLowerCase()}">${s}</option>`).join('');
+      // Status options are baked into each row's inline <select> and the
+      // summary cards at render time, so both just need a re-render to
+      // pick up the new list — no separate DOM patch needed.
+      computeSummary();
+      renderTable();
+    }
+  });
 });
 
 async function loadAll() {
@@ -2022,6 +2046,7 @@ async function getNextTreatmentNo() {
 }
 
 $('btn-new-treatment').addEventListener('click', () => {
+  pendingComplaintBooking = null;
   // Reset form
   $('nt-customer-no').value   = '';
   $('nt-client-hint').textContent = '';
@@ -2209,6 +2234,27 @@ $('btn-save-new-treatment').addEventListener('click', async () => {
 
     await logAction('created', 'treatment', ref.id,
       `Created treatment ${treatmentNo} for ${customerNo} — ${clientMap[customerNo]?.name || ''} on ${dateStr} (billed ₱${billedAmount.toLocaleString('en-PH')})`);
+
+    if (pendingComplaintBooking) {
+      try {
+        const complaintRef = doc(db, 'complaints', pendingComplaintBooking.complaintId);
+        const complaintSnap = await getDoc(complaintRef);
+        if (complaintSnap.exists()) {
+          const existingComments = complaintSnap.data().comments || [];
+          const comment = {
+            text: `Treatment booked for ${dateStr} (${treatmentNo}).`,
+            author: currentUser?.email || 'System',
+            type: 'treatment',
+            createdAt: new Date().toISOString()
+          };
+          await smartUpdateDoc(complaintRef, { comments: [...existingComments, comment], updatedAt: serverTimestamp() }, ['complaints']);
+        }
+      } catch (err) {
+        console.error('Failed to post treatment confirmation back to the complaint:', err);
+      }
+      pendingComplaintBooking = null;
+    }
+
     closeModal('new-treatment-modal');
     showToast(`Treatment ${treatmentNo} created and added to the contract's total.`, 'success', 'Created');
     computeSummary();
@@ -2522,5 +2568,72 @@ async function applyProfile(p) {
 
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+// Set only when the Add Extra Treatment modal was opened via the
+// pc:book-treatment-from-complaint bridge — carries the originating
+// complaint through so a confirmation comment can be posted back to it
+// once the treatment actually saves.
+let pendingComplaintBooking = null;
+
+/* Lets Complaints hand off to this module's own "Add Extra Treatment"
+   flow instead of creating a treatment record itself — same reasoning
+   as Contracts' pc:renew-contract bridge: this module's own creation
+   logic is the one place that correctly assigns sessionNo, creates the
+   paired payment, and grows the contract's rollup via
+   amendContractScope(); a second, simplified copy of that elsewhere
+   would drift out of sync with it immediately. */
+window.addEventListener('pc:book-treatment-from-complaint', e => {
+  const detail = e.detail;
+  if (!detail?.complaintId) return;
+  const tryOpen = (attempts = 0) => {
+    if (treatmentsInitialized) {
+      openBookTreatmentPrefilled(detail);
+    } else if (attempts < 50) {
+      setTimeout(() => tryOpen(attempts + 1), 100);
+    }
+  };
+  tryOpen();
+});
+
+function openBookTreatmentPrefilled(detail) {
+  $('nt-customer-no').value   = detail.customerNo || '';
+  $('nt-client-hint').textContent = '';
+  $('nt-treatment-no').value  = 'Auto-generated';
+  $('nt-treatment-type').innerHTML = '<option value="">— Select Type —</option>' +
+    treatmentTypesList.map(t => `<option>${t}</option>`).join('');
+  $('nt-contract-type').value = '';
+  $('nt-contract-select').innerHTML = '<option value="">— Select a client first —</option>';
+  $('nt-contract-hint').textContent = '';
+  $('nt-date').value = detail.date || new Date().toISOString().slice(0, 10);
+  $('nt-time').value = '';
+  $('nt-billed-amount').value = '';
+  $('nt-technician').innerHTML = '<option value="">— Select Technician —</option>';
+  $('nt-notes').value = detail.notes || '';
+  $('nt-btn-text').textContent = 'Create & Bill Contract';
+  $('nt-customer-list').innerHTML = Object.entries(clientMap)
+    .map(([no, c]) => `<option value="${no}">${no} — ${c.name || ''}</option>`).join('');
+
+  // Re-run the customer/contract/team population that normally happens
+  // via user input, since we're setting values programmatically instead.
+  $('nt-customer-no').dispatchEvent(new Event('input'));
+  if (detail.contractId) {
+    setTimeout(() => {
+      $('nt-contract-select').value = detail.contractId;
+      $('nt-contract-select').dispatchEvent(new Event('change'));
+    }, 30);
+  }
+  if (detail.team) {
+    setTimeout(() => {
+      $('new-treatment-team').value = detail.team;
+      $('new-treatment-team').dispatchEvent(new Event('change'));
+      if (detail.technician) {
+        setTimeout(() => { $('nt-technician').value = detail.technician; }, 30);
+      }
+    }, 60);
+  }
+
+  pendingComplaintBooking = { complaintId: detail.complaintId };
+  openModal('new-treatment-modal');
+}
 
 </script>

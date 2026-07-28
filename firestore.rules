@@ -17,8 +17,12 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-      // A user can read their own profile; a super admin can read anyone's.
-      allow read: if isOwner(uid) || isSuperAdmin();
+      // A user can read their own profile (needed to check pending/approved
+      // status right after sign-in, before they're approved); a super admin
+      // can read anyone's; and any already-approved user can read the list
+      // too — Complaints' Assigned To dropdown needs to list every approved
+      // user, not just admins.
+      allow read: if isOwner(uid) || isSuperAdmin() || isApproved();
 
       // A user can create their OWN profile at registration, but only as
       // status "pending" / role "user" — they cannot self-approve or
@@ -56,7 +60,8 @@ service cloud.firestore {
     // Read-only lookups the Clients page uses to show linked records —
     // written by their own future pages, not by any module built so far.
     match /complaints/{id} {
-      allow read: if isApproved();
+      allow read, create, update: if isApproved();
+      allow delete: if isSuperAdmin();
     }
     match /renewals/{id} {
       allow read, create, update: if isApproved();
