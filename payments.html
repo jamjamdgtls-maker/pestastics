@@ -29,9 +29,9 @@
     .btn {display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}#view-payments .btn svg {width:15px;height:15px}#view-payments .btn-primary {background:var(--primary);color:white}#view-payments .btn-primary:hover {background:var(--primary-hover)}#view-payments .btn-primary:active {transform:scale(.98)}#view-payments .btn-primary:disabled {opacity:.6;cursor:not-allowed;transform:none}#view-payments .btn-secondary {background:white;color:var(--text);border:1px solid var(--border)}#view-payments .btn-secondary:hover {background:var(--bg-secondary)}#view-payments .btn-danger {background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}#view-payments .btn-danger:hover {background:#fee2e2}#view-payments .btn-amber {background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}#view-payments .btn-amber:hover {background:#fef3c7}#view-payments .btn-ghost {background:none;color:var(--text-secondary);border:none;padding:6px 10px}#view-payments .btn-ghost:hover {background:var(--bg-secondary);color:var(--text)}#view-payments .btn-sm {padding:5px 10px;font-size:12px}#view-payments .btn-sm svg {width:13px;height:13px}#view-payments /* BADGES */
     .badge {display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}#view-payments .badge::before {content:'';width:5px;height:5px;border-radius:50%;background:currentColor}#view-payments .badge-green {background:var(--green-bg);color:var(--green-text)}#view-payments .badge-blue {background:var(--blue-bg);color:var(--blue-text)}#view-payments .badge-amber {background:var(--amber-bg);color:var(--amber-text)}#view-payments .badge-red {background:var(--red-bg);color:var(--red-text)}#view-payments .badge-purple {background:var(--purple-bg);color:var(--purple-text)}#view-payments .badge-gray {background:var(--gray-bg);color:var(--gray-text)}#view-payments /* PAGE */
     .page-header {display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;flex-shrink:0}#view-payments .page-header-left h2 {font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}#view-payments .page-header-left p {font-size:13px;color:var(--text-muted);margin-top:3px}#view-payments .page-header-right {display:flex;gap:8px;flex-wrap:wrap}#view-payments /* SUMMARY CARDS */
-    .summary-grid {display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px;flex-shrink:0}#view-payments .sum-card {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative;overflow:hidden}#view-payments .sum-card:hover {box-shadow:var(--shadow);transform:translateY(-1px)}#view-payments .sum-card.active {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-payments .sum-card::before {content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}#view-payments .sum-card.total::before {background:var(--blue)}#view-payments .sum-card.completed::before {background:var(--green)}#view-payments .sum-card.scheduled::before {background:var(--blue)}#view-payments .sum-card.overdue::before {background:var(--red)}#view-payments .sum-card.cancelled::before {background:var(--gray)}#view-payments .sum-card-val {font-size:28px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px;letter-spacing:-.5px}#view-payments .sum-card-lbl {font-size:12px;color:var(--text-muted);font-weight:500}#view-payments .sum-card-icon {position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.08}#view-payments .sum-card-icon svg {width:48px;height:48px}#view-payments /* FILTERS */
-    .filters-bar {display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}#view-payments .search-wrap {position:relative;flex:1;min-width:220px}#view-payments .search-wrap svg {position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}#view-payments .search-input {width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white;outline:none;transition:border-color .15s,box-shadow .15s}#view-payments .search-input:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-filter-group {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:3px 6px 3px 10px;height:36px;transition:border-color .15s,box-shadow .15s}#view-payments .date-filter-group:focus-within {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-filter-field {display:flex;align-items:center;gap:6px}#view-payments .date-filter-field + .date-filter-field {padding-left:8px;border-left:1px solid var(--border)}#view-payments .date-filter-field label {font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}#view-payments .date-filter-input {border:none;outline:none;background:transparent;font-size:13px;color:var(--text);padding:4px 2px;font-family:var(--font);min-width:120px;cursor:pointer}#view-payments .date-filter-input::-webkit-calendar-picker-indicator {cursor:pointer;opacity:.5;transition:opacity .15s}#view-payments .date-filter-input::-webkit-calendar-picker-indicator:hover {opacity:1}#view-payments .date-filter-clear {background:none;border:none;padding:5px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}#view-payments .date-filter-clear svg {width:13px;height:13px}#view-payments .date-filter-clear:hover {background:var(--bg-secondary);color:var(--red)}#view-payments .date-filter-clear.hidden {display:none}#view-payments .date-quick-filters {display:flex;align-items:center;gap:4px;height:36px}#view-payments .date-quick-btn {height:36px;padding:0 12px;border:1px solid var(--border);background:white;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}#view-payments .date-quick-btn:hover {background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}#view-payments .date-quick-btn.active {background:var(--primary-light);border-color:var(--primary-border);color:var(--primary);font-weight:600}#view-payments .filter-select {padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}#view-payments .filter-select:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-range {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px}#view-payments .date-range input[type="date"] {border:none;font-size:13px;color:var(--text);outline:none;background:transparent;cursor:pointer}#view-payments .date-range span {font-size:12px;color:var(--text-muted)}#view-payments /* TABLE */
-    .table-card {background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}#view-payments .table-wrapper {overflow-x:auto}#view-payments table {width:100%;border-collapse:collapse}#view-payments thead th {padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;text-align:left;position:sticky;top:0;z-index:1}#view-payments tbody tr {border-bottom:1px solid var(--bg-tertiary);transition:background .1s}#view-payments tbody tr:last-child {border-bottom:none}#view-payments tbody tr:hover {background:var(--bg-secondary)}#view-payments tbody td {padding:10px 14px;font-size:13.5px;color:var(--text);vertical-align:middle;white-space:nowrap}#view-payments td.muted {color:var(--text-muted);font-size:12.5px}#view-payments td.mono {font-family:monospace;font-size:12.5px;color:var(--text-secondary)}#view-payments .actions-cell {display:flex;align-items:center;gap:5px;flex-wrap:nowrap}#view-payments tbody tr.overdue-row {background:hsl(0,84%,99%)}#view-payments tbody tr.overdue-row:hover {background:hsl(0,84%,97%)}#view-payments /* PAGINATION */
+    #view-payments .summary-grid {display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;flex-shrink:0}#view-payments .sum-card {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative;overflow:hidden}#view-payments .sum-card:hover {box-shadow:var(--shadow);transform:translateY(-1px)}#view-payments .sum-card.active {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-payments .sum-card::before {content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}#view-payments .sum-card.total::before {background:var(--blue)}#view-payments .sum-card.completed::before {background:var(--green)}#view-payments .sum-card.scheduled::before {background:var(--blue)}#view-payments .sum-card.overdue::before {background:var(--red)}#view-payments .sum-card.cancelled::before {background:var(--gray)}#view-payments .sum-card-val {font-size:28px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px;letter-spacing:-.5px}#view-payments .sum-card-lbl {font-size:12px;color:var(--text-muted);font-weight:500}#view-payments .sum-card-icon {position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.08}#view-payments .sum-card-icon svg {width:48px;height:48px}#view-payments /* FILTERS */
+    #view-payments .filters-bar {display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;flex-shrink:0}#view-payments .search-wrap {position:relative;flex:1;min-width:220px}#view-payments .search-wrap svg {position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}#view-payments .search-input {width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white;outline:none;transition:border-color .15s,box-shadow .15s}#view-payments .search-input:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-filter-group {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:3px 6px 3px 10px;height:36px;transition:border-color .15s,box-shadow .15s}#view-payments .date-filter-group:focus-within {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-filter-field {display:flex;align-items:center;gap:6px}#view-payments .date-filter-field + .date-filter-field {padding-left:8px;border-left:1px solid var(--border)}#view-payments .date-filter-field label {font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}#view-payments .date-filter-input {border:none;outline:none;background:transparent;font-size:13px;color:var(--text);padding:4px 2px;font-family:var(--font);min-width:120px;cursor:pointer}#view-payments .date-filter-input::-webkit-calendar-picker-indicator {cursor:pointer;opacity:.5;transition:opacity .15s}#view-payments .date-filter-input::-webkit-calendar-picker-indicator:hover {opacity:1}#view-payments .date-filter-clear {background:none;border:none;padding:5px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}#view-payments .date-filter-clear svg {width:13px;height:13px}#view-payments .date-filter-clear:hover {background:var(--bg-secondary);color:var(--red)}#view-payments .date-filter-clear.hidden {display:none}#view-payments .date-quick-filters {display:flex;align-items:center;gap:4px;height:36px}#view-payments .date-quick-btn {height:36px;padding:0 12px;border:1px solid var(--border);background:white;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}#view-payments .date-quick-btn:hover {background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}#view-payments .date-quick-btn.active {background:var(--primary-light);border-color:var(--primary-border);color:var(--primary);font-weight:600}#view-payments .filter-select {padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}#view-payments .filter-select:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-payments .date-range {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px}#view-payments .date-range input[type="date"] {border:none;font-size:13px;color:var(--text);outline:none;background:transparent;cursor:pointer}#view-payments .date-range span {font-size:12px;color:var(--text-muted)}#view-payments /* TABLE */
+    #view-payments .table-card {background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}#view-payments .table-wrapper {overflow:auto}#view-payments table {width:100%;border-collapse:collapse}#view-payments thead th {padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;text-align:left;position:sticky;top:0;z-index:1}#view-payments tbody tr {border-bottom:1px solid var(--bg-tertiary);transition:background .1s}#view-payments tbody tr:last-child {border-bottom:none}#view-payments tbody tr:hover {background:var(--bg-secondary)}#view-payments tbody td {padding:10px 14px;font-size:13.5px;color:var(--text);vertical-align:middle;white-space:nowrap}#view-payments td.muted {color:var(--text-muted);font-size:12.5px}#view-payments td.mono {font-family:monospace;font-size:12.5px;color:var(--text-secondary)}#view-payments .actions-cell {display:flex;align-items:center;gap:5px;flex-wrap:nowrap}#view-payments tbody tr.overdue-row {background:hsl(0,84%,99%)}#view-payments tbody tr.overdue-row:hover {background:hsl(0,84%,97%)}#view-payments /* PAGINATION */
     .pagination {display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-top:1px solid var(--border);background:white;flex-wrap:wrap;gap:10px}#view-payments .pagination-info {font-size:13px;color:var(--text-muted)}#view-payments .pagination-controls {display:flex;align-items:center;gap:4px}#view-payments .page-btn {min-width:32px;height:32px;padding:0 10px;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font)}#view-payments .page-btn:hover:not(:disabled) {background:var(--bg-secondary);color:var(--text)}#view-payments .page-btn.active {background:var(--primary);color:white;border-color:var(--primary);font-weight:600}#view-payments .page-btn:disabled {opacity:.4;cursor:not-allowed}#view-payments .date-nav-btn {min-width:32px;height:32px;padding:0;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}#view-payments .date-nav-btn:hover {background:var(--bg-secondary);color:var(--text)}#view-payments .date-nav-btn svg {width:16px;height:16px}#view-payments /* FORMS */
     .form-group {margin-bottom:16px}#view-payments .form-label {display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}#view-payments .form-label .req {color:var(--red);margin-left:2px}#view-payments .form-input, #view-payments .form-select, #view-payments .form-textarea {width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none}#view-payments .form-select {appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:32px;cursor:pointer}#view-payments .form-input:focus, #view-payments .form-select:focus, #view-payments .form-textarea:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}#view-payments .form-input::placeholder, #view-payments .form-textarea::placeholder {color:var(--text-muted)}#view-payments .form-textarea {resize:vertical;min-height:80px}#view-payments .form-hint {font-size:11.5px;color:var(--text-muted);margin-top:4px}#view-payments .form-row {display:grid;grid-template-columns:1fr 1fr;gap:14px}#view-payments .form-input[readonly] {background:var(--bg-secondary);color:var(--text-secondary)}#view-payments /* MODAL */
     .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}#view-payments .modal-overlay.open {opacity:1;pointer-events:all}#view-payments .modal {background:white;border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}#view-payments .modal-overlay.open .modal {transform:translateY(0) scale(1)}#view-payments .modal-header {display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);flex-shrink:0}#view-payments .modal-title {font-size:16px;font-weight:700;color:var(--text)}#view-payments .modal-subtitle {font-size:12px;color:var(--text-muted);margin-top:2px}#view-payments .modal-close {width:30px;height:30px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);cursor:pointer;transition:all .15s}#view-payments .modal-close:hover {background:var(--bg-secondary);color:var(--text)}#view-payments .modal-close svg {width:15px;height:15px}#view-payments .modal-body {padding:22px;overflow-y:auto;flex:1}#view-payments .modal-footer {display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0}#view-payments /* CSV UPLOAD */
@@ -67,6 +67,17 @@
 
 
 /* ── Payments-specific additions ── */
+/* 12 columns makes this table wide enough to need horizontal scroll on
+   most screens — pin Actions to the right edge so Edit is always
+   reachable without hunting for it. */
+#view-payments td.col-actions, #view-payments th.col-actions {
+  position: sticky; right: 0; background: white; z-index: 2;
+  box-shadow: -1px 0 0 var(--border);
+}
+#view-payments th.col-actions { z-index: 11; background: var(--bg-secondary); }
+#view-payments tbody tr:hover td.col-actions { background: var(--bg-secondary); }
+#view-payments tbody tr.overdue-row td.col-actions { background: hsl(0,84%,99%); }
+#view-payments tbody tr.overdue-row:hover td.col-actions { background: hsl(0,84%,97%); }
 #view-payments .segmented-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 #view-payments .seg-btn{flex:1;padding:9px 12px;background:white;border:none;border-right:1px solid var(--border);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;font-family:var(--font)}
 #view-payments .seg-btn:last-child{border-right:none}
@@ -129,6 +140,9 @@
       <a class="nav-item" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
       <div class="nav-section-label">Financial</div>
       <a class="nav-item active" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
+      <a class="nav-item" href="#renewals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
+      <div class="nav-section-label">Service</div>
+      <a class="nav-item" href="#complaints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Complaints</a>
       <div class="nav-section-label" id="payments-admin-nav-label" style="display:none">Admin</div>
       <a class="nav-item" href="#admin" id="payments-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
     </nav>
@@ -166,7 +180,6 @@
           <button class="btn btn-secondary" id="btn-dl-template"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>CSV Template</button>
           <button class="btn btn-secondary" id="btn-import-csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>Import CSV</button>
           <button class="btn btn-secondary" id="btn-export-csv"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export CSV</button>
-          <button class="btn btn-primary" id="btn-add-payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Payment</button>
         </div>
       </div>
       <div class="sum-card-filter-note" id="filter-active-note"></div>
@@ -185,7 +198,7 @@
         <div class="date-range"><input type="date" id="filter-date-from" title="Due date from" /><span>to</span><input type="date" id="filter-date-to" title="Due date to" /></div>
         <button class="btn btn-ghost btn-sm" id="btn-clear-filters">Clear</button>
       </div>
-      <div class="table-card" style="flex:1;min-height:0">
+      <div class="table-card" style="display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:0">
         <div class="table-wrapper" style="flex:1;overflow:auto;min-height:0">
           <table id="payments-table">
             <thead>
@@ -201,7 +214,7 @@
                 <th class="col-header" data-sort="status" data-col="status"><div class="col-header-inner"><span>Status</span><span class="sort-icon" id="sort-status"></span><button class="col-menu-btn" data-col="status">▾</button></div></th>
                 <th class="col-header" data-sort="receivedBy" data-col="receivedBy"><div class="col-header-inner"><span>Received By</span><span class="sort-icon" id="sort-receivedBy"></span><button class="col-menu-btn" data-col="receivedBy">▾</button></div></th>
                 <th class="col-header" data-col="recentNote"><div class="col-header-inner"><span>Recent Note</span><span class="sort-icon" id="sort-recentNote"></span><button class="col-menu-btn" data-col="recentNote">▾</button></div></th>
-                <th>Actions</th>
+                <th class="col-actions">Actions</th>
               </tr>
             </thead>
             <tbody id="payments-tbody">
@@ -237,21 +250,6 @@
         <div class="form-group">
           <label class="form-label">Contract <span class="req">*</span></label>
           <select class="form-select" id="form-contract"><option value="">— Select Customer first —</option></select>
-        </div>
-      </div>
-      <div class="form-group" id="payment-type-group">
-        <label class="form-label">Payment Type</label>
-        <div class="segmented-toggle">
-          <button type="button" class="seg-btn active" id="ptype-additional">Additional / Extra Charge</button>
-          <button type="button" class="seg-btn" id="ptype-scheduled">Backfill a Missing Installment</button>
-        </div>
-        <div class="form-hint" id="payment-type-hint">An ad-hoc charge tied to this contract (e.g. a rush fee) — the usual case for adding a payment here.</div>
-      </div>
-      <div class="form-group" id="additional-timing-group">
-        <label class="form-label">When</label>
-        <div class="segmented-toggle">
-          <button type="button" class="seg-btn active" id="atime-paid">Already Paid (today)</button>
-          <button type="button" class="seg-btn" id="atime-scheduled">Scheduled for later</button>
         </div>
       </div>
       <div class="form-row">
@@ -354,7 +352,7 @@ import {
   query, where, orderBy, serverTimestamp, writeBatch
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import {
-  cachedGetDocs, cachedGetDoc, smartAddDoc, smartUpdateDoc, invalidate
+  cachedGetDocs, cachedGetDoc, smartUpdateDoc, invalidate
 } from './js/firestore-cache.js';
 import { recalcContractRollup } from './js/contract-sync.js';
 import { getSettingsList, openListManager } from './js/list-manager.js';
@@ -370,10 +368,11 @@ let currentUser = null, currentRole = null;
 let allPayments = [], filteredPayments = [];
 let clientMap = {}, contractMap = {}, contractsByCustomer = {};
 let salesAgents = [], currentPage = 1;
-const PER_PAGE = 20;
+const PER_PAGE = 50;
 let formNotes = [];
 
-const $ = id => document.getElementById(id);
+const VIEW_ROOT = document.getElementById('view-payments');
+const $ = id => VIEW_ROOT.querySelector('#' + id);
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
 function showToast(msg, type = 'success', title = '') {
@@ -543,7 +542,7 @@ function openColDropdown(col, th) {
     btn.addEventListener('click', () => {
       sortField = th.dataset.sort; sortDir = btn.dataset.action === 'sort-asc' ? 'asc' : 'desc';
       document.querySelectorAll('#view-payments .sort-icon').forEach(el => el.textContent = '');
-      const icon = document.getElementById('sort-' + sortField); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+      const icon = $('sort-' + sortField); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
       doSort(); closeColDropdown();
     });
   });
@@ -565,7 +564,7 @@ document.querySelectorAll('#view-payments th.col-header').forEach(th => {
     const field = th.dataset.sort; if (!field) return;
     if (sortField === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc'; else { sortField = field; sortDir = 'asc'; }
     document.querySelectorAll('#view-payments .sort-icon').forEach(el => el.textContent = '');
-    const icon = document.getElementById('sort-' + field); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
+    const icon = $('sort-' + field); if (icon) icon.textContent = sortDir === 'asc' ? '▲' : '▼';
     doSort();
   });
 });
@@ -612,10 +611,25 @@ function applyFilters() {
   $(id).addEventListener('input', applyFilters);
   $(id).addEventListener('change', applyFilters);
 });
+// A narrow Due Date column-filter (set via the ▾ dropdown, e.g. "only
+// Jul 5") and a broad From/To range rarely make sense active together —
+// left on by accident, the column filter silently wins and every row
+// looks stuck on one date. Setting a new range clears it so they can't
+// conflict.
+function clearDueDateColumnFilter() {
+  if (!columnFilters.dueDate) return;
+  delete columnFilters.dueDate;
+  const th = VIEW_ROOT.querySelector('th[data-col="dueDate"]');
+  if (th) th.style.background = '';
+}
+['filter-date-from', 'filter-date-to'].forEach(id => {
+  $(id).addEventListener('input', clearDueDateColumnFilter);
+  $(id).addEventListener('change', clearDueDateColumnFilter);
+});
 $('btn-clear-filters').addEventListener('click', () => {
   $('search-input').value = ''; $('filter-date-from').value = ''; $('filter-date-to').value = '';
   columnFilters = {};
-  document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
+  VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('#view-payments thead th').forEach(th => th.style.background = '');
   applyFilters();
 });
@@ -626,17 +640,17 @@ $('btn-refresh').addEventListener('click', () => {
 });
 
 const fmtDateInput = d => { const y = d.getFullYear(), m = String(d.getMonth() + 1).padStart(2, '0'), day = String(d.getDate()).padStart(2, '0'); return `${y}-${m}-${day}`; };
-const clearQuickActive = () => document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
-document.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(btn => {
+const clearQuickActive = () => VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(b => b.classList.remove('active'));
+VIEW_ROOT.querySelectorAll('#date-quick-filters .date-quick-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     if (btn.classList.contains('active')) {
-      btn.classList.remove('active'); $('filter-date-from').value = ''; $('filter-date-to').value = ''; applyFilters(); return;
+      btn.classList.remove('active'); $('filter-date-from').value = ''; $('filter-date-to').value = ''; clearDueDateColumnFilter(); applyFilters(); return;
     }
     const now = new Date(); const target = new Date(now);
     if (btn.dataset.range === 'tomorrow') target.setDate(now.getDate() + 1);
     const val = fmtDateInput(target);
     $('filter-date-from').value = val; $('filter-date-to').value = val;
-    clearQuickActive(); btn.classList.add('active'); applyFilters();
+    clearQuickActive(); btn.classList.add('active'); clearDueDateColumnFilter(); applyFilters();
   });
 });
 ['filter-date-from', 'filter-date-to'].forEach(id => $(id).addEventListener('input', clearQuickActive));
@@ -681,8 +695,6 @@ function computeSummary(payments) {
 $('payments-tbody').addEventListener('click', function (e) {
   const editBtn = e.target.closest('.btn-edit');
   if (editBtn && editBtn.dataset.id) { openEditModal(editBtn.dataset.id); return; }
-  const addForBtn = e.target.closest('.btn-add-for-contract');
-  if (addForBtn && addForBtn.dataset.id) { openAddForContract(addForBtn.dataset.id); return; }
   const viewContract = e.target.closest('.btn-view-contract');
   if (viewContract && viewContract.dataset.contractId) { e.preventDefault(); goToContractDetail(viewContract.dataset.contractId); return; }
   const viewClient = e.target.closest('.btn-view-client');
@@ -724,8 +736,7 @@ function renderTable() {
     const noteHtml = recent ? `<div class="td-note"><span class="td-note-text" title="${esc(recent.text)}">${esc(recent.text)}</span><span class="td-note-meta">${recent.author ? esc(recent.author) : ''}${recent.author && recent.timestamp ? ' · ' : ''}${recent.timestamp ? fmtNoteTime(recent.timestamp) : ''}</span></div>` : '<span style="color:var(--text-muted);font-size:12px">—</span>';
     const typeBadge = p.isAdditional ? `<span class="payment-type-badge additional">Additional</span>` : '';
     const amtCell = fmtCur(p.amount) + (typeBadge ? `<div style="margin-top:2px">${typeBadge}</div>` : '');
-    const actionBtn = `<button class="btn btn-sm btn-secondary btn-edit" data-id="${p.id}" title="Edit this payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>
-      <button class="btn btn-sm btn-secondary btn-add-for-contract" data-id="${p.id}" title="Add a new payment for this same customer/contract"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add</button>`;
+    const actionBtn = `<button class="btn btn-sm btn-secondary btn-edit" data-id="${p.id}" title="Edit this payment"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</button>`;
     const rowClass = ov ? 'overdue-row' : '';
     const clientLink = clientMap[p.customerNo] !== undefined
       ? `<a href="#" class="btn-view-client" data-customer-no="${p.customerNo}" style="font-weight:600;color:var(--primary);text-decoration:none;cursor:pointer" title="View client">${clientName}</a>`
@@ -746,7 +757,7 @@ function renderTable() {
       <td>${statusBadge(p)}</td>
       <td class="muted">${p.receivedBy || '—'}</td>
       <td>${noteHtml}</td>
-      <td><div class="actions-cell">${actionBtn}</div></td>
+      <td class="col-actions"><div class="actions-cell">${actionBtn}</div></td>
     </tr>`;
   }).join('');
   const ctrl = $('pagination-controls');
@@ -810,40 +821,6 @@ function loadContractsForCustomer(customerNo) {
 }
 
 /* ══════════════════════════════════
-   Payment Type toggle
-══════════════════════════════════ */
-function setPaymentType(type) {
-  const isAdditional = type === 'additional';
-  $('ptype-additional').classList.toggle('active', isAdditional);
-  $('ptype-scheduled').classList.toggle('active', !isAdditional);
-  $('additional-timing-group').style.display = isAdditional ? '' : 'none';
-  $('payment-type-hint').textContent = isAdditional
-    ? "An ad-hoc charge tied to this contract (e.g. a rush fee) — the usual case for adding a payment here."
-    : "Backfills a session that's missing its payment record — rare; every session normally gets one automatically when its contract is created.";
-  if (isAdditional) setAdditionalTiming($('atime-scheduled').classList.contains('active') ? 'scheduled' : 'paid');
-}
-function setAdditionalTiming(timing) {
-  const isPaid = timing === 'paid';
-  $('atime-paid').classList.toggle('active', isPaid);
-  $('atime-scheduled').classList.toggle('active', !isPaid);
-  const todayStr = toInputDate(new Date());
-  if (isPaid) {
-    $('form-payment-date').value = todayStr;
-    $('form-due-date').value = todayStr;
-    const availableOpts = [...$('form-status').options].map(o => o.value);
-    const collectedOpt = COLLECTED_STATUSES.find(s => availableOpts.includes(s));
-    if (collectedOpt) $('form-status').value = collectedOpt;
-  } else {
-    $('form-payment-date').value = '';
-    $('form-status').value = 'Pending';
-  }
-}
-$('ptype-additional').addEventListener('click', () => setPaymentType('additional'));
-$('ptype-scheduled').addEventListener('click', () => setPaymentType('scheduled'));
-$('atime-paid').addEventListener('click', () => setAdditionalTiming('paid'));
-$('atime-scheduled').addEventListener('click', () => setAdditionalTiming('scheduled'));
-
-/* ══════════════════════════════════
    MODALS: Add / Edit / Add-for-contract
 ══════════════════════════════════ */
 function clearForm() {
@@ -851,17 +828,8 @@ function clearForm() {
   ['form-contract', 'form-mode', 'form-received-by'].forEach(id => $(id).value = '');
   $('form-status').value = 'Pending'; $('customer-hint').textContent = '';
   $('form-contract').innerHTML = '<option value="">— Select Customer first —</option>';
-  $('payment-type-group').style.display = '';
-  setPaymentType('additional');
   formNotes = [];
 }
-
-$('btn-add-payment').addEventListener('click', () => {
-  clearForm();
-  $('form-modal-title').textContent = 'Add Payment'; $('save-btn-text').textContent = 'Save Payment';
-  formNotes = []; renderNotesThread();
-  openModal('payment-form-modal');
-});
 
 function openEditModal(id) {
   const p = allPayments.find(x => x.id === id); if (!p) return;
@@ -875,27 +843,8 @@ function openEditModal(id) {
   $('form-payment-date').value = toInputDate(p.paymentDate); $('form-mode').value = p.paymentMode || '';
   $('form-or-number').value = p.orNumber || ''; $('form-received-by').value = p.receivedBy || '';
   $('form-status').value = p.status || 'Pending';
-  setPaymentType(p.isAdditional ? 'additional' : 'scheduled');
-  // setAdditionalTiming() inside setPaymentType() pre-fills date/status for
-  // a *new* payment — restore this payment's actual saved values now.
-  $('form-amount').value = p.amount || '';
-  $('form-due-date').value = toInputDate(p.dueDate);
-  $('form-payment-date').value = toInputDate(p.paymentDate);
-  $('form-status').value = p.status || 'Pending';
   formNotes = Array.isArray(p.notes) ? [...p.notes] : [];
   renderNotesThread();
-  openModal('payment-form-modal');
-}
-
-function openAddForContract(id) {
-  const p = allPayments.find(x => x.id === id); if (!p) return;
-  clearForm();
-  $('form-modal-title').textContent = 'Add Payment'; $('save-btn-text').textContent = 'Save Payment';
-  $('form-customer-no').value = p.customerNo || '';
-  const name = clientMap[p.customerNo]; $('customer-hint').textContent = name ? `✓ ${cleanName(name)}` : '';
-  loadContractsForCustomer(p.customerNo || '');
-  setTimeout(() => { $('form-contract').value = p.contractId || ''; }, 50);
-  formNotes = []; renderNotesThread();
   openModal('payment-form-modal');
 }
 
@@ -906,36 +855,22 @@ $('btn-save-payment').addEventListener('click', async () => {
   if (!amount) { showToast('Amount is required.', 'error'); return; }
   if (!dueDate) { showToast('Due Date is required.', 'error'); return; }
   const editId = $('form-payment-id').value;
-  if (!editId && contractId && contractMap[contractId]?.status === 'cancelled') {
-    showToast("This contract is cancelled — new payments can't be added against it.", 'error');
-    return;
-  }
+  if (!editId) return; // this modal is edit-only now — new payments come from Contracts/Treatments' "Add Extra Treatment"
   const btn = $('btn-save-payment'); btn.disabled = true; $('save-btn-text').textContent = 'Saving…';
   const parseLocalDate = s => { if (!s) return null; const [y, m, d] = s.split('-').map(Number); return `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`; };
   const pendingNote = $('form-new-note').value.trim();
   if (pendingNote) { formNotes.push({ text: pendingNote, author: currentUser?.email || 'Unknown', timestamp: new Date() }); $('form-new-note').value = ''; }
-  const isAdditional = $('ptype-additional').classList.contains('active');
   const data = {
-    customerNo, contractId, amount, status, isAdditional,
+    customerNo, contractId, amount, status,
     dueDate: parseLocalDate(dueDate), paymentDate: parseLocalDate($('form-payment-date').value),
     paymentMode: $('form-mode').value, orNumber: $('form-or-number').value.trim(),
     receivedBy: $('form-received-by').value, notes: formNotes, updatedAt: serverTimestamp()
   };
   try {
-    let targetId = editId;
-    if (editId) {
-      await smartUpdateDoc(doc(db, 'payments', editId), data, ['payments']);
-      const idx = allPayments.findIndex(x => x.id === editId); if (idx >= 0) allPayments[idx] = { ...allPayments[idx], ...data };
-      await logAction('updated', 'payment', editId, `Updated payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
-      showToast('Payment updated.');
-    } else {
-      data.createdAt = serverTimestamp();
-      const ref = await smartAddDoc(collection(db, 'payments'), data, ['payments']);
-      allPayments.unshift({ id: ref.id, ...data });
-      targetId = ref.id;
-      await logAction('created', 'payment', ref.id, `Created payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
-      showToast('Payment added.');
-    }
+    await smartUpdateDoc(doc(db, 'payments', editId), data, ['payments']);
+    const idx = allPayments.findIndex(x => x.id === editId); if (idx >= 0) allPayments[idx] = { ...allPayments[idx], ...data };
+    await logAction('updated', 'payment', editId, `Updated payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
+    showToast('Payment updated.');
     // Keep the contract's rollup (totalPaid/balanceRemaining) in sync —
     // this is the gap the original file never closed.
     if (contractId) {
@@ -944,7 +879,7 @@ $('btn-save-payment').addEventListener('click', async () => {
     }
     closeModal('payment-form-modal'); applyFilters();
   } catch (err) { showToast('Failed: ' + err.message, 'error'); }
-  btn.disabled = false; $('save-btn-text').textContent = editId ? 'Update Payment' : 'Save Payment';
+  btn.disabled = false; $('save-btn-text').textContent = 'Update Payment';
 });
 
 /* ══════════════════════════════════
