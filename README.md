@@ -41,6 +41,28 @@ anywhere, ever.
   module's elements anymore, in either direction. If a fifth module
   gets added later, it needs the same pattern from the start — it's not
   automatic just from following the file-structure convention above.
+- `index.html` — the shell: auth screens (login/register/pending/
+  forbidden/notfound), the hash router wiring, the Admin ("Review
+  Requests") view, and the **Dashboard**. Dashboard is the one feature
+  view that lives here instead of being lazy-loaded — it's the default
+  landing view after sign-in, so there's no reason to pay a fetch delay
+  for the first thing anyone sees. Its elements all use a hardcoded
+  `dash-` ID prefix (`dash-sidebar`, `dash-btn-refresh`, etc.) instead
+  of the `VIEW_ROOT`-scoped-query pattern the lazy modules use — since
+  this markup is one-off and never re-mounted, a unique prefix is
+  simpler and just as collision-proof against the lazy modules' own
+  (often-reused) IDs. Its KPIs deliberately diverge from the original
+  source file's logic in a few places to match what this system
+  actually does: "Confirmed This Month" counts `status === 'scheduled'`
+  treatments (this system has no `'confirmed'` status), renewals-due
+  excludes `'cancelled'` contracts too (matching Renewals' own
+  exclusion exactly, not just `'renewed'`), and "Upcoming Treatments"
+  shows every upcoming session rather than filtering to a specific
+  `contractType === 'GT'` value that isn't guaranteed to exist in a
+  fully custom, list-manager-driven set of contract types anymore.
+  KPI cards and nav links point at real in-app routes (`#treatments`,
+  `#payments`, etc.) rather than the standalone report/overdue/audit-log
+  pages the original file linked to, none of which exist in this build.
 - `js/router.js` — fetches a module's HTML file the first time its route
   is visited, injects its styles into `<head>`, moves its own
   `[data-view]` element into `#view-mount`, and re-creates its `<script>`
