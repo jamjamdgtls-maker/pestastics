@@ -12,7 +12,7 @@ anywhere, ever.
   views, the router wiring, and `#view-mount` (where feature modules get
   injected).
 - `clients.html` / `contracts.html` / `treatments.html` / `payments.html` /
-  `renewals.html` / `complaints.html` —
+  `renewals.html` / `complaints.html` / `inspections.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -194,6 +194,27 @@ anywhere, ever.
   Treatment" flow via `pc:book-treatment-from-complaint`, pre-filled
   from the complaint, so the one correct implementation of
   session-numbering + paired payment + rollup update stays the only one.
+- `inspections/{id}` — a pre-client prospect record: `clientName`,
+  `contactNumber`, `address` (one combined string — not the structured
+  `addressLine1`/`barangay`/`city`/`province` Clients uses, since that
+  breakdown doesn't exist yet at inspection time), `inspectedBy`,
+  `assignedTeam`, `pestProblems` (array, checkbox grid built from the
+  managed `pestProblems` settings list — never hardcoded), `status`
+  (`Scheduled`/`Completed`/`Converted`/`Cancelled`/`No Show`/`Lost`),
+  `comments`. Unlike every other module, storing the prospect's own
+  name/contact/address directly here is *correct*, not a duplication
+  bug — there's no client record yet for it to duplicate. Conversion
+  to an actual client and contract is two explicit steps, not one: the
+  Detail view's "Save as Client" hands off to Clients' own New Client
+  form via `pc:new-client-from-inspection` (Clients marks the
+  inspection `status: 'Converted'` + `convertedToClientNo` once the
+  client is actually created — Inspections never assigns a customerNo
+  itself); only once that's set does a second "Create Contract" action
+  appear, handing off to Contracts' New Contract form via
+  `pc:create-contract-from-inspection` with a suggested Contract Type
+  inferred from the observed pests. Both steps go through the module
+  that actually owns that kind of record, same reasoning as every
+  other cross-module handoff in this app.
 - `teams/{id}` — `teamName` + a `members`/`technicians` roster. Kept as
   its own collection rather than folded into config/settings (unlike
   Contract Type, Sales Agent, etc.) because Treatments cascades a

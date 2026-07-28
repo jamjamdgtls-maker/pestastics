@@ -68,7 +68,8 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
     match /inspections/{id} {
-      allow read: if isApproved();
+      allow read, create, update: if isApproved();
+      allow delete: if isSuperAdmin();
     }
 
     // ---------------------------------------------------------------

@@ -21,7 +21,8 @@ const LAZY_VIEWS = {
   treatments: 'treatments.html',
   payments: 'payments.html',
   renewals: 'renewals.html',
-  complaints: 'complaints.html'
+  complaints: 'complaints.html',
+  inspections: 'inspections.html'
 };
 
 const mountedLazyViews = new Set();
