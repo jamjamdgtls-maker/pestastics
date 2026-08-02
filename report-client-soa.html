@@ -73,6 +73,9 @@
 #view-report-client-soa .manage-list-link:hover{color:hsl(142,76%,28%)}
 
 /* ── Client SOA-specific additions ── */
+#view-report-client-soa .page-title-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+#view-report-client-soa .page-title-row h2{font-size:19px;font-weight:800;color:var(--text);letter-spacing:-.2px;flex:1}
+#view-report-client-soa .page-title-row .topbar-btn{flex-shrink:0}
 #view-report-client-soa .page-content{padding:24px;display:block;overflow-y:auto}
 #view-report-client-soa .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
 #view-report-client-soa .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
@@ -112,17 +115,7 @@
 
 #view-report-client-soa .date-range-badge{display:inline-block;background:#111;color:white;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px}
 
-#view-report-client-soa .contracts-section{margin-bottom:20px}
-#view-report-client-soa .section-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#374151;border-bottom:2px solid #e5e7eb;padding-bottom:6px;margin-bottom:10px}
-#view-report-client-soa .contract-card{border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-#view-report-client-soa .contract-card:last-child{margin-bottom:0}
-#view-report-client-soa .cc-left{flex:1}
-#view-report-client-soa .cc-no{font-size:11.5px;font-family:monospace;color:#6b7280;margin-bottom:2px}
-#view-report-client-soa .cc-type{font-size:13px;font-weight:700;color:#111}
-#view-report-client-soa .cc-period{font-size:12px;color:#6b7280;margin-top:2px}
-#view-report-client-soa .cc-right{text-align:right;flex-shrink:0}
-#view-report-client-soa .cc-amount{font-size:15px;font-weight:900;color:#111}
-#view-report-client-soa .cc-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:3px}
+#view-report-client-soa .cc-status{font-size:10px;font-weight:700;padding:1px 7px;border-radius:10px;display:inline-block;vertical-align:middle;margin-left:4px;text-transform:none;letter-spacing:0}
 #view-report-client-soa .cc-status.active{background:#dcfce7;color:#15803d}
 #view-report-client-soa .cc-status.expired{background:#fee2e2;color:#dc2626}
 #view-report-client-soa .cc-status.renewed{background:#dbeafe;color:#1d4ed8}
@@ -143,6 +136,14 @@
 #view-report-client-soa .soa-table tfoot td.right{text-align:right;font-variant-numeric:tabular-nums}
 #view-report-client-soa .row-credit{background:#f0fdf4!important}
 #view-report-client-soa .row-debit{background:#fff!important}
+
+#view-report-client-soa .soa-group-row td{background:#1f2937!important;padding:9px 10px}
+#view-report-client-soa .soa-group-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#view-report-client-soa .soa-group-title span:first-child{font-size:12.5px;font-weight:800;color:white;text-transform:uppercase;letter-spacing:.04em}
+#view-report-client-soa .soa-group-balance{font-size:11px;font-weight:700}
+#view-report-client-soa .soa-group-meta{font-size:11px;color:#d1d5db;margin-top:3px}
+#view-report-client-soa .soa-subtotal-row td{background:#f1f3f5!important;font-weight:700;font-size:12.5px;border-top:2px solid #d1d5db}
+#view-report-client-soa .soa-grandtotal-row td{background:#1f2937!important;color:white;font-weight:800;font-size:13px;border-color:#374151!important}
 
 #view-report-client-soa .type-tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700}
 #view-report-client-soa .type-tag.debit{background:#fee2e2;color:#dc2626}
@@ -227,8 +228,11 @@
     border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
   }
   #view-report-client-soa.active table{width:100%!important;table-layout:auto!important}
-  #view-report-client-soa.active .contracts-section,
-  #view-report-client-soa.active .soa-section{page-break-inside:avoid}
+  #view-report-client-soa.active .soa-table tr{page-break-inside:avoid;break-inside:avoid}
+  #view-report-client-soa.active .soa-group-row{page-break-after:avoid;break-after:avoid}
+  #view-report-client-soa.active .soa-group-row td,
+  #view-report-client-soa.active .soa-subtotal-row td,
+  #view-report-client-soa.active .soa-grandtotal-row td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   #view-report-client-soa.active .soa-table th{background:#1f2937!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
   #view-report-client-soa.active .soa-table tbody tr:nth-child(even),
   #view-report-client-soa.active .row-credit,
@@ -291,16 +295,14 @@
   </aside>
 
   <div class="main-wrapper">
-    <header class="topbar">
-      <button class="hamburger" id="hamburger">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <span class="topbar-title">Client Statement of Account</span>
-      <div class="topbar-spacer"></div>
-      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-    </header>
-
     <main class="page-content">
+      <div class="page-title-row">
+        <button class="hamburger" id="hamburger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <h2>Client Statement of Account</h2>
+        <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+      </div>
       <div class="controls-bar">
         <label>Client</label>
         <div class="combobox-wrap" id="cb-wrap">
@@ -539,60 +541,41 @@ async function generateSOA() {
 
     <div class="date-range-badge">Period: ${esc(dateRangeLabel)}</div>`;
 
-  html += `<div class="contracts-section">
-    <div class="section-title">Active Contracts (${contracts.length})</div>`;
-  if (contracts.length) {
-    contracts.forEach(c => {
-      const today = new Date(); today.setHours(0, 0, 0, 0);
-      const endDate = toLocalDate(c.contractEndDate);
-      let statusCls = 'other', statusLbl = c.status || '—';
-      if (c.status === 'active' && endDate && endDate < today) { statusCls = 'expired'; statusLbl = 'Expired'; }
-      else if (c.status === 'active') { statusCls = 'active'; statusLbl = 'Active'; }
-      else if (c.status === 'renewed') { statusCls = 'other'; statusLbl = 'Renewed'; }
-      html += `<div class="contract-card">
-        <div class="cc-left">
-          <div class="cc-no">${esc(c.contractNumber || c.id.slice(0, 8))}</div>
-          <div class="cc-type">${esc(c.contractType || '—')}</div>
-          <div class="cc-period">${fmtDate(c.contractStartDate)} – ${fmtDate(c.contractEndDate)} · ${esc(c.frequency || '—')} · ${esc(c.noOfSessions || '?')} sessions</div>
-        </div>
-        <div class="cc-right">
-          <div class="cc-amount">${fmtCur(c.totalAmount)}</div>
-          <span class="cc-status ${statusCls}">${esc(statusLbl)}</span>
-        </div>
-      </div>`;
-    });
-  } else {
-    html += `<p style="color:#9ca3af;font-size:13px;padding:8px 0">No contracts on record.</p>`;
+  function contractStatus(c) {
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const endDate = toLocalDate(c.contractEndDate);
+    if (c.status === 'active' && endDate && endDate < today) return { cls: 'expired', lbl: 'Expired' };
+    if (c.status === 'active') return { cls: 'active', lbl: 'Active' };
+    if (c.status === 'renewed') return { cls: 'other', lbl: 'Renewed' };
+    return { cls: 'other', lbl: c.status || '—' };
   }
-  html += `</div>`;
 
   let grandRunningBalance = 0;
   let rowNum = 0;
   const modeLabelMap = { 'cash': 'Cash', 'check': 'Check', 'bank-transfer': 'Bank Transfer', 'credit-card': 'Credit Card', 'gcash': 'GCash', 'maya': 'Maya' };
 
-  contractSummaries.forEach(cs => {
-    const c = cs.contract;
-    const cPayments = (filteredPaymentsByContract[c.id] || []).sort((a, b) => { const da = toLocalDate(a.dueDate || a.paymentDate), db2 = toLocalDate(b.dueDate || b.paymentDate); return da && db2 ? da - db2 : 0; });
-
-    html += `<div class="soa-section" style="margin-bottom:24px">
-      <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
-        <span>${esc(c.contractNumber || c.id.slice(0, 8))} — ${esc(c.contractType || '—')}</span>
-        <span style="font-size:11px;font-weight:600;color:${cs.balance > 0 ? '#dc2626' : '#15803d'}">Balance: ${fmtCur(cs.balance)}</span>
-      </div>`;
-
-    html += `<div style="display:flex;gap:16px;padding:8px 12px;background:#f8f9fa;border:1px solid #e5e7eb;border-radius:4px;margin-bottom:8px;font-size:12px;color:#6b7280;flex-wrap:wrap">
-      <span>Contract Amount: <strong style="color:#111">${fmtCur(cs.contractAmt)}</strong></span>
-      ${cs.addendum > 0 ? `<span>Addendum: <strong style="color:#1d4ed8">+${fmtCur(cs.addendum)}</strong></span>` : ''}
-      <span>Effective Billed: <strong style="color:#111">${fmtCur(cs.effectiveBilled)}</strong></span>
-      <span>Received: <strong style="color:#15803d">${fmtCur(cs.totalReceived)}</strong></span>
-      <span>Pending: <strong style="color:#f59e0b">${fmtCur(cs.totalPendingC)}</strong></span>
-      <span>Period: ${fmtDate(c.contractStartDate)} – ${fmtDate(c.contractEndDate)}</span>
-    </div>`;
-
-    html += `<table class="soa-table"><thead><tr>
+  html += `<div class="soa-section">
+    <table class="soa-table"><thead><tr>
       <th>#</th><th>Date</th><th>Due Date</th><th>OR No.</th><th>Description</th><th>Status</th>
       <th class="right">Debit ₱</th><th class="right">Credit ₱</th><th class="right">Running Balance ₱</th>
     </tr></thead><tbody>`;
+
+  if (!contracts.length) {
+    html += `<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:20px">No contracts on record.</td></tr>`;
+  }
+
+  contractSummaries.forEach(cs => {
+    const c = cs.contract;
+    const cPayments = (filteredPaymentsByContract[c.id] || []).sort((a, b) => { const da = toLocalDate(a.dueDate || a.paymentDate), db2 = toLocalDate(b.dueDate || b.paymentDate); return da && db2 ? da - db2 : 0; });
+    const { cls: statusCls, lbl: statusLbl } = contractStatus(c);
+
+    html += `<tr class="soa-group-row"><td colspan="9">
+      <div class="soa-group-title">
+        <span>${esc(c.contractNumber || c.id.slice(0, 8))} — ${esc(c.contractType || '—')} <span class="cc-status ${statusCls}">${esc(statusLbl)}</span></span>
+        <span class="soa-group-balance" style="color:${cs.balance > 0 ? '#fca5a5' : '#86efac'}">Balance: ${fmtCur(cs.balance)}</span>
+      </div>
+      <div class="soa-group-meta">Contract Amount: ${fmtCur(cs.contractAmt)}${cs.addendum > 0 ? ` · Addendum: +${fmtCur(cs.addendum)}` : ''} · Period: ${fmtDate(c.contractStartDate)} – ${fmtDate(c.contractEndDate)} · ${esc(c.frequency || '—')} · ${esc(c.noOfSessions || '?')} sessions</div>
+    </td></tr>`;
 
     grandRunningBalance += Number(cs.contractAmt);
     rowNum++;
@@ -658,21 +641,18 @@ async function generateSOA() {
       </tr>`;
     });
 
-    html += `</tbody><tfoot><tr>
-      <td colspan="6" style="font-weight:700;text-align:right">Subtotal — ${esc(c.contractNumber || c.id.slice(0, 8))}</td>
+    html += `<tr class="soa-subtotal-row">
+      <td colspan="6" style="text-align:right">Subtotal — ${esc(c.contractNumber || c.id.slice(0, 8))}</td>
       <td class="right">${fmtCur(cs.effectiveBilled)}</td>
       <td class="right" style="color:#15803d">${fmtCur(cs.totalReceived)}</td>
       <td class="right ${cs.balance > 0 ? 'balance-positive' : ''}">${fmtCur(cs.balance)}</td>
-    </tr></tfoot></table></div>`;
+    </tr>`;
   });
 
   if (unassignedFiltered.length) {
-    html += `<div class="soa-section" style="margin-bottom:24px">
-      <div class="section-title">Unassigned Payments (No Contract Linked)</div>
-      <table class="soa-table"><thead><tr>
-        <th>#</th><th>Date</th><th>Due Date</th><th>OR No.</th><th>Description</th><th>Status</th>
-        <th class="right">Debit ₱</th><th class="right">Credit ₱</th><th class="right">Balance ₱</th>
-      </tr></thead><tbody>`;
+    html += `<tr class="soa-group-row"><td colspan="9">
+      <div class="soa-group-title"><span>Unassigned Payments (No Contract Linked)</span></div>
+    </td></tr>`;
     unassignedFiltered.forEach(p => {
       const paid = isReceived(p);
       const cancelledRow = isCancelledPayment(p);
@@ -692,15 +672,13 @@ async function generateSOA() {
         <td class="right">${fmtCur(grandRunningBalance)}</td>
       </tr>`;
     });
-    html += `</tbody></table></div>`;
   }
 
-  html += `<div class="soa-section">
-    <table class="soa-table"><tfoot><tr style="background:#1f2937!important">
-      <td colspan="6" style="font-weight:800;text-align:right;color:white;font-size:13px;border-color:#374151">GRAND TOTAL</td>
-      <td class="right" style="color:#fca5a5;border-color:#374151">${fmtCur(totalBilledAll)}</td>
-      <td class="right" style="color:#86efac;border-color:#374151">${fmtCur(totalPaidAll)}</td>
-      <td class="right" style="color:white;font-weight:900;border-color:#374151">${fmtCur(outstanding)}</td>
+  html += `</tbody><tfoot><tr class="soa-grandtotal-row">
+      <td colspan="6" style="text-align:right">GRAND TOTAL</td>
+      <td class="right" style="color:#fca5a5">${fmtCur(totalBilledAll)}</td>
+      <td class="right" style="color:#86efac">${fmtCur(totalPaidAll)}</td>
+      <td class="right" style="color:white">${fmtCur(outstanding)}</td>
     </tr></tfoot></table>
   </div>`;
 
