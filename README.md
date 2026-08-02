@@ -12,7 +12,7 @@ anywhere, ever.
   views, the router wiring, and `#view-mount` (where feature modules get
   injected).
 - `clients.html` / `contracts.html` / `treatments.html` / `payments.html` /
-  `renewals.html` / `complaints.html` / `inspections.html` —
+  `renewals.html` / `complaints.html` / `inspections.html` / `overdue.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -95,6 +95,20 @@ anywhere, ever.
   its `treatments`/`payments` child records, and handles the two
   structural amendments (cancelling a session, adding an extra one) that
   change the contract's actual committed value, not just its status.
+- `js/treatment-actions.js` / `js/payment-actions.js` — the actual
+  Firestore-mutation logic behind Complete/Reschedule/Cancel-a-treatment
+  and Update-a-payment, factored out so more than one module can call
+  the same correct implementation instead of each keeping its own copy.
+  Treatments' and Payments' own modals call these; so does Overdue's —
+  Overdue has no local mutation logic of its own at all, on purpose.
+  This is what closes a real gap the original standalone Overdue page
+  had: its own "Cancel" only flipped the treatment's status, never
+  touching the paired payment or the contract's committed total the way
+  Treatments' own Cancel does — a second, drifted copy of that logic
+  would have reintroduced exactly that gap. Neither module handles
+  toasts, audit-log writes, or modal-closing here — those stay with
+  whichever page's UI triggered the call, since each wants slightly
+  different wording/behavior around the same underlying mutation.
 - `js/list-manager.js` — a shared, self-contained "manage this dropdown's
   options" modal for config/settings array fields (Contract Type,
   Treatment Method, Sales Agent, Communication Source, Cancel/Reschedule

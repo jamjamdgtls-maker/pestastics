@@ -143,6 +143,9 @@
       <a class="nav-item" href="#renewals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
       <div class="nav-section-label">Service</div>
       <a class="nav-item" href="#complaints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Complaints</a>
+      <a class="nav-item" href="#inspections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Inspections</a>
+      <div class="nav-section-label">Monitoring</div>
+      <a class="nav-item" href="#overdue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue</a>
       <div class="nav-section-label" id="payments-admin-nav-label" style="display:none">Admin</div>
       <a class="nav-item" href="#admin" id="payments-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
     </nav>
@@ -355,6 +358,7 @@ import {
   cachedGetDocs, cachedGetDoc, smartUpdateDoc, invalidate
 } from './js/firestore-cache.js';
 import { recalcContractRollup } from './js/contract-sync.js';
+import { updatePayment } from './js/payment-actions.js';
 import { getSettingsList, openListManager } from './js/list-manager.js';
 
 /* Fallback payment modes/statuses — empty-friendly like every other
@@ -864,19 +868,16 @@ $('btn-save-payment').addEventListener('click', async () => {
     customerNo, contractId, amount, status,
     dueDate: parseLocalDate(dueDate), paymentDate: parseLocalDate($('form-payment-date').value),
     paymentMode: $('form-mode').value, orNumber: $('form-or-number').value.trim(),
-    receivedBy: $('form-received-by').value, notes: formNotes, updatedAt: serverTimestamp()
+    receivedBy: $('form-received-by').value, notes: formNotes
   };
   try {
-    await smartUpdateDoc(doc(db, 'payments', editId), data, ['payments']);
-    const idx = allPayments.findIndex(x => x.id === editId); if (idx >= 0) allPayments[idx] = { ...allPayments[idx], ...data };
+    const { rollup } = await updatePayment(db, editId, data, contractId);
+    const idx = allPayments.findIndex(x => x.id === editId); if (idx >= 0) allPayments[idx] = { ...allPayments[idx], ...data, updatedAt: new Date() };
     await logAction('updated', 'payment', editId, `Updated payment for ${customerNo} — ₱${amount.toLocaleString()} — ${status}`);
     showToast('Payment updated.');
-    // Keep the contract's rollup (totalPaid/balanceRemaining) in sync —
-    // this is the gap the original file never closed.
-    if (contractId) {
-      const rollup = await recalcContractRollup(contractId);
-      if (rollup) patchLocalContract(contractId, rollup);
-    }
+    // recalcContractRollup already ran inside updatePayment() — just
+    // patch the local contract cache with what it returned.
+    if (rollup) patchLocalContract(contractId, rollup);
     closeModal('payment-form-modal'); applyFilters();
   } catch (err) { showToast('Failed: ' + err.message, 'error'); }
   btn.disabled = false; $('save-btn-text').textContent = 'Update Payment';
