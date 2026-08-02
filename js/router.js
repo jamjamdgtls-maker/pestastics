@@ -23,7 +23,8 @@ const LAZY_VIEWS = {
   renewals: 'renewals.html',
   complaints: 'complaints.html',
   inspections: 'inspections.html',
-  overdue: 'overdue.html'
+  overdue: 'overdue.html',
+  calendar: 'calendar.html'
 };
 
 const mountedLazyViews = new Set();

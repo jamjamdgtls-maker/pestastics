@@ -12,7 +12,8 @@ anywhere, ever.
   views, the router wiring, and `#view-mount` (where feature modules get
   injected).
 - `clients.html` / `contracts.html` / `treatments.html` / `payments.html` /
-  `renewals.html` / `complaints.html` / `inspections.html` / `overdue.html` —
+  `renewals.html` / `complaints.html` / `inspections.html` / `overdue.html` /
+  `calendar.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -80,13 +81,13 @@ anywhere, ever.
   already on that route), then dispatch the actual request event; the
   receiving module listens for it, waits for its own data to finish
   loading if it was just mounted for the first time, then acts.
-  `pc:open-contract` / `pc:open-client` / `pc:open-complaint` (open a
-  specific record's detail modal — used by Payments/Renewals/Complaints
-  to link out to each other) and `pc:renew-contract` / 
-  `pc:book-treatment-from-complaint` (open another module's own creation
-  form pre-filled with context — Renewals' "Renew" hands off to
-  Contracts' New Contract form; Complaints' "Book Treatment" hands off
-  to Treatments' Add Extra Treatment form) all follow this same shape.
+  `pc:open-contract` / `pc:open-client` / `pc:open-complaint` /
+  `pc:open-inspection` (open a specific record's detail modal — used by
+  Payments/Renewals/Complaints/Calendar to link out to each other) and
+  `pc:renew-contract` / `pc:book-treatment-from-complaint` /
+  `pc:new-client-from-inspection` / `pc:create-contract-from-inspection`
+  (open another module's own creation form pre-filled with context) all
+  follow this same shape.
 - `js/firestore-cache.js` — shared in-memory read cache + "smart write"
   wrappers (`cachedGetDocs`, `smartUpdateDoc`, etc.), used by every module
   so a collection is read once per session, not once per page visit.
