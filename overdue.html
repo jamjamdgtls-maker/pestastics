@@ -491,9 +491,10 @@ function sevClass(days) { return days > 30 ? 'sev-critical' : days > 14 ? 'sev-w
 // Same "not yet resolved" set Treatments itself uses — a treatment can
 // arrive with different status spellings depending on where it came
 // from, so this is deliberately an exclusion list, not one exact match.
-// Per explicit instruction: a treatment counts as overdue whenever its
-// date has passed and it isn't 'completed' — nothing broader.
-const RESOLVED_TREATMENT_STATUSES = ['completed'];
+// A treatment counts as overdue whenever its date has passed and it
+// isn't 'completed' or 'cancelled' — a cancelled treatment isn't
+// something waiting on anyone, so it shouldn't show up needing action.
+const RESOLVED_TREATMENT_STATUSES = ['completed', 'cancelled'];
 
 async function logAction(action, entityType, entityId, description) {
   try {
