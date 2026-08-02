@@ -792,8 +792,6 @@ async function route() {
   if (!profileBroadcast) {
     profileBroadcast = true;
     setProfile({ uid: user.uid, email: user.email, name: currentProfile.name, role: currentProfile.role });
-    const dashAdminLink = document.getElementById("dashAdminLink");
-    if (dashAdminLink) dashAdminLink.style.display = currentProfile.role === "superadmin" ? "" : "none";
   }
 
   if (target === "admin") {
@@ -1228,12 +1226,10 @@ loginForm.addEventListener("submit", async (e) => {
 });
 
 // ---------------------------------------------------------------
-// Sign out (dashboard + admin)
+// Sign out (admin) — dashboard's own sign-out button is wired inside
+// initDashboardShell() now, since its id changed to dash-btn-signout
+// when the dashboard view was rebuilt.
 // ---------------------------------------------------------------
-document.getElementById("dashSignout").addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.hash = "#login";
-});
 document.getElementById("adminSignout").addEventListener("click", async () => {
   await signOut(auth);
   window.location.hash = "#login";
