@@ -322,6 +322,46 @@
     #view-dashboard .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
     #view-dashboard .table-wrapper {scrollbar-width:thin;scrollbar-color:var(--border-hover) var(--bg-secondary)}
     #view-dashboard .pagination {position:sticky;bottom:0}
+  
+    /* ── Unified layout system (all modules) ── */
+    :root, #view-dashboard {--sidebar-width:260px}
+    html, body {margin:0;overflow-x:hidden}
+    :root {--sidebar-width:260px}
+    #view-dashboard .sidebar {width:var(--sidebar-width)}
+    #view-dashboard .sidebar-logo {padding:20px 20px 16px}
+    #view-dashboard .sidebar-nav {padding:12px 10px}
+    #view-dashboard .nav-section-label {padding:12px 10px 6px}
+    #view-dashboard .nav-item {padding:9px 10px;font-size:13.5px;min-height:36px;gap:10px;text-align:left}
+    #view-dashboard .nav-item svg {width:16px;height:16px}
+    #view-dashboard .sidebar-footer {padding:12px 14px}
+    #view-dashboard .main-wrapper {margin-left:var(--sidebar-width);width:calc(100% - var(--sidebar-width));max-width:calc(100% - var(--sidebar-width));overflow-x:hidden}
+    #view-dashboard .page-content {padding:20px 24px 18px;min-width:0}
+    #view-dashboard .page-header {padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:16px}
+    #view-dashboard .table-card {display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))}
+    #view-dashboard .table-wrapper {flex:1;min-height:0;overflow:auto}
+    #view-dashboard .table-wrapper thead th {position:sticky;top:0;z-index:2;background:var(--bg-secondary)}
+    #view-dashboard .table-wrapper::-webkit-scrollbar {width:10px;height:10px}
+    #view-dashboard .table-wrapper::-webkit-scrollbar-thumb {background:var(--border-hover);border-radius:5px;border:2px solid var(--bg-secondary)}
+    #view-dashboard .table-wrapper::-webkit-scrollbar-thumb:hover {background:var(--text-muted)}
+    #view-dashboard .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
+    #view-dashboard .table-wrapper {scrollbar-width:thin;scrollbar-color:var(--border-hover) var(--bg-secondary)}
+    #view-dashboard .pagination {position:sticky;bottom:0;background:white;border-top:1px solid var(--border);flex-shrink:0}
+    @media(max-width:1024px){#view-dashboard .main-wrapper {margin-left:0;width:100%;max-width:100%}}
+    @media(max-width:768px){#view-dashboard .page-content {padding:14px 14px 12px}}
+
+    /* ── Dashboard card fit + internal scroll ── */
+    #view-dashboard .page-content {overflow-y:auto;overflow-x:hidden}
+    #view-dashboard .dash-bottom {align-items:start;min-height:0;margin-bottom:4px}
+    #view-dashboard .dcard {display:flex;flex-direction:column;min-height:0;overflow:hidden}
+    #view-dashboard .dcard-header, #view-dashboard .gt-quick-filters {flex-shrink:0}
+    #view-dashboard .dcard-body {flex:1;min-height:0;max-height:min(46vh,420px);overflow-y:auto;overflow-x:auto}
+    #view-dashboard .dcard-body:has(.mini-table) {padding-top:0}
+    #view-dashboard .mini-table thead th {position:sticky;top:0;z-index:2;background:white;padding-top:12px}
+    #view-dashboard .dcard-body::-webkit-scrollbar {width:10px;height:10px}
+    #view-dashboard .dcard-body::-webkit-scrollbar-thumb {background:var(--border-hover);border-radius:5px;border:2px solid white}
+    #view-dashboard .dcard-body::-webkit-scrollbar-thumb:hover {background:var(--text-muted)}
+    #view-dashboard .dcard-body {scrollbar-width:thin;scrollbar-color:var(--border-hover) white}
+    @media(max-width:1200px){#view-dashboard .dcard-body {max-height:min(40vh,340px)}}
   </style>
 </head>
 <body>
