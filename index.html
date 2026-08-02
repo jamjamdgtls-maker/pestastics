@@ -456,8 +456,17 @@
       <a class="nav-item" href="#inspections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Inspections</a>
       <div class="nav-section-label">Monitoring</div>
       <a class="nav-item" href="#overdue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue</a>
+      <a class="nav-item" href="#calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+      <div class="nav-section-label">Reports</div>
+      <a class="nav-item" href="#report-daily-schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Daily Schedule</a>
+      <a class="nav-item" href="#report-service"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Report</a>
+      <a class="nav-item" href="#report-client-soa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Client SOA</a>
+      <a class="nav-item" href="#report-monthly-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Monthly Collection</a>
+      <a class="nav-item" href="#report-overdue-treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue Report</a>
+      <div class="nav-section-label" id="dash-operations-nav-label" style="display:none">Operations</div>
+      <a class="nav-item" href="#audit-log" id="dash-nav-audit-log" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Audit Log</a>
       <div class="nav-section-label" id="dash-admin-nav-label" style="display:none">Admin</div>
-      <a class="nav-item" href="#admin" id="dash-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
+      <a class="nav-item" href="#admin" id="dash-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>User Management</a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -652,36 +661,6 @@
 </div>
 
 
-<!-- ===================== VIEW: admin ===================== -->
-<div data-view="admin">
-  <div class="topbar">
-    <div class="brand-mark"><span class="dot"></span><span>ACCESS CONTROL — SUPER ADMIN</span></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <a href="#clients" class="signout" style="text-decoration:none;">Clients</a>
-      <a href="#contracts" class="signout" style="text-decoration:none;">Contracts</a>
-      <a href="#treatments" class="signout" style="text-decoration:none;">Treatments</a>
-      <a href="#payments" class="signout" style="text-decoration:none;">Payments</a>
-      <a href="#renewals" class="signout" style="text-decoration:none;">Renewals</a>
-      <a href="#complaints" class="signout" style="text-decoration:none;">Complaints</a>
-      <a href="#inspections" class="signout" style="text-decoration:none;">Inspections</a>
-      <a href="#overdue" class="signout" style="text-decoration:none;">Overdue</a>
-      <button class="signout" id="adminSignout">Sign out</button>
-    </div>
-  </div>
-  <div class="wrap">
-    <h1>Review requests</h1>
-    <p class="sub">Approve or reject accounts waiting on clearance.</p>
-    <div class="tabs">
-      <span class="tab active" data-status="pending">Pending <span class="count" id="countPending">0</span></span>
-      <span class="tab" data-status="approved">Approved <span class="count" id="countApproved">0</span></span>
-      <span class="tab" data-status="rejected">Rejected <span class="count" id="countRejected">0</span></span>
-      <span style="flex:1;"></span>
-      <button id="adminRefresh" class="signout" style="margin-bottom:8px;">Refresh</button>
-    </div>
-    <div id="adminList"></div>
-  </div>
-</div>
-
 <!-- ===================== VIEW: forbidden ===================== -->
 <div data-view="forbidden">
   <div class="center-shell">
@@ -719,7 +698,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   doc, setDoc, getDoc, serverTimestamp,
-  collection, query, where, orderBy, limit, getDocs, getCountFromServer, updateDoc
+  collection, query, where, orderBy, limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { showView as routerShowView, isKnownView, setProfile } from "./js/router.js";
 import { cachedGetDocs, invalidate } from "./js/firestore-cache.js";
@@ -795,20 +774,13 @@ async function route() {
   }
 
   if (target === "admin") {
-    if (currentProfile.role !== "superadmin") { await showView("forbidden"); return; }
+    if (currentProfile.role !== "superadmin" && currentProfile.role !== "admin") { await showView("forbidden"); return; }
     await showView("admin");
-    if (!adminInitialized) {
-      adminInitialized = true;
-      await loadCounts();
-      await loadTab(activeStatus);
-    } else {
-      renderAdminList(); // cached — no read
-    }
     return;
   }
 
   if (target === "login" || target === "register" || target === "") {
-    window.location.hash = currentProfile.role === "superadmin" ? "#admin" : "#dashboard";
+    window.location.hash = (currentProfile.role === "superadmin" || currentProfile.role === "admin") ? "#admin" : "#dashboard";
     return;
   }
 
@@ -858,8 +830,11 @@ function initDashboardShell(user, profile) {
   else document.getElementById("dash-user-initials").textContent = name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
   const isSuperAdmin = profile?.role === "superadmin";
-  document.getElementById("dash-admin-nav-label").style.display = isSuperAdmin ? "" : "none";
-  document.getElementById("dash-nav-admin").style.display = isSuperAdmin ? "" : "none";
+  const canAccessAdmin = isSuperAdmin || profile?.role === "admin";
+  document.getElementById("dash-operations-nav-label").style.display = isSuperAdmin ? "" : "none";
+  document.getElementById("dash-nav-audit-log").style.display = isSuperAdmin ? "" : "none";
+  document.getElementById("dash-admin-nav-label").style.display = canAccessAdmin ? "" : "none";
+  document.getElementById("dash-nav-admin").style.display = canAccessAdmin ? "" : "none";
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -1162,10 +1137,23 @@ registerForm.addEventListener("submit", async (e) => {
 
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, password);
+
+    // Pre-approved emails skip the pending-review step entirely — this is
+    // the one place any new user account gets created in this app, so
+    // this is the one place that needs to check the allowlist, rather
+    // than duplicating the check per-page the way the original standalone
+    // admin pages each did in their own onAuthStateChanged.
+    let autoApproved = false;
+    try {
+      const preSnap = await getDoc(doc(db, "config", "preapproved"));
+      const entries = preSnap.exists() ? (preSnap.data().entries || []) : [];
+      autoApproved = entries.some(en => (en.email || "").toLowerCase() === email.toLowerCase());
+    } catch { /* proceed as pending if this lookup fails for any reason */ }
+
     await setDoc(doc(db, "users", cred.user.uid), {
-      name, email, status: "pending", role: "user", createdAt: serverTimestamp()
+      name, email, status: autoApproved ? "approved" : "pending", role: "user", createdAt: serverTimestamp()
     });
-    window.location.hash = "#pending";
+    window.location.hash = autoApproved ? "#dashboard" : "#pending";
   } catch (err) {
     registerBtn.disabled = false;
     registerBtn.textContent = "Request access";
@@ -1226,135 +1214,12 @@ loginForm.addEventListener("submit", async (e) => {
 });
 
 // ---------------------------------------------------------------
-// Sign out (admin) — dashboard's own sign-out button is wired inside
-// initDashboardShell() now, since its id changed to dash-btn-signout
-// when the dashboard view was rebuilt.
+// Sign out (admin) — the old standalone #admin view's own sign-out
+// button is gone now that #admin is the lazy user-management.html
+// module; that module wires its own sign-out the same way every
+// other lazy module does.
 // ---------------------------------------------------------------
-document.getElementById("adminSignout").addEventListener("click", async () => {
-  await signOut(auth);
-  window.location.hash = "#login";
-});
 
-// ---------------------------------------------------------------
-// Admin panel
-// ---------------------------------------------------------------
-let tabCache = { pending: null, approved: null, rejected: null }; // per-status doc cache
-let adminInitialized = false;
-let activeStatus = "pending";
-const adminList = document.getElementById("adminList");
-
-document.querySelectorAll(".tab").forEach(tab => {
-  tab.addEventListener("click", async () => {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-    activeStatus = tab.dataset.status;
-    await loadTab(activeStatus); // no-op read if already cached
-  });
-});
-
-// Cheap: aggregation queries bill a small fixed cost, not one read per matching doc.
-async function loadCounts() {
-  const statuses = ["pending", "approved", "rejected"];
-  const results = await Promise.all(statuses.map(s =>
-    getCountFromServer(query(collection(db, "users"), where("status", "==", s)))
-  ));
-  document.getElementById("countPending").textContent = results[0].data().count;
-  document.getElementById("countApproved").textContent = results[1].data().count;
-  document.getElementById("countRejected").textContent = results[2].data().count;
-}
-
-// Only fetches the requested status slice, and only if not already cached.
-async function loadTab(status) {
-  if (tabCache[status] === null) {
-    const snap = await getDocs(query(collection(db, "users"), where("status", "==", status)));
-    const docs = [];
-    snap.forEach(d => docs.push({ id: d.id, ...d.data() }));
-    tabCache[status] = docs.filter(u => u.role !== "superadmin");
-  }
-  renderAdminList();
-}
-
-document.getElementById("adminRefresh").addEventListener("click", async () => {
-  tabCache = { pending: null, approved: null, rejected: null };
-  await loadCounts();
-  await loadTab(activeStatus);
-});
-
-function renderAdminList() {
-  const items = tabCache[activeStatus] || [];
-  adminList.innerHTML = "";
-
-  if (items.length === 0) {
-    adminList.innerHTML = `<div class="empty">No ${activeStatus} accounts right now.</div>`;
-    return;
-  }
-
-  items.forEach(u => {
-    const row = document.createElement("div");
-    row.className = "row";
-    const created = u.createdAt?.toDate ? u.createdAt.toDate().toLocaleDateString() : "—";
-
-    row.innerHTML = `
-      <div class="who">
-        <div class="name">${escapeHtml(u.name || "—")}</div>
-        <div class="email">${escapeHtml(u.email || "—")}</div>
-        <div class="meta">requested ${created} · <span class="badge-status badge-${u.status}">${u.status}</span></div>
-      </div>
-      <div class="actions"></div>
-    `;
-
-    const actions = row.querySelector(".actions");
-
-    if (u.status === "pending") {
-      actions.appendChild(makeBtn("Approve", "btn-approve", () => setStatus(u.id, "approved")));
-      actions.appendChild(makeBtn("Reject", "btn-reject", () => setStatus(u.id, "rejected")));
-    } else if (u.status === "rejected") {
-      actions.appendChild(makeBtn("Approve instead", "btn-approve", () => setStatus(u.id, "approved")));
-    } else if (u.status === "approved") {
-      actions.appendChild(makeBtn("Revoke", "btn-reject", () => setStatus(u.id, "rejected")));
-    }
-
-    adminList.appendChild(row);
-  });
-}
-
-function makeBtn(text, cls, onclick) {
-  const b = document.createElement("button");
-  b.className = cls;
-  b.textContent = text;
-  b.onclick = onclick;
-  return b;
-}
-
-async function setStatus(uid, newStatus) {
-  await updateDoc(doc(db, "users", uid), { status: newStatus });
-
-  const oldStatus = activeStatus; // action buttons only ever act on the currently-open tab
-
-  // Remove locally from the tab it left — avoids a re-read of this tab.
-  tabCache[oldStatus] = (tabCache[oldStatus] || []).filter(u => u.id !== uid);
-
-  // Invalidate the destination tab rather than eagerly fetching it —
-  // it'll load fresh (one query) only if the admin actually opens it.
-  tabCache[newStatus] = null;
-
-  // Update counts locally without another aggregation read.
-  const el = {
-    pending: document.getElementById("countPending"),
-    approved: document.getElementById("countApproved"),
-    rejected: document.getElementById("countRejected")
-  };
-  el[oldStatus].textContent = Math.max(0, parseInt(el[oldStatus].textContent) - 1);
-  el[newStatus].textContent = parseInt(el[newStatus].textContent) + 1;
-
-  renderAdminList();
-}
-
-function escapeHtml(str) {
-  const div = document.createElement("div");
-  div.textContent = str;
-  return div.innerHTML;
-}
 </script>
 
 </body>

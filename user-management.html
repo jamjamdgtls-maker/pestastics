@@ -1,0 +1,786 @@
+<!-- ════════════════════════════════════════════════════════════════
+     User Management module — mounted at #admin (the route name stays
+     the same as the old placeholder it replaces, so no existing
+     href="#admin" link across the app needed to change). Full
+     three-tier role model: user / admin / superadmin, matching
+     firestore.rules' isAdmin()/isSuperAdmin() exactly. Pre-approved
+     emails are managed here but actually consumed by index.html's own
+     central new-user-creation flow, not duplicated in this module.
+════════════════════════════════════════════════════════════════ -->
+<style>
+
+
+
+#view-admin *, #view-admin *::before, #view-admin *::after {box-sizing:border-box;margin:0;padding:0}#view-admin {
+      --primary:hsl(142,76%,36%);--primary-hover:hsl(142,76%,30%);--primary-light:hsl(142,76%,95%);--primary-border:hsl(142,76%,80%);
+      --bg:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;
+      --sidebar-bg:#0f1b12;--sidebar-text:#c8d6ca;--sidebar-muted:#6b7f6e;
+      --text:#111827;--text-secondary:#4b5563;--text-muted:#9ca3af;
+      --border:#e5e7eb;--border-hover:#d1d5db;
+      --radius:8px;--radius-sm:4px;--radius-lg:12px;
+      --shadow:0 2px 8px rgba(0,0,0,.10);--shadow-lg:0 8px 24px rgba(0,0,0,.12);
+      --green:hsl(142,76%,36%);--green-bg:hsl(142,76%,95%);--green-text:hsl(142,76%,28%);
+      --blue:hsl(213,94%,47%);--blue-bg:hsl(213,94%,95%);--blue-text:hsl(213,94%,35%);
+      --amber:hsl(38,92%,50%);--amber-bg:hsl(38,92%,95%);--amber-text:hsl(38,92%,32%);
+      --red:hsl(0,84%,50%);--red-bg:hsl(0,84%,96%);--red-text:hsl(0,84%,38%);
+      --purple:hsl(262,83%,58%);--purple-bg:hsl(262,83%,96%);--purple-text:hsl(262,83%,42%);
+      --gray:hsl(220,9%,46%);--gray-bg:hsl(220,9%,95%);--gray-text:hsl(220,9%,35%);
+      --sidebar-width:260px;--topbar-height:60px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif
+    }#view-admin html, #view-admin body {height:100%;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg-secondary);line-height:1.5;-webkit-font-smoothing:antialiased}#view-admin a {color:inherit;text-decoration:none}#view-admin button {font-family:var(--font);cursor:pointer}#view-admin input, #view-admin select, #view-admin textarea {font-family:var(--font);font-size:14px}#view-admin /* AUTH */
+    #auth-screen {display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f1b12 0%,#1a2e1d 50%,#0d1f0f 100%)}#view-admin .auth-card {background:white;border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);text-align:center}#view-admin .auth-logo {width:64px;height:64px;background:var(--primary-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-admin .auth-logo svg {width:36px;height:36px}#view-admin .auth-card h1 {font-size:24px;font-weight:700;margin-bottom:4px}#view-admin .auth-card>p {color:var(--text-muted);font-size:14px;margin-bottom:32px}#view-admin .btn-google {width:100%;padding:12px 20px;border:1.5px solid var(--border);background:white;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:500;color:var(--text);transition:all .15s;cursor:pointer}#view-admin .btn-google:hover {background:var(--bg-secondary)}#view-admin .btn-google svg {width:20px;height:20px}#view-admin .auth-error {margin-top:16px;padding:10px 14px;background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);font-size:13px;border:1px solid #fca5a5;display:none}#view-admin .pending-icon {width:72px;height:72px;background:var(--amber-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-admin .pending-icon svg {width:36px;height:36px;color:var(--amber)}#view-admin .btn-pending-check {width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;margin-bottom:12px;cursor:pointer}#view-admin .btn-signout-pending {width:100%;padding:12px;background:transparent;color:var(--text-secondary);border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;cursor:pointer}#view-admin /* APP SHELL */
+    #app-shell {display:none;height:100vh;overflow:hidden}#view-admin /* SIDEBAR */
+    .sidebar {position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);display:flex;flex-direction:column;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);overflow:hidden}#view-admin .sidebar-logo {display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.06)}#view-admin .sidebar-logo-icon {width:36px;height:36px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}#view-admin .sidebar-logo-icon svg {width:20px;height:20px;color:white}#view-admin .sidebar-logo-text span {display:block;font-size:15px;font-weight:700;color:white;line-height:1.2}#view-admin .sidebar-logo-text small {font-size:10px;color:var(--sidebar-muted);text-transform:uppercase;letter-spacing:.08em}#view-admin .sidebar-nav {flex:1;overflow-y:auto;padding:12px 10px}#view-admin .sidebar-nav::-webkit-scrollbar {width:4px}#view-admin .sidebar-nav::-webkit-scrollbar-thumb {background:rgba(255,255,255,.1);border-radius:2px}#view-admin .nav-section-label {font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sidebar-muted);padding:12px 10px 6px}#view-admin .nav-item {display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);color:var(--sidebar-text);font-size:13.5px;font-weight:450;cursor:pointer;transition:all .15s;position:relative;user-select:none}#view-admin .nav-item:hover {background:rgba(255,255,255,.07);color:white}#view-admin .nav-item.active {background:rgba(34,197,94,.15);color:hsl(142,76%,65%)}#view-admin .nav-item.active::before {content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--primary);border-radius:0 2px 2px 0}#view-admin .nav-item svg {width:16px;height:16px;flex-shrink:0;opacity:.85}#view-admin .nav-item.active svg {opacity:1}#view-admin .nav-badge {margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}#view-admin .nav-badge.amber {background:var(--amber)}#view-admin .sidebar-footer {padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)}#view-admin .sidebar-user {display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}#view-admin .sidebar-user:hover {background:rgba(255,255,255,.07)}#view-admin .user-avatar {width:34px;height:34px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0;overflow:hidden}#view-admin .user-avatar img {width:100%;height:100%;object-fit:cover}#view-admin .user-info {flex:1;min-width:0}#view-admin .user-name {font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#view-admin .user-role {font-size:11px;color:var(--sidebar-muted);text-transform:capitalize}#view-admin .btn-signout {background:none;border:none;padding:6px;color:var(--sidebar-muted);border-radius:var(--radius-sm);transition:all .15s;display:flex;align-items:center;cursor:pointer}#view-admin .btn-signout:hover {color:var(--red);background:rgba(239,68,68,.1)}#view-admin .btn-signout svg {width:16px;height:16px}#view-admin .sidebar-overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}#view-admin /* MAIN */
+    .main-wrapper {margin-left:var(--sidebar-width);width:calc(100vw - var(--sidebar-width));height:100vh;display:flex;flex-direction:column;overflow:hidden}#view-admin .topbar {height:var(--topbar-height);background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}#view-admin .hamburger {display:none;background:none;border:none;padding:6px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer}#view-admin .hamburger svg {width:20px;height:20px}#view-admin .topbar-title {font-size:16px;font-weight:700;color:var(--text)}#view-admin .topbar-spacer {flex:1}#view-admin .topbar-btn {width:34px;height:34px;background:none;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer;position:relative}#view-admin .topbar-btn svg {width:16px;height:16px}#view-admin .topbar-notif-dot {position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid white}#view-admin .page-content {flex:1;overflow:hidden;padding:24px;display:flex;flex-direction:column}#view-admin /* BUTTONS */
+    .btn {display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}#view-admin .btn svg {width:15px;height:15px}#view-admin .btn-primary {background:var(--primary);color:white}#view-admin .btn-primary:hover {background:var(--primary-hover)}#view-admin .btn-primary:active {transform:scale(.98)}#view-admin .btn-primary:disabled {opacity:.6;cursor:not-allowed;transform:none}#view-admin .btn-secondary {background:white;color:var(--text);border:1px solid var(--border)}#view-admin .btn-secondary:hover {background:var(--bg-secondary)}#view-admin .btn-danger {background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}#view-admin .btn-danger:hover {background:#fee2e2}#view-admin .btn-amber {background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}#view-admin .btn-amber:hover {background:#fef3c7}#view-admin .btn-ghost {background:none;color:var(--text-secondary);border:none;padding:6px 10px}#view-admin .btn-ghost:hover {background:var(--bg-secondary);color:var(--text)}#view-admin .btn-sm {padding:5px 10px;font-size:12px}#view-admin .btn-sm svg {width:13px;height:13px}#view-admin /* BADGES */
+    .badge {display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}#view-admin .badge::before {content:'';width:5px;height:5px;border-radius:50%;background:currentColor}#view-admin .badge-green {background:var(--green-bg);color:var(--green-text)}#view-admin .badge-blue {background:var(--blue-bg);color:var(--blue-text)}#view-admin .badge-amber {background:var(--amber-bg);color:var(--amber-text)}#view-admin .badge-red {background:var(--red-bg);color:var(--red-text)}#view-admin .badge-purple {background:var(--purple-bg);color:var(--purple-text)}#view-admin .badge-gray {background:var(--gray-bg);color:var(--gray-text)}#view-admin /* PAGE */
+    .page-header {display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;flex-shrink:0}#view-admin .page-header-left h2 {font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}#view-admin .page-header-left p {font-size:13px;color:var(--text-muted);margin-top:3px}#view-admin .page-header-right {display:flex;gap:8px;flex-wrap:wrap}#view-admin /* SUMMARY CARDS */
+    #view-admin .summary-grid {display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;flex-shrink:0}#view-admin .sum-card {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative;overflow:hidden;min-width:0}#view-admin .sum-card:hover {box-shadow:var(--shadow);transform:translateY(-1px)}#view-admin .sum-card.active {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-admin .sum-card::before {content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}#view-admin .sum-card.total::before {background:var(--blue)}#view-admin .sum-card.completed::before {background:var(--green)}#view-admin .sum-card.scheduled::before {background:var(--blue)}#view-admin .sum-card.overdue::before {background:var(--red)}#view-admin .sum-card.cancelled::before {background:var(--gray)}#view-admin .sum-card-value {font-size:28px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px;letter-spacing:-.5px}#view-admin .sum-card-label {font-size:12px;color:var(--text-muted);font-weight:500}#view-admin .sum-card-sub {font-size:11.5px;color:var(--text-muted);margin-top:6px}#view-admin .sum-card-icon {position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.08}#view-admin .sum-card-icon svg {width:48px;height:48px}#view-admin /* FILTERS */
+    #view-admin .filters-bar {display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;flex-shrink:0}#view-admin .search-wrap {position:relative;flex:1;min-width:220px}#view-admin .search-wrap svg {position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}#view-admin .search-input {width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white;outline:none;transition:border-color .15s,box-shadow .15s}#view-admin .search-input:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-admin .date-filter-group {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:3px 6px 3px 10px;height:36px;transition:border-color .15s,box-shadow .15s}#view-admin .date-filter-group:focus-within {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-admin .date-filter-field {display:flex;align-items:center;gap:6px}#view-admin .date-filter-field + .date-filter-field {padding-left:8px;border-left:1px solid var(--border)}#view-admin .date-filter-field label {font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}#view-admin .date-filter-input {border:none;outline:none;background:transparent;font-size:13px;color:var(--text);padding:4px 2px;font-family:var(--font);min-width:120px;cursor:pointer}#view-admin .date-filter-input::-webkit-calendar-picker-indicator {cursor:pointer;opacity:.5;transition:opacity .15s}#view-admin .date-filter-input::-webkit-calendar-picker-indicator:hover {opacity:1}#view-admin .date-filter-clear {background:none;border:none;padding:5px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}#view-admin .date-filter-clear svg {width:13px;height:13px}#view-admin .date-filter-clear:hover {background:var(--bg-secondary);color:var(--red)}#view-admin .date-filter-clear.hidden {display:none}#view-admin .date-quick-filters {display:flex;align-items:center;gap:4px;height:36px}#view-admin .date-quick-btn {height:36px;padding:0 12px;border:1px solid var(--border);background:white;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}#view-admin .date-quick-btn:hover {background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}#view-admin .date-quick-btn.active {background:var(--primary-light);border-color:var(--primary-border);color:var(--primary);font-weight:600}#view-admin .filter-select {padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}#view-admin .filter-select:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-admin .date-range {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px}#view-admin .date-range input[type="date"] {border:none;font-size:13px;color:var(--text);outline:none;background:transparent;cursor:pointer}#view-admin .date-range span {font-size:12px;color:var(--text-muted)}#view-admin /* TABLE */
+    #view-admin .table-card {background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}#view-admin .table-wrapper {overflow-x:auto}#view-admin table {width:100%;border-collapse:collapse}#view-admin thead th {padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;text-align:left;position:sticky;top:0;z-index:1}#view-admin tbody tr {border-bottom:1px solid var(--bg-tertiary);transition:background .1s}#view-admin tbody tr:last-child {border-bottom:none}#view-admin tbody tr:hover {background:var(--bg-secondary)}#view-admin tbody td {padding:10px 14px;font-size:13.5px;color:var(--text);vertical-align:middle;white-space:nowrap}#view-admin td.muted {color:var(--text-muted);font-size:12.5px}#view-admin td.mono {font-family:monospace;font-size:12.5px;color:var(--text-secondary)}#view-admin .actions-cell {display:flex;align-items:center;gap:5px;flex-wrap:nowrap}#view-admin tbody tr.overdue-row {background:hsl(0,84%,99%)}#view-admin tbody tr.overdue-row:hover {background:hsl(0,84%,97%)}#view-admin /* PAGINATION */
+    .pagination {display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-top:1px solid var(--border);background:white;flex-wrap:wrap;gap:10px}#view-admin .pagination-info {font-size:13px;color:var(--text-muted)}#view-admin .pagination-controls {display:flex;align-items:center;gap:4px}#view-admin .page-btn {min-width:32px;height:32px;padding:0 10px;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font)}#view-admin .page-btn:hover:not(:disabled) {background:var(--bg-secondary);color:var(--text)}#view-admin .page-btn.active {background:var(--primary);color:white;border-color:var(--primary);font-weight:600}#view-admin .page-btn:disabled {opacity:.4;cursor:not-allowed}#view-admin .date-nav-btn {min-width:32px;height:32px;padding:0;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}#view-admin .date-nav-btn:hover {background:var(--bg-secondary);color:var(--text)}#view-admin .date-nav-btn svg {width:16px;height:16px}#view-admin /* FORMS */
+    .form-group {margin-bottom:16px}#view-admin .form-label {display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}#view-admin .form-label .req {color:var(--red);margin-left:2px}#view-admin .form-input, #view-admin .form-select, #view-admin .form-textarea {width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none}#view-admin .form-select {appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:32px;cursor:pointer}#view-admin .form-input:focus, #view-admin .form-select:focus, #view-admin .form-textarea:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}#view-admin .form-input::placeholder, #view-admin .form-textarea::placeholder {color:var(--text-muted)}#view-admin .form-textarea {resize:vertical;min-height:80px}#view-admin .form-hint {font-size:11.5px;color:var(--text-muted);margin-top:4px}#view-admin .form-row {display:grid;grid-template-columns:1fr 1fr;gap:14px}#view-admin .form-input[readonly] {background:var(--bg-secondary);color:var(--text-secondary)}#view-admin /* MODAL */
+    .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}#view-admin .modal-overlay.open {opacity:1;pointer-events:all}#view-admin .modal {background:white;border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}#view-admin .modal-overlay.open .modal {transform:translateY(0) scale(1)}#view-admin .modal-header {display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);flex-shrink:0}#view-admin .modal-title {font-size:16px;font-weight:700;color:var(--text)}#view-admin .modal-subtitle {font-size:12px;color:var(--text-muted);margin-top:2px}#view-admin .modal-close {width:30px;height:30px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);cursor:pointer;transition:all .15s}#view-admin .modal-close:hover {background:var(--bg-secondary);color:var(--text)}#view-admin .modal-close svg {width:15px;height:15px}#view-admin .modal-body {padding:22px;overflow-y:auto;flex:1}#view-admin .modal-footer {display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0}#view-admin /* CSV UPLOAD */
+    .upload-zone {border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg-secondary)}#view-admin .upload-zone:hover, #view-admin .upload-zone.drag {border-color:var(--primary);background:var(--primary-light)}#view-admin .upload-zone svg {width:32px;height:32px;color:var(--text-muted);margin-bottom:10px}#view-admin .upload-zone p {font-size:13.5px;color:var(--text-secondary);margin-bottom:4px}#view-admin .upload-zone small {font-size:12px;color:var(--text-muted)}#view-admin .upload-preview {margin-top:14px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12.5px}#view-admin /* CONTEXT BANNER */
+    .context-banner {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:18px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}#view-admin .context-banner .cb-label {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}#view-admin .context-banner .cb-val {font-size:13px;font-weight:600;color:var(--text)}#view-admin /* EMPTY STATE */
+    .empty-state {text-align:center;padding:52px 20px}#view-admin .empty-state svg {width:40px;height:40px;color:var(--text-muted);margin-bottom:14px;opacity:.5}#view-admin .empty-state h3 {font-size:15px;font-weight:600;margin-bottom:6px}#view-admin .empty-state p {font-size:13px;color:var(--text-muted);max-width:340px;margin:0 auto}#view-admin /* SPINNER / TOAST */
+    .spinner {width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}#view-admin #toast-container {position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}#view-admin .toast {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-width:280px;max-width:380px;box-shadow:var(--shadow-lg);display:flex;align-items:flex-start;gap:10px;pointer-events:all;animation:toastIn .2s ease;border-left:4px solid var(--primary)}#view-admin .toast.error {border-left-color:var(--red)}#view-admin .toast.warning {border-left-color:var(--amber)}#view-admin .toast-icon svg {width:16px;height:16px}#view-admin .toast-body {flex:1}#view-admin .toast-title {font-size:13.5px;font-weight:600}#view-admin .toast-msg {font-size:12.5px;color:var(--text-secondary);margin-top:2px}#view-admin .toast-close {background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0}#view-admin .toast-close svg {width:14px;height:14px}
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}#view-admin /* TREATMENT TYPE RECONFIGURE */
+    .inline-type-select {border:1px solid transparent;background:var(--green-bg);color:var(--green-text);font-size:11.5px;font-weight:600;cursor:pointer;border-radius:14px;padding:3px 22px 3px 8px;outline:none;font-family:var(--font);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2316a34a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;background-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .15s,box-shadow .15s}#view-admin .inline-type-select:hover {border-color:var(--primary)}#view-admin .inline-type-select:focus {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-admin /* RESCHEDULE HISTORY */
+    .reschedule-history {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:12.5px}#view-admin .reschedule-history-title {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px}#view-admin .reschedule-history-item {display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}#view-admin .reschedule-history-item:last-child {border-bottom:none}#view-admin .reschedule-history-item .rh-dot {width:7px;height:7px;background:var(--amber);border-radius:50%;flex-shrink:0;margin-top:5px}#view-admin .reschedule-history-item .rh-text {font-size:12px;color:var(--text-secondary)}#view-admin /* DRIVE LINK SECTION */
+    .drive-link-section {background:var(--blue-bg);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;margin-top:4px}#view-admin .drive-link-section label {font-size:12px;font-weight:700;color:var(--blue-text);display:block;margin-bottom:6px}#view-admin /* PAGE LOAD SCREEN */
+    #loading-screen {position:fixed;inset:0;background:#0f1b12;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .25s}#view-admin #loading-screen.fade-out {opacity:0;pointer-events:none}#view-admin .ls-logo {display:flex;align-items:center;justify-content:center;background:white;border-radius:12px;padding:10px 20px}#view-admin .ls-logo svg {width:34px;height:34px;color:white}#view-admin .ls-spinner {width:28px;height:28px;border:3px solid rgba(255,255,255,.15);border-top-color:hsl(142,76%,60%);border-radius:50%;animation:spin .7s linear infinite}#view-admin .ls-text {font-size:13px;color:rgba(255,255,255,.45);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.02em}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){#view-admin .summary-grid {grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1024px){#view-admin .sidebar {transform:translateX(-100%)}#view-admin .sidebar.open {transform:translateX(0)}#view-admin .sidebar-overlay.open {display:block}#view-admin .main-wrapper {margin-left:0}#view-admin .hamburger {display:flex}#view-admin .form-row {grid-template-columns:1fr}
+    }
+    @media(max-width:768px){#view-admin .page-content {padding:16px}#view-admin .summary-grid {grid-template-columns:1fr 1fr}#view-admin .filters-bar {flex-direction:column;align-items:stretch}#view-admin .date-filter-group {flex-wrap:wrap;height:auto;width:100%}#view-admin .date-filter-input {min-width:0;flex:1}#view-admin .date-filter-field {flex:1}#view-admin .date-quick-filters {flex-wrap:wrap;width:100%;height:auto}#view-admin .date-quick-btn {flex:1;min-width:0}}
+    @media(max-width:480px){#view-admin .summary-grid {grid-template-columns:1fr}}#view-admin .sort-icon { font-size:10px; margin-left:3px; color:var(--primary); }#view-admin /* Inline status select */
+    .inline-status-select {
+      border:none; background:transparent; font-size:12px; font-weight:600;
+      cursor:pointer; border-radius:20px; padding:3px 8px; outline:none;
+      font-family:var(--font); appearance:none; -webkit-appearance:none;
+      text-align:center;
+    }#view-admin .inline-status-select.status-scheduled { background:var(--blue-bg);  color:var(--blue-text); }#view-admin .inline-status-select.status-overdue { background:var(--red-bg);   color:var(--red-text);  }#view-admin .inline-status-select.status-completed { background:var(--green-bg); color:var(--green-text);}#view-admin .inline-status-select.status-rescheduled { background:var(--amber-bg); color:var(--amber-text);}#view-admin .inline-status-select.status-cancelled { background:var(--gray-bg);  color:var(--gray-text); }#view-admin /* Column header dropdown menu (Google Sheets style) */
+    .col-header { position:relative; cursor:pointer; user-select:none; white-space:nowrap; }#view-admin .col-header:hover { background:var(--bg-tertiary); }#view-admin .col-header-inner { display:flex; align-items:center; gap:4px; }#view-admin .col-menu-btn { background:none; border:none; color:var(--text-muted); font-size:10px; padding:2px 3px; cursor:pointer; border-radius:2px; line-height:1; opacity:0; transition:opacity .15s; }#view-admin .col-header:hover .col-menu-btn { opacity:1; }#view-admin .col-menu-btn:hover { background:var(--border); color:var(--text); }#view-admin .col-dropdown { position:absolute; top:100%; left:0; z-index:100; background:white; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); min-width:200px; padding:6px 0; font-size:13px; font-weight:400; text-transform:none; letter-spacing:0; }#view-admin .col-dropdown-item { display:flex; align-items:center; gap:8px; padding:7px 14px; cursor:pointer; color:var(--text); transition:background .1s; white-space:nowrap; }#view-admin .col-dropdown-item:hover { background:var(--bg-secondary); }#view-admin .col-dropdown-item svg { width:14px; height:14px; color:var(--text-muted); flex-shrink:0; }#view-admin .col-dropdown-sep { height:1px; background:var(--border); margin:4px 0; }#view-admin .col-dropdown-search { padding:6px 10px; }#view-admin .col-dropdown-search input { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:12.5px; outline:none; }#view-admin .col-dropdown-search input:focus { border-color:var(--primary); box-shadow:0 0 0 2px rgba(34,197,94,.12); }#view-admin .col-dropdown-values { max-height:180px; overflow-y:auto; }#view-admin .col-dropdown-values label { display:flex; align-items:center; gap:8px; padding:5px 14px; cursor:pointer; font-size:12.5px; color:var(--text); }#view-admin .col-dropdown-values label:hover { background:var(--bg-secondary); }#view-admin .col-dropdown-values input[type="checkbox"] { accent-color:var(--primary); }#view-admin .col-dropdown-actions { display:flex; gap:6px; padding:6px 10px; border-top:1px solid var(--border); margin-top:4px; }#view-admin .col-dropdown-actions button { flex:1; padding:5px 8px; font-size:12px; border-radius:var(--radius-sm); cursor:pointer; }#view-admin /* Fixed table within screen */
+    .table-wrapper::-webkit-scrollbar { width:8px; height:8px; }#view-admin .table-wrapper::-webkit-scrollbar-thumb { background:var(--border-hover); border-radius:4px; }#view-admin .table-wrapper::-webkit-scrollbar-track { background:var(--bg-secondary); }#view-admin .table-wrapper::-webkit-scrollbar-corner { background:var(--bg-secondary); }#view-admin thead th { position:sticky; top:0; z-index:10; background:var(--bg-secondary); }
+
+    #view-admin #app-shell { display: flex; }
+#view-admin .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
+#view-admin .manage-list-link:hover{color:hsl(142,76%,28%)}
+
+
+/* ── Renewals-specific additions ── */
+#view-admin .sum-card{position:relative;overflow:hidden}
+#view-admin .sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+#view-admin .sum-card.total-exp::before{background:var(--blue)}
+#view-admin .sum-card.renewed-c::before{background:var(--green)}
+#view-admin .sum-card.pending-c::before{background:var(--amber)}
+#view-admin .sum-card.declined-c::before{background:var(--red)}
+#view-admin .days-filter{display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:4px;width:fit-content}
+#view-admin .days-btn{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;border:none;cursor:pointer;color:var(--text-secondary);background:none;transition:all .15s;font-family:var(--font)}
+#view-admin .days-btn.active{background:var(--primary);color:white;font-weight:600}
+#view-admin .days-btn:hover:not(.active){background:var(--bg-secondary);color:var(--text)}
+#view-admin .days-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+#view-admin .days-pill.critical{background:var(--red-bg);color:var(--red-text)}
+#view-admin .days-pill.warning{background:var(--amber-bg);color:var(--amber-text)}
+#view-admin .days-pill.ok{background:var(--green-bg);color:var(--green-text)}
+#view-admin .days-pill.overdue{background:var(--red-bg);color:var(--red-text)}
+#view-admin .form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none;resize:vertical;min-height:80px;font-family:var(--font)}
+#view-admin .form-textarea::placeholder{color:var(--text-muted)}
+#view-admin .form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+#view-admin .modal-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+
+/* ── Overdue-specific additions ── */
+#view-admin tbody tr.sev-critical{background:hsl(0,84%,99%)}
+#view-admin tbody tr.sev-critical:hover{background:hsl(0,84%,97%)}
+#view-admin tbody tr.sev-warning{background:hsl(38,92%,99%)}
+#view-admin tbody tr.sev-warning:hover{background:hsl(38,92%,97%)}
+#view-admin tbody tr.sev-attention{background:hsl(50,96%,99%)}
+#view-admin tbody tr.sev-attention:hover{background:hsl(50,96%,97%)}
+#view-admin .days-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+#view-admin .days-pill.critical{background:var(--red-bg);color:var(--red-text)}
+#view-admin .days-pill.warning{background:var(--amber-bg);color:var(--amber-text)}
+#view-admin .days-pill.attention{background:var(--yellow-bg,hsl(50,96%,96%));color:var(--yellow-text,hsl(50,70%,32%))}
+#view-admin .section-header{display:flex;align-items:center;justify-content:space-between;margin:24px 0 14px;flex-wrap:wrap;gap:10px}
+#view-admin .section-header:first-of-type{margin-top:0}
+#view-admin .section-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:var(--text)}
+#view-admin .section-title-icon{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-admin .section-title-icon svg{width:16px;height:16px}
+#view-admin .section-count{font-size:12.5px;font-weight:500;color:var(--text-muted)}
+#view-admin .filter-select{padding:7px 30px 7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}
+#view-admin .btn-amber{background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}
+#view-admin .btn-amber:hover{background:#fef3c7}
+#view-admin .ctx-banner{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px}
+#view-admin .ctx-banner label{font-weight:600;color:var(--text-muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+#view-admin .empty-section{background:white;border:1px solid var(--border);border-radius:var(--radius);text-align:center;padding:48px 24px;margin-bottom:28px}
+#view-admin .empty-section svg{width:40px;height:40px;color:var(--green);margin-bottom:12px}
+#view-admin .empty-section h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+#view-admin .empty-section p{font-size:13px;color:var(--text-muted)}
+
+
+/* ── User Management-specific additions ── */
+#view-admin .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap}
+#view-admin .page-header-left h2{font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}
+#view-admin .page-header-left p{font-size:13px;color:var(--text-muted);margin-top:3px}
+
+#view-admin #access-denied{display:none;text-align:center;padding:80px 24px}
+#view-admin #access-denied svg{width:56px;height:56px;color:var(--red);margin-bottom:20px;opacity:.6}
+#view-admin #access-denied h2{font-size:22px;font-weight:700;margin-bottom:10px}
+#view-admin #access-denied p{font-size:14px;color:var(--text-muted);max-width:400px;margin:0 auto}
+
+#view-admin .pending-alert{background:var(--amber-bg);border:1px solid #fcd34d;border-radius:var(--radius);padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--amber-text)}
+#view-admin .pending-alert svg{width:16px;height:16px;flex-shrink:0}
+#view-admin .pending-alert strong{font-weight:700}
+
+#view-admin .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+#view-admin .stat-card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;position:relative;overflow:hidden;transition:box-shadow .15s,transform .15s;cursor:pointer;min-width:0}
+#view-admin .stat-card:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
+#view-admin .stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+#view-admin .stat-card.total::before{background:var(--blue)}
+#view-admin .stat-card.approved::before{background:var(--green)}
+#view-admin .stat-card.pending-c::before{background:var(--amber)}
+#view-admin .stat-card.denied-c::before{background:var(--red)}
+#view-admin .stat-card-val{font-size:28px;font-weight:800;color:var(--text);line-height:1;letter-spacing:-.5px;margin-bottom:4px}
+#view-admin .stat-card-lbl{font-size:12px;color:var(--text-muted);font-weight:500}
+
+#view-admin tbody tr.pending-row{background:hsl(38,92%,99%)}
+#view-admin tbody tr.pending-row:hover{background:hsl(38,92%,97%)}
+#view-admin td.muted{color:var(--text-muted);font-size:12.5px}
+
+#view-admin .user-row-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:white;flex-shrink:0;overflow:hidden}
+#view-admin .user-row-avatar img{width:100%;height:100%;object-fit:cover}
+#view-admin .user-row-info{display:flex;align-items:center;gap:10px}
+#view-admin .user-row-name{font-size:13.5px;font-weight:600;color:var(--text)}
+#view-admin .user-row-email{font-size:12px;color:var(--text-muted)}
+
+#view-admin .role-select{padding:5px 24px 5px 8px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 6px center/13px;appearance:none;outline:none;cursor:pointer;color:var(--text);transition:border-color .15s;font-family:var(--font)}
+#view-admin .role-select:focus{border-color:var(--primary)}
+#view-admin .role-select:disabled{opacity:.5;cursor:not-allowed;background-color:var(--bg-secondary)}
+
+#view-admin .form-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;font-family:var(--font);background:white;outline:none;transition:border-color .15s,box-shadow .15s;color:var(--text)}
+#view-admin .form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}
+#view-admin .form-input::placeholder{color:var(--text-muted)}
+
+#view-admin .preapprove-section{margin-top:28px}
+#view-admin .preapprove-section-header{margin-bottom:14px}
+#view-admin .preapprove-section-header h3{font-size:16px;font-weight:700;color:var(--text)}
+#view-admin .preapprove-section-header p{font-size:13px;color:var(--text-muted);margin-top:3px}
+#view-admin .preapprove-card{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+#view-admin .preapprove-add-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end}
+#view-admin .preapprove-add-row .form-input{flex:1;min-width:240px}
+#view-admin .preapprove-divider{border:none;border-top:1px solid var(--border);margin:0 0 16px}
+#view-admin .preapprove-list-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+#view-admin .preapprove-list-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary)}
+#view-admin .preapprove-count-badge{background:var(--primary-light);color:var(--green-text);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;border:1px solid var(--primary-border)}
+#view-admin .preapprove-item{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;background:var(--bg-secondary);gap:12px;transition:border-color .15s;flex-wrap:wrap}
+#view-admin .preapprove-item:last-child{margin-bottom:0}
+#view-admin .preapprove-item:hover{border-color:var(--border-hover)}
+#view-admin .preapprove-item-left{display:flex;align-items:center;gap:10px;min-width:0}
+#view-admin .preapprove-icon{width:32px;height:32px;border-radius:50%;background:var(--primary-light);border:1.5px solid var(--primary-border);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-admin .preapprove-icon svg{width:15px;height:15px;color:var(--green-text)}
+#view-admin .preapprove-email{font-size:13.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#view-admin .preapprove-meta{font-size:11.5px;color:var(--text-muted);margin-top:1px}
+#view-admin .preapprove-item-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+#view-admin .preapprove-status-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--green-bg);color:var(--green-text);border:1px solid var(--primary-border);white-space:nowrap}
+#view-admin .btn-remove-preapprove{background:none;border:1px solid #fca5a5;border-radius:var(--radius-sm);padding:5px 10px;color:var(--red-text);cursor:pointer;font-size:12px;font-family:var(--font);font-weight:500;transition:all .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+#view-admin .btn-remove-preapprove:hover{background:var(--red-bg)}
+#view-admin .btn-remove-preapprove svg{width:12px;height:12px}
+#view-admin .preapprove-empty{text-align:center;padding:28px 20px;color:var(--text-muted);font-size:13px}
+#view-admin .preapprove-empty svg{width:32px;height:32px;margin:0 auto 10px;display:block;opacity:.35}
+#view-admin .preapprove-empty p{margin-top:4px;font-size:12px}
+
+@media(max-width:900px){#view-admin .stats-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:768px){#view-admin .stats-grid{grid-template-columns:1fr 1fr}#view-admin .preapprove-add-row{flex-direction:column}}
+@media(max-width:480px){#view-admin .stats-grid{grid-template-columns:1fr}}
+
+</style>
+
+<div data-view="admin" id="view-admin">
+<div id="app-shell">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="#dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a class="nav-item" href="#clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</a>
+      <a class="nav-item" href="#contracts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Contracts</a>
+      <a class="nav-item" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
+      <div class="nav-section-label">Financial</div>
+      <a class="nav-item" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
+      <a class="nav-item" href="#renewals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
+      <div class="nav-section-label">Service</div>
+      <a class="nav-item" href="#complaints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Complaints</a>
+      <a class="nav-item" href="#inspections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Inspections</a>
+      <div class="nav-section-label">Monitoring</div>
+      <a class="nav-item" href="#overdue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue</a>
+      <a class="nav-item" href="#calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+      <div class="nav-section-label">Reports</div>
+      <a class="nav-item" href="#report-daily-schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Daily Schedule</a>
+      <a class="nav-item" href="#report-service"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Report</a>
+      <a class="nav-item" href="#report-client-soa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Client SOA</a>
+      <a class="nav-item" href="#report-monthly-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Monthly Collection</a>
+      <a class="nav-item" href="#report-overdue-treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue Report</a>
+      <div class="nav-section-label" id="admin-operations-nav-label" style="display:none">Operations</div>
+      <a class="nav-item" href="#audit-log" id="admin-nav-audit-log" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Audit Log</a>
+      <div class="nav-section-label">Admin</div>
+      <a class="nav-item active" href="#admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>User Management</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar"><span id="user-initials">?</span></div>
+        <div class="user-info">
+          <div class="user-name" id="user-display-name">Loading…</div>
+          <div class="user-role" id="user-role-label">—</div>
+        </div>
+        <button class="btn-signout" id="btn-signout" title="Sign out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title">User Management</span>
+      <div class="topbar-spacer"></div>
+      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+    </header>
+
+    <main class="page-content">
+      <div id="access-denied">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <h2>Access Denied</h2>
+        <p>You need admin or super admin privileges to view this page. Contact your system administrator.</p>
+        <a href="#dashboard" style="margin-top:20px;display:inline-block;padding:10px 20px;background:var(--primary);color:white;border-radius:var(--radius);font-weight:600;font-size:14px">← Back to Dashboard</a>
+      </div>
+
+      <div id="admin-content" style="display:none">
+        <div class="page-header">
+          <div class="page-header-left">
+            <h2>User Management</h2>
+            <p>Approve, deny, and manage user access and roles</p>
+          </div>
+        </div>
+
+        <div class="pending-alert" id="pending-alert" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span><strong id="pending-count">0</strong> user(s) are pending approval and waiting for access.</span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card total" id="stat-filter-all">
+            <div class="stat-card-val" id="sc-total">—</div>
+            <div class="stat-card-lbl">Total Users</div>
+          </div>
+          <div class="stat-card approved" id="stat-filter-approved">
+            <div class="stat-card-val" id="sc-approved" style="color:var(--green)">—</div>
+            <div class="stat-card-lbl">Approved</div>
+          </div>
+          <div class="stat-card pending-c" id="stat-filter-pending">
+            <div class="stat-card-val" id="sc-pending" style="color:var(--amber)">—</div>
+            <div class="stat-card-lbl">Pending</div>
+          </div>
+          <div class="stat-card denied-c" id="stat-filter-denied">
+            <div class="stat-card-val" id="sc-denied" style="color:var(--red)">—</div>
+            <div class="stat-card-lbl">Denied</div>
+          </div>
+        </div>
+
+        <div class="filters-bar">
+          <div class="search-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" class="search-input" id="search-input" placeholder="Search by name or email…" />
+          </div>
+          <select class="filter-select" id="filter-status">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="denied">Denied</option>
+          </select>
+          <select class="filter-select" id="filter-role">
+            <option value="">All Roles</option>
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            <option value="superadmin">Super Admin</option>
+          </select>
+          <button class="btn btn-ghost btn-sm" id="btn-clear-filters">Clear</button>
+        </div>
+
+        <div class="table-card">
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Last Login</th>
+                  <th>Member Since</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody">
+                <tr><td colspan="6" style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <span class="pagination-info" id="pagination-info">Loading…</span>
+            <div class="pagination-controls" id="pagination-controls"></div>
+          </div>
+        </div>
+
+        <div class="preapprove-section">
+          <div class="preapprove-section-header">
+            <h3>Pre-registered Emails</h3>
+            <p>Users who sign in with a listed email are automatically approved — no manual review needed.</p>
+          </div>
+
+          <div class="preapprove-card">
+            <div class="preapprove-add-row">
+              <input type="email" id="preapprove-email-input" class="form-input" placeholder="Enter email address to pre-register…" />
+              <button class="btn btn-primary" id="btn-add-preapprove">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Email
+              </button>
+            </div>
+
+            <hr class="preapprove-divider" />
+
+            <div class="preapprove-list-header">
+              <span class="preapprove-list-label">Registered Emails</span>
+              <span class="preapprove-count-badge" id="preapprove-count" style="display:none">0</span>
+            </div>
+
+            <div id="preapprove-list">
+              <div class="preapprove-empty">
+                <div class="spinner" style="margin:0 auto"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+</div>
+
+
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { collection, doc, getDoc, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { cachedGetDocs, smartUpdateDoc, smartSetDoc, invalidate } from './js/firestore-cache.js';
+
+const VIEW_ROOT = document.getElementById('view-admin');
+const $ = id => VIEW_ROOT.querySelector('#' + id);
+
+/* ── State ── */
+let currentUser = null, currentRole = null;
+let allUsers = [], filteredUsers = [], currentPage = 1;
+let adminInitialized = false;
+const PER_PAGE = 20;
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+function showToast(msg, type = 'success', title = '') {
+  const c = $('toast-container'), el = document.createElement('div');
+  el.className = `toast ${type === 'success' ? '' : type}`;
+  const icons = {
+    success: `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(142,76%,36%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    error: `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(0,84%,50%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+    warning: `<svg viewBox="0 0 24 24" fill="none" stroke="hsl(38,92%,50%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>`
+  };
+  const titles = { success: 'Done', error: 'Error', warning: 'Warning' };
+  el.innerHTML = `<div class="toast-icon">${icons[type] || icons.success}</div><div class="toast-body"><div class="toast-title">${title || titles[type]}</div><div class="toast-msg">${msg}</div></div><button class="toast-close" onclick="this.parentElement.remove()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`;
+  c.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.remove(); }, 5000);
+}
+
+/* ── Helpers ── */
+function fmtDateTime(v) {
+  if (!v) return 'Never';
+  const d = v.toDate ? v.toDate() : new Date(v);
+  if (isNaN(d)) return 'Never';
+  const diff = Date.now() - d.getTime();
+  if (diff < 60000) return 'Just now';
+  if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+  if (diff < 604800000) return `${Math.floor(diff / 86400000)}d ago`;
+  return d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function fmtDateOnly(v) { if (!v) return '—'; const d = v.toDate ? v.toDate() : new Date(v); return isNaN(d) ? '—' : d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }); }
+function userInitials(name = '', email = '') { if (name) return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2); return (email || '?')[0].toUpperCase(); }
+function avatarColor(str = '') { const colors = ['#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444', '#06b6d4', '#f97316', '#ec4899']; let h = 0; for (const c of str) h = (h * 31 + c.charCodeAt(0)) & 0xffffffff; return colors[Math.abs(h) % colors.length]; }
+function statusBadge(s) { const m = { approved: 'green', pending: 'amber', denied: 'red' }; return `<span class="badge badge-${m[s] || 'gray'}">${esc(s || '—')}</span>`; }
+// Role vocabulary is 'user' / 'admin' / 'superadmin' (no underscore) —
+// matches firestore.rules' isAdmin()/isSuperAdmin() exactly.
+function roleBadge(r) { const m = { superadmin: 'purple', admin: 'blue', user: 'gray' }; const labels = { superadmin: 'Super Admin', admin: 'Admin', user: 'User' }; return `<span class="badge badge-${m[r] || 'gray'}">${esc(labels[r] || r || '—')}</span>`; }
+
+async function logAction(action, entityType, entityId, description) {
+  try {
+    await addDoc(collection(db, 'audit_log'), {
+      action, entityType, entityId, description,
+      performedBy: currentUser?.email || '', performedByUid: currentUser?.uid || '',
+      createdAt: serverTimestamp()
+    });
+  } catch { }
+}
+
+/* ── Load users ── */
+async function loadUsers() {
+  allUsers = await cachedGetDocs(collection(db, 'users'), 'users');
+  allUsers.sort((a, b) => {
+    const aT = a.createdAt?.toDate ? a.createdAt.toDate() : new Date(a.createdAt || 0);
+    const bT = b.createdAt?.toDate ? b.createdAt.toDate() : new Date(b.createdAt || 0);
+    return bT - aT;
+  });
+  updateStats();
+  applyFilters();
+}
+
+function updateStats() {
+  const total = allUsers.length;
+  const approved = allUsers.filter(u => u.status === 'approved').length;
+  const pending = allUsers.filter(u => u.status === 'pending').length;
+  const denied = allUsers.filter(u => u.status === 'denied').length;
+  $('sc-total').textContent = total;
+  $('sc-approved').textContent = approved;
+  $('sc-pending').textContent = pending;
+  $('sc-denied').textContent = denied;
+  if (pending > 0) { $('pending-alert').style.display = ''; $('pending-count').textContent = pending; }
+  else { $('pending-alert').style.display = 'none'; }
+}
+
+/* ── Filters ── */
+function applyFilters() {
+  const q = $('search-input').value.toLowerCase().trim();
+  const status = $('filter-status').value;
+  const role = $('filter-role').value;
+  filteredUsers = allUsers.filter(u => {
+    const matchQ = !q || [(u.displayName || u.name || ''), (u.email || '')].some(f => f.toLowerCase().includes(q));
+    const matchS = !status || u.status === status;
+    const matchR = !role || u.role === role;
+    return matchQ && matchS && matchR;
+  });
+  filteredUsers.sort((a, b) => { if (a.status === 'pending' && b.status !== 'pending') return -1; if (b.status === 'pending' && a.status !== 'pending') return 1; return 0; });
+  currentPage = 1; renderTable();
+}
+['search-input', 'filter-status', 'filter-role'].forEach(id => { $(id).addEventListener('input', applyFilters); $(id).addEventListener('change', applyFilters); });
+$('btn-clear-filters').addEventListener('click', () => { $('search-input').value = ''; $('filter-status').value = ''; $('filter-role').value = ''; applyFilters(); });
+$('stat-filter-all').addEventListener('click', () => { $('filter-status').value = ''; applyFilters(); });
+$('stat-filter-approved').addEventListener('click', () => { $('filter-status').value = 'approved'; applyFilters(); });
+$('stat-filter-pending').addEventListener('click', () => { $('filter-status').value = 'pending'; applyFilters(); });
+$('stat-filter-denied').addEventListener('click', () => { $('filter-status').value = 'denied'; applyFilters(); });
+
+/* ── Event delegation for row actions ── */
+$('users-tbody').addEventListener('click', e => {
+  const approve = e.target.closest('.btn-approve');
+  const deny = e.target.closest('.btn-deny');
+  const revoke = e.target.closest('.btn-revoke');
+  const restore = e.target.closest('.btn-restore');
+  if (approve) { updateUserStatus(approve.dataset.uid, approve.dataset.name, 'approved'); return; }
+  if (deny) { updateUserStatus(deny.dataset.uid, deny.dataset.name, 'denied'); return; }
+  if (revoke) { if (confirm(`Revoke access for "${revoke.dataset.name}"?`)) updateUserStatus(revoke.dataset.uid, revoke.dataset.name, 'denied'); return; }
+  if (restore) { updateUserStatus(restore.dataset.uid, restore.dataset.name, 'approved'); return; }
+});
+
+$('users-tbody').addEventListener('change', async e => {
+  const sel = e.target.closest('.role-change');
+  if (!sel) return;
+  const uid = sel.dataset.uid, name = sel.dataset.name;
+  const newRole = sel.value, oldRole = sel.dataset.oldrole;
+  const u = allUsers.find(x => x.id === uid);
+  if (!u || newRole === oldRole) return;
+  if (currentRole !== 'superadmin' && currentRole !== 'admin') return;
+  if (newRole === 'superadmin' && currentRole !== 'superadmin') {
+    showToast('Only Super Admins can assign the Super Admin role.', 'error');
+    sel.value = oldRole; return;
+  }
+  sel.disabled = true;
+  try {
+    await smartUpdateDoc(doc(db, 'users', uid), { role: newRole, updatedAt: serverTimestamp() }, ['users']);
+    u.role = newRole;
+    await logAction('updated', 'user', uid, `Changed role for "${name}" from ${oldRole} → ${newRole}`);
+    showToast(`Role updated to ${newRole === 'superadmin' ? 'Super Admin' : newRole === 'admin' ? 'Admin' : 'User'} for "${name}".`);
+    updateStats(); applyFilters();
+  } catch (err) { showToast('Failed: ' + err.message, 'error'); sel.value = oldRole; }
+  sel.disabled = false;
+});
+
+function renderTable() {
+  const total = filteredUsers.length, totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  currentPage = Math.min(currentPage, totalPages);
+  const start = (currentPage - 1) * PER_PAGE, end = Math.min(start + PER_PAGE, total);
+  const page = filteredUsers.slice(start, end);
+
+  $('pagination-info').textContent = total === 0 ? 'No users found' : `Showing ${start + 1}–${end} of ${total} users`;
+
+  if (!page.length) {
+    $('users-tbody').innerHTML = `<tr><td colspan="6"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><h3>No users found</h3><p>Try adjusting your search or filters.</p></div></td></tr>`;
+    $('pagination-controls').innerHTML = ''; return;
+  }
+
+  $('users-tbody').innerHTML = page.map(u => {
+    const isPending = u.status === 'pending';
+    const isCurrentUser = u.id === currentUser?.uid;
+    const canChangeRole = !isCurrentUser && (currentRole === 'superadmin' || (currentRole === 'admin' && u.role !== 'superadmin'));
+    const canAssignSuper = currentRole === 'superadmin';
+
+    const roleOptions = ['user', 'admin', ...(canAssignSuper ? ['superadmin'] : [])].map(r =>
+      `<option value="${r}" ${u.role === r ? 'selected' : ''}>${r === 'superadmin' ? 'Super Admin' : r === 'admin' ? 'Admin' : 'User'}</option>`
+    ).join('');
+
+    const displayName = u.displayName || u.name || '';
+    const initials = userInitials(displayName, u.email || '');
+    const color = avatarColor(u.email || u.id || '');
+
+    return `<tr class="${isPending ? 'pending-row' : ''}">
+      <td>
+        <div class="user-row-info">
+          <div class="user-row-avatar" style="background:${color}">
+            ${u.photoURL ? `<img src="${u.photoURL}" alt="${esc(displayName)}" />` : initials}
+          </div>
+          <div>
+            <div class="user-row-name">${esc(displayName || '—')} ${isCurrentUser ? '<span style="font-size:11px;color:var(--primary);font-weight:600;margin-left:4px">(You)</span>' : ''}</div>
+            <div class="user-row-email">${esc(u.email || '—')}</div>
+          </div>
+        </div>
+      </td>
+      <td>
+        ${canChangeRole
+        ? `<select class="role-select role-change" data-uid="${u.id}" data-name="${esc(displayName || u.email || '')}" data-oldrole="${u.role}">${roleOptions}</select>`
+        : roleBadge(u.role)
+      }
+      </td>
+      <td>${statusBadge(u.status)}${isPending ? ` <span style="font-size:11px;color:var(--amber-text);font-weight:600">⚡ Needs review</span>` : ''}</td>
+      <td class="muted">${fmtDateTime(u.lastLogin)}</td>
+      <td class="muted">${fmtDateOnly(u.createdAt)}</td>
+      <td>
+        <div class="actions-cell">
+          ${isPending ? `
+            <button class="btn btn-sm btn-primary btn-approve" data-uid="${u.id}" data-name="${esc(displayName || u.email || '')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Approve
+            </button>
+            <button class="btn btn-sm btn-danger btn-deny" data-uid="${u.id}" data-name="${esc(displayName || u.email || '')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Deny
+            </button>
+          ` : u.status === 'approved' && !isCurrentUser ? `
+            <button class="btn btn-sm btn-secondary btn-revoke" data-uid="${u.id}" data-name="${esc(displayName || u.email || '')}">
+              Revoke Access
+            </button>
+          ` : u.status === 'denied' ? `
+            <button class="btn btn-sm btn-secondary btn-restore" data-uid="${u.id}" data-name="${esc(displayName || u.email || '')}">
+              Re-Approve
+            </button>
+          ` : isCurrentUser ? `
+            <span style="font-size:12px;color:var(--text-muted)">Current session</span>
+          ` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  const ctrl = $('pagination-controls');
+  if (totalPages <= 1) { ctrl.innerHTML = ''; return; }
+  const pages = [];
+  for (let i = 1; i <= totalPages; i++) { if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) pages.push(i); else if (pages[pages.length - 1] !== '…') pages.push('…'); }
+  ctrl.innerHTML = `<button class="page-btn" ${currentPage <= 1 ? 'disabled' : ''} data-p="${currentPage - 1}">‹</button>${pages.map(p => p === '…' ? `<button class="page-btn" disabled>…</button>` : `<button class="page-btn${p === currentPage ? ' active' : ''}" data-p="${p}">${p}</button>`).join('')}<button class="page-btn" ${currentPage >= totalPages ? 'disabled' : ''} data-p="${currentPage + 1}">›</button>`;
+  ctrl.querySelectorAll('[data-p]').forEach(b => b.addEventListener('click', () => { currentPage = Number(b.dataset.p); renderTable(); }));
+}
+
+async function updateUserStatus(uid, name, newStatus) {
+  const u = allUsers.find(x => x.id === uid); if (!u) return;
+  try {
+    await smartUpdateDoc(doc(db, 'users', uid), { status: newStatus, updatedAt: serverTimestamp() }, ['users']);
+    u.status = newStatus;
+    await logAction(newStatus === 'approved' ? 'approved' : 'denied', 'user', uid, `${newStatus === 'approved' ? 'Approved' : 'Denied'} access for "${name}"`);
+    showToast(newStatus === 'approved' ? `✓ Access approved for "${name}".` : `Access denied for "${name}".`, newStatus === 'denied' ? 'warning' : 'success');
+    updateStats(); applyFilters();
+  } catch (err) { showToast('Failed: ' + err.message, 'error'); }
+}
+
+/* ══════════════════════════════════════
+   PRE-REGISTERED EMAILS
+══════════════════════════════════════ */
+const PREAPPROVE_DOC = doc(db, 'config', 'preapproved');
+
+async function loadPreapprovedEmails() {
+  const list = $('preapprove-list');
+  const countBadge = $('preapprove-count');
+  try {
+    const snap = await getDoc(PREAPPROVE_DOC);
+    const entries = snap.exists() ? (snap.data().entries || []) : [];
+
+    if (entries.length > 0) { countBadge.textContent = entries.length; countBadge.style.display = ''; }
+    else { countBadge.style.display = 'none'; }
+
+    if (!entries.length) {
+      list.innerHTML = `<div class="preapprove-empty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="13" rx="2"/><path d="M8 8V6a4 4 0 0 1 8 0v2"/><line x1="12" y1="13" x2="12" y2="16"/></svg>
+          No pre-registered emails yet.
+          <p>Add an email above to let that user bypass the approval queue.</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = entries.map((en, i) => {
+      const addedDate = en.addedAt ? new Date(en.addedAt).toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+      return `<div class="preapprove-item">
+          <div class="preapprove-item-left">
+            <div class="preapprove-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+            <div>
+              <div class="preapprove-email">${esc(en.email)}</div>
+              <div class="preapprove-meta">Added ${addedDate} by ${esc(en.addedBy || '—')}</div>
+            </div>
+          </div>
+          <div class="preapprove-item-right">
+            <span class="preapprove-status-badge">Auto-approved</span>
+            <button class="btn-remove-preapprove" data-idx="${i}" data-email="${esc(en.email)}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              Remove
+            </button>
+          </div>
+        </div>`;
+    }).join('');
+
+    list.querySelectorAll('.btn-remove-preapprove').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm(`Remove "${btn.dataset.email}" from the pre-registered list?`)) return;
+        btn.disabled = true; btn.textContent = 'Removing…';
+        try {
+          const snap2 = await getDoc(PREAPPROVE_DOC);
+          const current = snap2.exists() ? (snap2.data().entries || []) : [];
+          const updated = current.filter((_, i) => i !== Number(btn.dataset.idx));
+          await smartSetDoc(PREAPPROVE_DOC, { entries: updated }, { merge: true }, ['config:preapproved']);
+          await logAction('deleted', 'preapproved_email', btn.dataset.email, `Removed pre-registered email: ${btn.dataset.email}`);
+          showToast(`Removed ${btn.dataset.email} from pre-registered list.`);
+          loadPreapprovedEmails();
+        } catch (err) {
+          showToast('Failed: ' + err.message, 'error');
+          btn.disabled = false; btn.textContent = 'Remove';
+        }
+      });
+    });
+  } catch (e) {
+    list.innerHTML = '<div style="color:var(--red-text);padding:12px;font-size:13px">Failed to load list.</div>';
+    console.error('[preapprove]', e);
+  }
+}
+
+$('btn-add-preapprove').addEventListener('click', async () => {
+  const input = $('preapprove-email-input');
+  const email = (input.value || '').trim().toLowerCase();
+  if (!email || !email.includes('@')) { showToast('Enter a valid email address.', 'error'); return; }
+
+  const btn = $('btn-add-preapprove');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Adding…';
+
+  try {
+    const snap = await getDoc(PREAPPROVE_DOC);
+    const entries = snap.exists() ? (snap.data().entries || []) : [];
+
+    if (entries.some(en => (en.email || '').toLowerCase() === email)) {
+      showToast('This email is already pre-registered.', 'warning');
+    } else {
+      const existingUser = allUsers.find(u => (u.email || '').toLowerCase() === email);
+      if (existingUser && existingUser.status === 'approved') {
+        showToast('This user is already approved.', 'warning');
+      } else if (existingUser && existingUser.status === 'pending') {
+        await smartUpdateDoc(doc(db, 'users', existingUser.id), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: currentUser.email }, ['users']);
+        existingUser.status = 'approved';
+        await logAction('updated', 'user', existingUser.id, `Auto-approved pending user via pre-registration: ${email}`);
+        showToast(`${email} was pending — approved immediately!`);
+        entries.push({ email, addedAt: new Date().toISOString(), addedBy: currentUser.email || '' });
+        await smartSetDoc(PREAPPROVE_DOC, { entries }, { merge: true }, ['config:preapproved']);
+        updateStats(); applyFilters();
+      } else {
+        entries.push({ email, addedAt: new Date().toISOString(), addedBy: currentUser.email || '' });
+        await smartSetDoc(PREAPPROVE_DOC, { entries }, { merge: true }, ['config:preapproved']);
+        await logAction('created', 'preapproved_email', email, `Added pre-registered email: ${email}`);
+        showToast(`${email} added to pre-registered list.`);
+      }
+      input.value = '';
+      loadPreapprovedEmails();
+    }
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Email';
+});
+$('preapprove-email-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-add-preapprove').click(); });
+
+$('btn-refresh').addEventListener('click', () => {
+  invalidate('users');
+  loadUsers();
+});
+
+/* ══════════════════════════════════
+   Auth wiring
+══════════════════════════════════ */
+async function applyProfile(p) {
+  currentUser = { uid: p.uid, email: p.email };
+  currentRole = p.role;
+
+  const name = p.name || p.email || 'there';
+  $('user-display-name').textContent = name;
+  $('user-role-label').textContent = (p.role || 'user').replace('_', ' ');
+  $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const isSuperAdmin = p.role === 'superadmin';
+  const canAccessAdmin = isSuperAdmin || p.role === 'admin';
+  $('admin-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('admin-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
+
+  if (canAccessAdmin) {
+    $('access-denied').style.display = 'none';
+    $('admin-content').style.display = 'block';
+    if (!adminInitialized) {
+      adminInitialized = true;
+      await loadUsers();
+      await loadPreapprovedEmails();
+    }
+  } else {
+    $('access-denied').style.display = 'block';
+    $('admin-content').style.display = 'none';
+  }
+}
+if (window.__pcProfile) applyProfile(window.__pcProfile);
+window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+window.addEventListener('router:view-shown', e => {
+  if (e.detail?.name === 'admin' && adminInitialized) {
+    invalidate('users');
+    loadUsers();
+  }
+});
+
+$('btn-signout').addEventListener('click', () => {
+  if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
+});
+
+const sidebar = $('sidebar'), overlay = $('sidebar-overlay'), hamburger = $('hamburger');
+const openSB = () => { sidebar.classList.add('open'); overlay.classList.add('open'); };
+const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
+hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
+overlay.addEventListener('click', closeSB);
+
+</script>

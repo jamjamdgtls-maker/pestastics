@@ -16,6 +16,13 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "superadmin";
     }
 
+    // A plain admin: can approve/deny users and manage roles up to (but
+    // never including) superadmin — see the users/{uid} update rule below.
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
     match /users/{uid} {
       // A user can read their own profile (needed to check pending/approved
       // status right after sign-in, before they're approved); a super admin
@@ -31,10 +38,16 @@ service cloud.firestore {
         && request.resource.data.status == "pending"
         && request.resource.data.role == "user";
 
-      // Only a super admin can change status/role after that (approve/reject).
-      // A user can still update their own non-privileged fields (e.g. name),
-      // but not status or role.
+      // Super admin: unrestricted. Admin: can update any user doc except
+      // one that's currently superadmin, and can never set anyone's role
+      // TO superadmin — mirrors user-management.html's own client-side
+      // canChangeRole/canAssignSuper logic exactly, enforced here as the
+      // real boundary. A user can still update their own non-privileged
+      // fields (e.g. name), but not status or role.
       allow update: if isSuperAdmin()
+        || (isAdmin()
+            && resource.data.role != "superadmin"
+            && request.resource.data.role != "superadmin")
         || (isOwner(uid)
             && request.resource.data.status == resource.data.status
             && request.resource.data.role == resource.data.role);

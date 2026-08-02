@@ -29,7 +29,9 @@ const LAZY_VIEWS = {
   'report-monthly-collection': 'report-monthly-collection.html',
   'report-service': 'report-service.html',
   'report-overdue-treatments': 'report-overdue-treatments.html',
-  'report-client-soa': 'report-client-soa.html'
+  'report-client-soa': 'report-client-soa.html',
+  admin: 'user-management.html',
+  'audit-log': 'audit-log.html'
 };
 
 const mountedLazyViews = new Set();

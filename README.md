@@ -15,9 +15,8 @@ anywhere, ever.
   `renewals.html` / `complaints.html` / `inspections.html` / `overdue.html` /
   `calendar.html` / `report-daily-schedule.html` /
   `report-monthly-collection.html` / `report-service.html` /
-  `report-overdue-treatments.html` / `report-client-soa.html` — the full
-  set of 5 report pages originally referenced in the earliest
-  dashboard.html upload is now complete.
+  `report-overdue-treatments.html` / `report-client-soa.html` /
+  `user-management.html` / `audit-log.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -178,6 +177,46 @@ anywhere, ever.
   up in both.
 - `firebase-config.js` — shared Firebase init.
 - `firestore.rules` — security rules for every collection above.
+
+## Roles: user / admin / superadmin
+
+Three tiers, enforced in `firestore.rules` via `isAdmin()`/`isSuperAdmin()`,
+not just in the UI:
+
+- **user** — the default for anyone approved. No admin-area access.
+- **admin** — can see and use User Management (`#admin`): approve/deny
+  users, revoke/restore access, and change roles — but only ever between
+  `user` and `admin`. An admin can never assign the `superadmin` role to
+  anyone, and can never touch (view as editable, approve, deny, or
+  change the role of) a user who is currently `superadmin` — that user's
+  row shows as a read-only badge instead of a dropdown. Both boundaries
+  are enforced server-side in the `users/{uid}` rule, not just hidden in
+  the UI.
+- **superadmin** — everything an admin can do, plus: assign the
+  `superadmin` role itself, and access Audit Log (`#audit-log`), which
+  admins cannot see or open even by URL.
+
+`user-management.html` is mounted at `#admin` — the same route the old
+placeholder admin view used, so nothing else in the app needed to change
+when it became a real lazy-loaded module instead of a block baked into
+`index.html`. It also owns the **pre-approved emails** panel (an
+allowlist that skips the pending-review step entirely), but the actual
+check against that list happens once, centrally, in `index.html`'s own
+registration flow — the one place a new user account is ever created in
+this app — rather than being duplicated into this page's own auth
+handler the way the original standalone admin pages each did.
+
+`audit-log.html` is superadmin-only. Its entity-type-to-record links use
+the same `pc:open-...` bridges every other module uses to jump between
+records, rather than the static per-page hrefs the original file had
+(which don't mean anything in a hash-routed SPA). `client` needs one
+extra step other entity types don't: `audit_log` stores a client's
+Firestore document ID, but `pc:open-client` expects the human-readable
+`customerNo`, so the log resolves that mapping once and caches it.
+`treatment`/`payment`/`renewal`/`team` have no existing "open by ID"
+bridge anywhere in the app, so those render as plain, non-clickable
+chips rather than introducing three new bridges as a side effect of
+adding a log viewer.
 
 ## Adding a new module
 
