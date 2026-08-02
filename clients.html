@@ -109,8 +109,10 @@
       <a class="nav-item" href="#report-client-soa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Client SOA</a>
       <a class="nav-item" href="#report-monthly-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Monthly Collection</a>
       <a class="nav-item" href="#report-overdue-treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue Report</a>
+      <div class="nav-section-label" id="clients-operations-nav-label" style="display:none">Operations</div>
+      <a class="nav-item" href="#audit-log" id="clients-nav-audit-log" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Audit Log</a>
       <div class="nav-section-label" id="clients-admin-nav-label" style="display:none">Admin</div>
-      <a class="nav-item" href="#admin" id="clients-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
+      <a class="nav-item" href="#admin" id="clients-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>User Management</a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -1494,6 +1496,8 @@ function applyProfile(p) {
   $('user-initials').textContent     = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   const isSuperAdmin = p.role === 'superadmin';
+  $('clients-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('clients-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
   $('clients-admin-nav-label').style.display = isSuperAdmin ? '' : 'none';
   $('clients-nav-admin').style.display       = isSuperAdmin ? '' : 'none';
 
