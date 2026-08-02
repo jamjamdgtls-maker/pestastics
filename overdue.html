@@ -227,7 +227,13 @@
           Overdue Payments
           <span class="section-count" id="p-count-label"></span>
         </div>
-        <a href="#payments" class="btn btn-secondary btn-sm">View All Payments →</a>
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--text-secondary);cursor:pointer;user-select:none">
+            <input type="checkbox" id="p-filter-linked-treatments" style="width:15px;height:15px;accent-color:var(--purple);cursor:pointer" />
+            Only payments whose treatment is also overdue
+          </label>
+          <a href="#payments" class="btn btn-secondary btn-sm">View All Payments →</a>
+        </div>
       </div>
       <div id="payments-section">
         <div style="text-align:center;padding:32px;background:white;border:1px solid var(--border);border-radius:var(--radius)"><div class="spinner" style="margin:0 auto"></div></div>
@@ -587,6 +593,16 @@ function updateSummaryCards() {
 }
 
 $('t-filter-team').addEventListener('change', renderTreatments);
+
+/* ── "Only payments whose treatment is also overdue" — a preference,
+   not app data, so it's remembered per-browser via localStorage
+   rather than written to Firestore. ── */
+const LINKED_FILTER_KEY = 'pestastic:overdue:linkedPaymentsOnly';
+$('p-filter-linked-treatments').checked = localStorage.getItem(LINKED_FILTER_KEY) === 'true';
+$('p-filter-linked-treatments').addEventListener('change', () => {
+  localStorage.setItem(LINKED_FILTER_KEY, $('p-filter-linked-treatments').checked ? 'true' : 'false');
+  renderPayments();
+});
 $('btn-refresh').addEventListener('click', () => {
   invalidate('clients', 'contracts', 'teams', 'config:settings', 'treatments', 'payments');
   loadAll();
@@ -649,9 +665,28 @@ function renderTreatments() {
    RENDER — PAYMENTS
 ══════════════════════════════════ */
 function renderPayments() {
-  $('p-count-label').textContent = `(${overduePayments.length})`;
-  if (!overduePayments.length) {
-    $('payments-section').innerHTML = `<div class="empty-section"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><h3>No overdue payments</h3><p>All payments are up to date.</p></div>`;
+  const linkedOnly = $('p-filter-linked-treatments').checked;
+  let list = overduePayments;
+  if (linkedOnly) {
+    // A payment only counts as "linked to an overdue treatment" if that
+    // exact session (same contract + sessionNo) currently has an
+    // overdue treatment — matching by contract alone would wrongly flag
+    // a payment whose own session was serviced fine just because a
+    // different session on the same contract is late. And since this
+    // filters from overduePayments (already status:'Pending', no
+    // paymentDate, past due), a payment that's actually been collected
+    // can never appear here regardless of this checkbox — a session
+    // whose treatment ran late but whose payment was already paid
+    // correctly stays off this list.
+    const overdueTreatmentKeys = new Set(overdueTreatments.filter(t => t.sessionNo != null).map(t => `${t.contractId}::${t.sessionNo}`));
+    list = overduePayments.filter(p => p.sessionNo != null && overdueTreatmentKeys.has(`${p.contractId}::${p.sessionNo}`));
+  }
+
+  $('p-count-label').textContent = `(${list.length})`;
+  if (!list.length) {
+    $('payments-section').innerHTML = linkedOnly
+      ? `<div class="empty-section"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><h3>No overdue payments linked to an overdue treatment</h3><p>Uncheck the filter above to see all ${overduePayments.length} overdue payment${overduePayments.length === 1 ? '' : 's'}.</p></div>`
+      : `<div class="empty-section"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><h3>No overdue payments</h3><p>All payments are up to date.</p></div>`;
     return;
   }
   $('payments-section').innerHTML = `
@@ -662,7 +697,7 @@ function renderPayments() {
             <th>Client Name</th><th>Due Date</th><th>Amount (₱)</th>
             <th>Days Overdue</th><th>Payment Mode</th><th>OR No.</th><th>Actions</th>
           </tr></thead>
-          <tbody>${overduePayments.map(p => {
+          <tbody>${list.map(p => {
             const clientName = cleanName(clientMap[p.customerNo]?.clientName || p.customerNo || '—');
             const clientLink = clientMap[p.customerNo]
               ? `<a href="#" class="btn-view-client" data-customer-no="${p.customerNo}" style="color:var(--primary);text-decoration:none">${clientName}</a>`
