@@ -89,6 +89,32 @@
     #view-treatments .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
     #view-treatments .table-wrapper {scrollbar-width:thin;scrollbar-color:var(--border-hover) var(--bg-secondary)}
     #view-treatments .pagination {position:sticky;bottom:0}
+  
+    /* ── Unified layout system (all modules) ── */
+    :root, #view-treatments {--sidebar-width:260px}
+    html, body {margin:0;overflow-x:hidden}
+    :root {--sidebar-width:260px}
+    #view-treatments .sidebar {width:var(--sidebar-width)}
+    #view-treatments .sidebar-logo {padding:20px 20px 16px}
+    #view-treatments .sidebar-nav {padding:12px 10px}
+    #view-treatments .nav-section-label {padding:12px 10px 6px}
+    #view-treatments .nav-item {padding:9px 10px;font-size:13.5px;min-height:36px;gap:10px;text-align:left}
+    #view-treatments .nav-item svg {width:16px;height:16px}
+    #view-treatments .sidebar-footer {padding:12px 14px}
+    #view-treatments .main-wrapper {margin-left:var(--sidebar-width);width:calc(100% - var(--sidebar-width));max-width:calc(100% - var(--sidebar-width));overflow-x:hidden}
+    #view-treatments .page-content {padding:20px 24px 18px;min-width:0}
+    #view-treatments .page-header {padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:16px}
+    #view-treatments .table-card {display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))}
+    #view-treatments .table-wrapper {flex:1;min-height:0;overflow:auto}
+    #view-treatments .table-wrapper thead th {position:sticky;top:0;z-index:2;background:var(--bg-secondary)}
+    #view-treatments .table-wrapper::-webkit-scrollbar {width:10px;height:10px}
+    #view-treatments .table-wrapper::-webkit-scrollbar-thumb {background:var(--border-hover);border-radius:5px;border:2px solid var(--bg-secondary)}
+    #view-treatments .table-wrapper::-webkit-scrollbar-thumb:hover {background:var(--text-muted)}
+    #view-treatments .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
+    #view-treatments .table-wrapper {scrollbar-width:thin;scrollbar-color:var(--border-hover) var(--bg-secondary)}
+    #view-treatments .pagination {position:sticky;bottom:0;background:white;border-top:1px solid var(--border);flex-shrink:0}
+    @media(max-width:1024px){#view-treatments .main-wrapper {margin-left:0;width:100%;max-width:100%}}
+    @media(max-width:768px){#view-treatments .page-content {padding:14px 14px 12px}}
   </style>
 
 <div data-view="treatments" id="view-treatments">
