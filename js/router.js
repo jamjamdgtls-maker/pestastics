@@ -24,7 +24,8 @@ const LAZY_VIEWS = {
   complaints: 'complaints.html',
   inspections: 'inspections.html',
   overdue: 'overdue.html',
-  calendar: 'calendar.html'
+  calendar: 'calendar.html',
+  'report-daily-schedule': 'report-daily-schedule.html'
 };
 
 const mountedLazyViews = new Set();
