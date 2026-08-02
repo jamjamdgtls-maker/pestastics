@@ -78,6 +78,32 @@
     #view-clients .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
     #view-clients .table-wrapper {scrollbar-width:thin;scrollbar-color:var(--border-hover) var(--bg-secondary)}
     #view-clients .pagination {position:sticky;bottom:0}
+  
+    /* ── Unified layout system (all modules) ── */
+    :root, #view-clients {--sidebar-width:260px}
+    html, body {margin:0;overflow-x:hidden}
+    :root {--sidebar-width:260px}
+    #view-clients .sidebar {width:var(--sidebar-width)}
+    #view-clients .sidebar-logo {padding:20px 20px 16px}
+    #view-clients .sidebar-nav {padding:12px 10px}
+    #view-clients .nav-section-label {padding:12px 10px 6px}
+    #view-clients .nav-item {padding:9px 10px;font-size:13.5px;min-height:36px;gap:10px;text-align:left}
+    #view-clients .nav-item svg {width:16px;height:16px}
+    #view-clients .sidebar-footer {padding:12px 14px}
+    #view-clients .main-wrapper {margin-left:var(--sidebar-width);width:calc(100% - var(--sidebar-width));max-width:calc(100% - var(--sidebar-width));overflow-x:hidden}
+    #view-clients .page-content {padding:20px 24px 18px;min-width:0}
+    #view-clients .page-header {padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:16px}
+    #view-clients .table-card {display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))}
+    #view-clients .table-wrapper {flex:1;min-height:0;overflow:auto}
+    #view-clients .table-wrapper thead th {position:sticky;top:0;z-index:2;background:var(--bg-secondary)}
+    #view-clients .table-wrapper::-webkit-scrollbar {width:10px;height:10px}
+    #view-clients .table-wrapper::-webkit-scrollbar-thumb {background:var(--border-hover);border-radius:5px;border:2px solid var(--bg-secondary)}
+    #view-clients .table-wrapper::-webkit-scrollbar-thumb:hover {background:var(--text-muted)}
+    #view-clients .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
+    #view-clients .table-wrapper {scrollbar-width:thin;scrollbar-color:var(--border-hover) var(--bg-secondary)}
+    #view-clients .pagination {position:sticky;bottom:0;background:white;border-top:1px solid var(--border);flex-shrink:0}
+    @media(max-width:1024px){#view-clients .main-wrapper {margin-left:0;width:100%;max-width:100%}}
+    @media(max-width:768px){#view-clients .page-content {padding:14px 14px 12px}}
   </style>
 
 <div data-view="clients" id="view-clients">
