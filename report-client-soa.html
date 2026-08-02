@@ -313,6 +313,12 @@
         <input type="date" class="date-input" id="date-from" />
         <label>To</label>
         <input type="date" class="date-input" id="date-to" />
+        <label>Sort by</label>
+        <select class="filter-select" id="sort-by">
+          <option value="date">Date</option>
+          <option value="status">Status</option>
+          <option value="salesAgent">Sales Agent</option>
+        </select>
         <div class="controls-spacer"></div>
         <div class="print-toggle-group" id="orientation-toggle" style="display:none">
           <button type="button" class="print-toggle-btn active" data-orientation="portrait" title="Print portrait">
@@ -426,6 +432,7 @@ searchInput.addEventListener('input', () => {
 document.addEventListener('click', e => { if (!$('cb-wrap').contains(e.target)) dropdown.classList.remove('open'); });
 $('date-from').addEventListener('change', () => { if (selectedCustomerNo) generateSOA(); });
 $('date-to').addEventListener('change', () => { if (selectedCustomerNo) generateSOA(); });
+$('sort-by').addEventListener('change', () => { if (selectedCustomerNo) generateSOA(); });
 
 /* ── Generate SOA ── */
 async function generateSOA() {
@@ -448,6 +455,31 @@ async function generateSOA() {
   if (toDate) toDate.setHours(23, 59, 59, 999);
 
   const dateRangeLabel = dfrom && dto ? `${fmtDate(fromDate)} – ${fmtDate(toDate)}` : 'All dates';
+
+  // Sort order for the ledger rows. "Date" is the natural due-date order
+  // every accounting statement expects; "Status" groups Pending rows
+  // first (the ones needing attention), then Received, then Cancelled
+  // last. Sales Agent is a per-client field (not per-transaction), so
+  // it can't reorder rows within one client's own statement — it's
+  // still offered as a sort option and shown as a column for parity
+  // with how other reports expose it, it just has no visible effect
+  // here since every row shares the same value.
+  const sortBy = $('sort-by').value;
+  function statusSortRank(p) {
+    if (p.status === 'Cancelled') return 2;
+    if (['Received', 'Deposited', 'Remitted', 'Collected'].includes(p.status)) return 1;
+    return 0;
+  }
+  function sortPayments(list) {
+    return [...list].sort((a, b) => {
+      if (sortBy === 'status') {
+        const diff = statusSortRank(a) - statusSortRank(b);
+        if (diff !== 0) return diff;
+      }
+      const da = toLocalDate(a.dueDate || a.paymentDate), db2 = toLocalDate(b.dueDate || b.paymentDate);
+      return da && db2 ? da - db2 : 0;
+    });
+  }
 
   const contracts = (await cachedGetDocs(query(collection(db, 'contracts'), where('customerNo', '==', selectedCustomerNo)), `contracts:customer:${selectedCustomerNo}`))
     .sort((a, b) => { const da = toLocalDate(a.contractStartDate), db2 = toLocalDate(b.contractStartDate); return da && db2 ? da - db2 : 0; });
@@ -556,20 +588,20 @@ async function generateSOA() {
 
   html += `<div class="soa-section">
     <table class="soa-table"><thead><tr>
-      <th>#</th><th>Date</th><th>Due Date</th><th>OR No.</th><th>Description</th><th>Status</th>
+      <th>#</th><th>Date</th><th>Due Date</th><th>OR No.</th><th>Description</th><th>Status</th><th>Sales Agent</th>
       <th class="right">Debit ₱</th><th class="right">Credit ₱</th><th class="right">Running Balance ₱</th>
     </tr></thead><tbody>`;
 
   if (!contracts.length) {
-    html += `<tr><td colspan="9" style="text-align:center;color:#9ca3af;padding:20px">No contracts on record.</td></tr>`;
+    html += `<tr><td colspan="10" style="text-align:center;color:#9ca3af;padding:20px">No contracts on record.</td></tr>`;
   }
 
   contractSummaries.forEach(cs => {
     const c = cs.contract;
-    const cPayments = (filteredPaymentsByContract[c.id] || []).sort((a, b) => { const da = toLocalDate(a.dueDate || a.paymentDate), db2 = toLocalDate(b.dueDate || b.paymentDate); return da && db2 ? da - db2 : 0; });
+    const cPayments = sortPayments(filteredPaymentsByContract[c.id] || []);
     const { cls: statusCls, lbl: statusLbl } = contractStatus(c);
 
-    html += `<tr class="soa-group-row"><td colspan="9">
+    html += `<tr class="soa-group-row"><td colspan="10">
       <div class="soa-group-title">
         <span>${esc(c.contractNumber || c.id.slice(0, 8))} — ${esc(c.contractType || '—')} <span class="cc-status ${statusCls}">${esc(statusLbl)}</span></span>
         <span class="soa-group-balance" style="color:${cs.balance > 0 ? '#fca5a5' : '#86efac'}">Balance: ${fmtCur(cs.balance)}</span>
@@ -586,6 +618,7 @@ async function generateSOA() {
       <td class="mono">—</td>
       <td><span class="type-tag debit">DEBIT</span> <span style="font-size:12px;margin-left:6px;color:#374151">Contract Billed: ${esc(c.contractType || '—')}</span></td>
       <td><span style="font-size:11px;color:#6b7280">—</span></td>
+      <td class="mono">${esc(client?.salesAgent || '—')}</td>
       <td class="right">${fmtCur(cs.contractAmt)}</td>
       <td class="right" style="color:#15803d">—</td>
       <td class="right balance-positive">${fmtCur(grandRunningBalance)}</td>
@@ -601,6 +634,7 @@ async function generateSOA() {
         <td class="mono">—</td>
         <td><span class="type-tag debit" style="background:#dbeafe;color:#1d4ed8">ADDENDUM</span> <span style="font-size:12px;margin-left:6px;color:#374151">Additional charges beyond contract</span></td>
         <td><span style="font-size:11px;color:#6b7280">—</span></td>
+        <td class="mono">${esc(client?.salesAgent || '—')}</td>
         <td class="right" style="color:#1d4ed8">${fmtCur(cs.addendum)}</td>
         <td class="right" style="color:#15803d">—</td>
         <td class="right balance-positive">${fmtCur(grandRunningBalance)}</td>
@@ -635,6 +669,7 @@ async function generateSOA() {
           <span style="font-size:12px;margin-left:6px;color:#374151">Payment: ${esc(modeLabel)}${p.orNumber ? ' (OR# ' + esc(p.orNumber) + ')' : ''}</span>
         </td>
         <td>${statusBadge}</td>
+        <td class="mono">${esc(client?.salesAgent || '—')}</td>
         <td class="right" style="${cancelledRow ? 'text-decoration:line-through;color:#9ca3af' : ''}">${isPending || cancelledRow ? fmtCur(p.amount) : '—'}</td>
         <td class="right" style="color:#15803d">${paid ? fmtCur(p.amount) : '—'}</td>
         <td class="right ${grandRunningBalance > 0 ? 'balance-positive' : grandRunningBalance < 0 ? 'balance-negative' : ''}">${(paid || cancelledRow) ? fmtCur(grandRunningBalance) : '<span style="color:#f59e0b;font-style:italic">' + fmtCur(grandRunningBalance) + '</span>'}</td>
@@ -642,7 +677,7 @@ async function generateSOA() {
     });
 
     html += `<tr class="soa-subtotal-row">
-      <td colspan="6" style="text-align:right">Subtotal — ${esc(c.contractNumber || c.id.slice(0, 8))}</td>
+      <td colspan="7" style="text-align:right">Subtotal — ${esc(c.contractNumber || c.id.slice(0, 8))}</td>
       <td class="right">${fmtCur(cs.effectiveBilled)}</td>
       <td class="right" style="color:#15803d">${fmtCur(cs.totalReceived)}</td>
       <td class="right ${cs.balance > 0 ? 'balance-positive' : ''}">${fmtCur(cs.balance)}</td>
@@ -650,10 +685,10 @@ async function generateSOA() {
   });
 
   if (unassignedFiltered.length) {
-    html += `<tr class="soa-group-row"><td colspan="9">
+    html += `<tr class="soa-group-row"><td colspan="10">
       <div class="soa-group-title"><span>Unassigned Payments (No Contract Linked)</span></div>
     </td></tr>`;
-    unassignedFiltered.forEach(p => {
+    sortPayments(unassignedFiltered).forEach(p => {
       const paid = isReceived(p);
       const cancelledRow = isCancelledPayment(p);
       rowNum++;
@@ -667,6 +702,7 @@ async function generateSOA() {
         <td class="mono">${esc(p.orNumber || '—')}</td>
         <td><span class="type-tag ${paid ? 'credit' : 'debit'}">${paid ? 'CREDIT' : (cancelledRow ? 'VOID' : 'PENDING')}</span> <span style="font-size:12px;margin-left:6px;color:#374151">${esc(modeLabel)}</span></td>
         <td><span style="font-size:10.5px;font-weight:700;color:${cancelledRow ? '#6b7280' : (paid ? '#15803d' : '#f59e0b')}">${cancelledRow ? 'Cancelled' : (paid ? esc(p.status || 'Received') : 'Pending')}</span></td>
+        <td class="mono">${esc(client?.salesAgent || '—')}</td>
         <td class="right" style="${cancelledRow ? 'text-decoration:line-through;color:#9ca3af' : ''}">${!paid ? fmtCur(p.amount) : '—'}</td>
         <td class="right" style="color:#15803d">${paid ? fmtCur(p.amount) : '—'}</td>
         <td class="right">${fmtCur(grandRunningBalance)}</td>
@@ -675,7 +711,7 @@ async function generateSOA() {
   }
 
   html += `</tbody><tfoot><tr class="soa-grandtotal-row">
-      <td colspan="6" style="text-align:right">GRAND TOTAL</td>
+      <td colspan="7" style="text-align:right">GRAND TOTAL</td>
       <td class="right" style="color:#fca5a5">${fmtCur(totalBilledAll)}</td>
       <td class="right" style="color:#86efac">${fmtCur(totalPaidAll)}</td>
       <td class="right" style="color:white">${fmtCur(outstanding)}</td>
