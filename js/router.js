@@ -28,7 +28,8 @@ const LAZY_VIEWS = {
   'report-daily-schedule': 'report-daily-schedule.html',
   'report-monthly-collection': 'report-monthly-collection.html',
   'report-service': 'report-service.html',
-  'report-overdue-treatments': 'report-overdue-treatments.html'
+  'report-overdue-treatments': 'report-overdue-treatments.html',
+  'report-client-soa': 'report-client-soa.html'
 };
 
 const mountedLazyViews = new Set();

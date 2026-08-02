@@ -15,7 +15,9 @@ anywhere, ever.
   `renewals.html` / `complaints.html` / `inspections.html` / `overdue.html` /
   `calendar.html` / `report-daily-schedule.html` /
   `report-monthly-collection.html` / `report-service.html` /
-  `report-overdue-treatments.html` —
+  `report-overdue-treatments.html` / `report-client-soa.html` — the full
+  set of 5 report pages originally referenced in the earliest
+  dashboard.html upload is now complete.
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -131,9 +133,13 @@ anywhere, ever.
   receiving module listens for it, waits for its own data to finish
   loading if it was just mounted for the first time, then acts.
   `pc:open-contract` / `pc:open-client` / `pc:open-complaint` /
-  `pc:open-inspection` (open a specific record's detail modal — used by
-  Payments/Renewals/Complaints/Calendar to link out to each other) and
-  `pc:renew-contract` / `pc:book-treatment-from-complaint` /
+  `pc:open-inspection` / `pc:open-client-soa` (open a specific record's
+  detail view — used by Payments/Renewals/Complaints/Calendar/Clients to
+  link out to each other; `pc:open-client-soa` is Clients' own detail
+  modal jumping into a pre-selected, pre-generated Statement of Account,
+  replacing the original standalone app's `?customer=XXX` URL param
+  approach — this SPA doesn't use query params for cross-view navigation)
+  and `pc:renew-contract` / `pc:book-treatment-from-complaint` /
   `pc:new-client-from-inspection` / `pc:create-contract-from-inspection`
   (open another module's own creation form pre-filled with context) all
   follow this same shape.

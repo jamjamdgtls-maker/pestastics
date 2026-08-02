@@ -1,0 +1,1202 @@
+<!-- ════════════════════════════════════════════════════════════════
+     Client SOA module — fetched + mounted once by js/router.js on
+     first visit to #report-client-soa, then left in the DOM (hidden)
+     for every visit after. Read-only, printable, print CSS scoped
+     under #view-report-client-soa. Listens for pc:open-client-soa so
+     other modules can jump straight to a specific client's statement.
+════════════════════════════════════════════════════════════════ -->
+<style>
+
+
+
+
+
+
+#view-report-client-soa *, #view-report-client-soa *::before, #view-report-client-soa *::after {box-sizing:border-box;margin:0;padding:0}#view-report-client-soa {
+      --primary:hsl(142,76%,36%);--primary-hover:hsl(142,76%,30%);--primary-light:hsl(142,76%,95%);--primary-border:hsl(142,76%,80%);
+      --bg:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;
+      --sidebar-bg:#0f1b12;--sidebar-text:#c8d6ca;--sidebar-muted:#6b7f6e;
+      --text:#111827;--text-secondary:#4b5563;--text-muted:#9ca3af;
+      --border:#e5e7eb;--border-hover:#d1d5db;
+      --radius:8px;--radius-sm:4px;--radius-lg:12px;
+      --shadow:0 2px 8px rgba(0,0,0,.10);--shadow-lg:0 8px 24px rgba(0,0,0,.12);
+      --green:hsl(142,76%,36%);--green-bg:hsl(142,76%,95%);--green-text:hsl(142,76%,28%);
+      --blue:hsl(213,94%,47%);--blue-bg:hsl(213,94%,95%);--blue-text:hsl(213,94%,35%);
+      --amber:hsl(38,92%,50%);--amber-bg:hsl(38,92%,95%);--amber-text:hsl(38,92%,32%);
+      --red:hsl(0,84%,50%);--red-bg:hsl(0,84%,96%);--red-text:hsl(0,84%,38%);
+      --purple:hsl(262,83%,58%);--purple-bg:hsl(262,83%,96%);--purple-text:hsl(262,83%,42%);
+      --gray:hsl(220,9%,46%);--gray-bg:hsl(220,9%,95%);--gray-text:hsl(220,9%,35%);
+      --sidebar-width:260px;--topbar-height:60px;
+      --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif
+    }#view-report-client-soa html, #view-report-client-soa body {height:100%;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg-secondary);line-height:1.5;-webkit-font-smoothing:antialiased}#view-report-client-soa a {color:inherit;text-decoration:none}#view-report-client-soa button {font-family:var(--font);cursor:pointer}#view-report-client-soa input, #view-report-client-soa select, #view-report-client-soa textarea {font-family:var(--font);font-size:14px}#view-report-client-soa /* AUTH */
+    #auth-screen {display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f1b12 0%,#1a2e1d 50%,#0d1f0f 100%)}#view-report-client-soa .auth-card {background:white;border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);text-align:center}#view-report-client-soa .auth-logo {width:64px;height:64px;background:var(--primary-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-report-client-soa .auth-logo svg {width:36px;height:36px}#view-report-client-soa .auth-card h1 {font-size:24px;font-weight:700;margin-bottom:4px}#view-report-client-soa .auth-card>p {color:var(--text-muted);font-size:14px;margin-bottom:32px}#view-report-client-soa .btn-google {width:100%;padding:12px 20px;border:1.5px solid var(--border);background:white;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:500;color:var(--text);transition:all .15s;cursor:pointer}#view-report-client-soa .btn-google:hover {background:var(--bg-secondary)}#view-report-client-soa .btn-google svg {width:20px;height:20px}#view-report-client-soa .auth-error {margin-top:16px;padding:10px 14px;background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);font-size:13px;border:1px solid #fca5a5;display:none}#view-report-client-soa .pending-icon {width:72px;height:72px;background:var(--amber-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-report-client-soa .pending-icon svg {width:36px;height:36px;color:var(--amber)}#view-report-client-soa .btn-pending-check {width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;margin-bottom:12px;cursor:pointer}#view-report-client-soa .btn-signout-pending {width:100%;padding:12px;background:transparent;color:var(--text-secondary);border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;cursor:pointer}#view-report-client-soa /* APP SHELL */
+    #app-shell {display:none;height:100vh;overflow:hidden}#view-report-client-soa /* SIDEBAR */
+    .sidebar {position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);display:flex;flex-direction:column;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);overflow:hidden}#view-report-client-soa .sidebar-logo {display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.06)}#view-report-client-soa .sidebar-logo-icon {width:36px;height:36px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}#view-report-client-soa .sidebar-logo-icon svg {width:20px;height:20px;color:white}#view-report-client-soa .sidebar-logo-text span {display:block;font-size:15px;font-weight:700;color:white;line-height:1.2}#view-report-client-soa .sidebar-logo-text small {font-size:10px;color:var(--sidebar-muted);text-transform:uppercase;letter-spacing:.08em}#view-report-client-soa .sidebar-nav {flex:1;overflow-y:auto;padding:12px 10px}#view-report-client-soa .sidebar-nav::-webkit-scrollbar {width:4px}#view-report-client-soa .sidebar-nav::-webkit-scrollbar-thumb {background:rgba(255,255,255,.1);border-radius:2px}#view-report-client-soa .nav-section-label {font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sidebar-muted);padding:12px 10px 6px}#view-report-client-soa .nav-item {display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);color:var(--sidebar-text);font-size:13.5px;font-weight:450;cursor:pointer;transition:all .15s;position:relative;user-select:none}#view-report-client-soa .nav-item:hover {background:rgba(255,255,255,.07);color:white}#view-report-client-soa .nav-item.active {background:rgba(34,197,94,.15);color:hsl(142,76%,65%)}#view-report-client-soa .nav-item.active::before {content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--primary);border-radius:0 2px 2px 0}#view-report-client-soa .nav-item svg {width:16px;height:16px;flex-shrink:0;opacity:.85}#view-report-client-soa .nav-item.active svg {opacity:1}#view-report-client-soa .nav-badge {margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}#view-report-client-soa .nav-badge.amber {background:var(--amber)}#view-report-client-soa .sidebar-footer {padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)}#view-report-client-soa .sidebar-user {display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}#view-report-client-soa .sidebar-user:hover {background:rgba(255,255,255,.07)}#view-report-client-soa .user-avatar {width:34px;height:34px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0;overflow:hidden}#view-report-client-soa .user-avatar img {width:100%;height:100%;object-fit:cover}#view-report-client-soa .user-info {flex:1;min-width:0}#view-report-client-soa .user-name {font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#view-report-client-soa .user-role {font-size:11px;color:var(--sidebar-muted);text-transform:capitalize}#view-report-client-soa .btn-signout {background:none;border:none;padding:6px;color:var(--sidebar-muted);border-radius:var(--radius-sm);transition:all .15s;display:flex;align-items:center;cursor:pointer}#view-report-client-soa .btn-signout:hover {color:var(--red);background:rgba(239,68,68,.1)}#view-report-client-soa .btn-signout svg {width:16px;height:16px}#view-report-client-soa .sidebar-overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}#view-report-client-soa /* MAIN */
+    .main-wrapper {margin-left:var(--sidebar-width);width:calc(100vw - var(--sidebar-width));height:100vh;display:flex;flex-direction:column;overflow:hidden}#view-report-client-soa .topbar {height:var(--topbar-height);background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}#view-report-client-soa .hamburger {display:none;background:none;border:none;padding:6px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer}#view-report-client-soa .hamburger svg {width:20px;height:20px}#view-report-client-soa .topbar-title {font-size:16px;font-weight:700;color:var(--text)}#view-report-client-soa .topbar-spacer {flex:1}#view-report-client-soa .topbar-btn {width:34px;height:34px;background:none;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer;position:relative}#view-report-client-soa .topbar-btn svg {width:16px;height:16px}#view-report-client-soa .topbar-notif-dot {position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid white}#view-report-client-soa .page-content {flex:1;overflow:hidden;padding:24px;display:flex;flex-direction:column}#view-report-client-soa /* BUTTONS */
+    .btn {display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}#view-report-client-soa .btn svg {width:15px;height:15px}#view-report-client-soa .btn-primary {background:var(--primary);color:white}#view-report-client-soa .btn-primary:hover {background:var(--primary-hover)}#view-report-client-soa .btn-primary:active {transform:scale(.98)}#view-report-client-soa .btn-primary:disabled {opacity:.6;cursor:not-allowed;transform:none}#view-report-client-soa .btn-secondary {background:white;color:var(--text);border:1px solid var(--border)}#view-report-client-soa .btn-secondary:hover {background:var(--bg-secondary)}#view-report-client-soa .btn-danger {background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}#view-report-client-soa .btn-danger:hover {background:#fee2e2}#view-report-client-soa .btn-amber {background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}#view-report-client-soa .btn-amber:hover {background:#fef3c7}#view-report-client-soa .btn-ghost {background:none;color:var(--text-secondary);border:none;padding:6px 10px}#view-report-client-soa .btn-ghost:hover {background:var(--bg-secondary);color:var(--text)}#view-report-client-soa .btn-sm {padding:5px 10px;font-size:12px}#view-report-client-soa .btn-sm svg {width:13px;height:13px}#view-report-client-soa /* BADGES */
+    .badge {display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}#view-report-client-soa .badge::before {content:'';width:5px;height:5px;border-radius:50%;background:currentColor}#view-report-client-soa .badge-green {background:var(--green-bg);color:var(--green-text)}#view-report-client-soa .badge-blue {background:var(--blue-bg);color:var(--blue-text)}#view-report-client-soa .badge-amber {background:var(--amber-bg);color:var(--amber-text)}#view-report-client-soa .badge-red {background:var(--red-bg);color:var(--red-text)}#view-report-client-soa .badge-purple {background:var(--purple-bg);color:var(--purple-text)}#view-report-client-soa .badge-gray {background:var(--gray-bg);color:var(--gray-text)}#view-report-client-soa /* PAGE */
+    .page-header {display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;flex-shrink:0}#view-report-client-soa .page-header-left h2 {font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}#view-report-client-soa .page-header-left p {font-size:13px;color:var(--text-muted);margin-top:3px}#view-report-client-soa .page-header-right {display:flex;gap:8px;flex-wrap:wrap}#view-report-client-soa /* SUMMARY CARDS */
+    #view-report-client-soa .summary-grid {display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;flex-shrink:0}#view-report-client-soa .sum-card {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative;overflow:hidden;min-width:0}#view-report-client-soa .sum-card:hover {box-shadow:var(--shadow);transform:translateY(-1px)}#view-report-client-soa .sum-card.active {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-report-client-soa .sum-card::before {content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}#view-report-client-soa .sum-card.total::before {background:var(--blue)}#view-report-client-soa .sum-card.completed::before {background:var(--green)}#view-report-client-soa .sum-card.scheduled::before {background:var(--blue)}#view-report-client-soa .sum-card.overdue::before {background:var(--red)}#view-report-client-soa .sum-card.cancelled::before {background:var(--gray)}#view-report-client-soa .sum-card-value {font-size:28px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px;letter-spacing:-.5px}#view-report-client-soa .sum-card-label {font-size:12px;color:var(--text-muted);font-weight:500}#view-report-client-soa .sum-card-sub {font-size:11.5px;color:var(--text-muted);margin-top:6px}#view-report-client-soa .sum-card-icon {position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.08}#view-report-client-soa .sum-card-icon svg {width:48px;height:48px}#view-report-client-soa /* FILTERS */
+    #view-report-client-soa .filters-bar {display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;flex-shrink:0}#view-report-client-soa .search-wrap {position:relative;flex:1;min-width:220px}#view-report-client-soa .search-wrap svg {position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}#view-report-client-soa .search-input {width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white;outline:none;transition:border-color .15s,box-shadow .15s}#view-report-client-soa .search-input:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-report-client-soa .date-filter-group {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:3px 6px 3px 10px;height:36px;transition:border-color .15s,box-shadow .15s}#view-report-client-soa .date-filter-group:focus-within {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-report-client-soa .date-filter-field {display:flex;align-items:center;gap:6px}#view-report-client-soa .date-filter-field + .date-filter-field {padding-left:8px;border-left:1px solid var(--border)}#view-report-client-soa .date-filter-field label {font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}#view-report-client-soa .date-filter-input {border:none;outline:none;background:transparent;font-size:13px;color:var(--text);padding:4px 2px;font-family:var(--font);min-width:120px;cursor:pointer}#view-report-client-soa .date-filter-input::-webkit-calendar-picker-indicator {cursor:pointer;opacity:.5;transition:opacity .15s}#view-report-client-soa .date-filter-input::-webkit-calendar-picker-indicator:hover {opacity:1}#view-report-client-soa .date-filter-clear {background:none;border:none;padding:5px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}#view-report-client-soa .date-filter-clear svg {width:13px;height:13px}#view-report-client-soa .date-filter-clear:hover {background:var(--bg-secondary);color:var(--red)}#view-report-client-soa .date-filter-clear.hidden {display:none}#view-report-client-soa .date-quick-filters {display:flex;align-items:center;gap:4px;height:36px}#view-report-client-soa .date-quick-btn {height:36px;padding:0 12px;border:1px solid var(--border);background:white;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}#view-report-client-soa .date-quick-btn:hover {background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}#view-report-client-soa .date-quick-btn.active {background:var(--primary-light);border-color:var(--primary-border);color:var(--primary);font-weight:600}#view-report-client-soa .filter-select {padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}#view-report-client-soa .filter-select:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-report-client-soa .date-range {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px}#view-report-client-soa .date-range input[type="date"] {border:none;font-size:13px;color:var(--text);outline:none;background:transparent;cursor:pointer}#view-report-client-soa .date-range span {font-size:12px;color:var(--text-muted)}#view-report-client-soa /* TABLE */
+    #view-report-client-soa .table-card {background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}#view-report-client-soa .table-wrapper {overflow-x:auto}#view-report-client-soa table {width:100%;border-collapse:collapse}#view-report-client-soa thead th {padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;text-align:left;position:sticky;top:0;z-index:1}#view-report-client-soa tbody tr {border-bottom:1px solid var(--bg-tertiary);transition:background .1s}#view-report-client-soa tbody tr:last-child {border-bottom:none}#view-report-client-soa tbody tr:hover {background:var(--bg-secondary)}#view-report-client-soa tbody td {padding:10px 14px;font-size:13.5px;color:var(--text);vertical-align:middle;white-space:nowrap}#view-report-client-soa td.muted {color:var(--text-muted);font-size:12.5px}#view-report-client-soa td.mono {font-family:monospace;font-size:12.5px;color:var(--text-secondary)}#view-report-client-soa .actions-cell {display:flex;align-items:center;gap:5px;flex-wrap:nowrap}#view-report-client-soa tbody tr.overdue-row {background:hsl(0,84%,99%)}#view-report-client-soa tbody tr.overdue-row:hover {background:hsl(0,84%,97%)}#view-report-client-soa /* PAGINATION */
+    .pagination {display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-top:1px solid var(--border);background:white;flex-wrap:wrap;gap:10px}#view-report-client-soa .pagination-info {font-size:13px;color:var(--text-muted)}#view-report-client-soa .pagination-controls {display:flex;align-items:center;gap:4px}#view-report-client-soa .page-btn {min-width:32px;height:32px;padding:0 10px;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font)}#view-report-client-soa .page-btn:hover:not(:disabled) {background:var(--bg-secondary);color:var(--text)}#view-report-client-soa .page-btn.active {background:var(--primary);color:white;border-color:var(--primary);font-weight:600}#view-report-client-soa .page-btn:disabled {opacity:.4;cursor:not-allowed}#view-report-client-soa .date-nav-btn {min-width:32px;height:32px;padding:0;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}#view-report-client-soa .date-nav-btn:hover {background:var(--bg-secondary);color:var(--text)}#view-report-client-soa .date-nav-btn svg {width:16px;height:16px}#view-report-client-soa /* FORMS */
+    .form-group {margin-bottom:16px}#view-report-client-soa .form-label {display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}#view-report-client-soa .form-label .req {color:var(--red);margin-left:2px}#view-report-client-soa .form-input, #view-report-client-soa .form-select, #view-report-client-soa .form-textarea {width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none}#view-report-client-soa .form-select {appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:32px;cursor:pointer}#view-report-client-soa .form-input:focus, #view-report-client-soa .form-select:focus, #view-report-client-soa .form-textarea:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}#view-report-client-soa .form-input::placeholder, #view-report-client-soa .form-textarea::placeholder {color:var(--text-muted)}#view-report-client-soa .form-textarea {resize:vertical;min-height:80px}#view-report-client-soa .form-hint {font-size:11.5px;color:var(--text-muted);margin-top:4px}#view-report-client-soa .form-row {display:grid;grid-template-columns:1fr 1fr;gap:14px}#view-report-client-soa .form-input[readonly] {background:var(--bg-secondary);color:var(--text-secondary)}#view-report-client-soa /* MODAL */
+    .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}#view-report-client-soa .modal-overlay.open {opacity:1;pointer-events:all}#view-report-client-soa .modal {background:white;border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}#view-report-client-soa .modal-overlay.open .modal {transform:translateY(0) scale(1)}#view-report-client-soa .modal-header {display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);flex-shrink:0}#view-report-client-soa .modal-title {font-size:16px;font-weight:700;color:var(--text)}#view-report-client-soa .modal-subtitle {font-size:12px;color:var(--text-muted);margin-top:2px}#view-report-client-soa .modal-close {width:30px;height:30px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);cursor:pointer;transition:all .15s}#view-report-client-soa .modal-close:hover {background:var(--bg-secondary);color:var(--text)}#view-report-client-soa .modal-close svg {width:15px;height:15px}#view-report-client-soa .modal-body {padding:22px;overflow-y:auto;flex:1}#view-report-client-soa .modal-footer {display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0}#view-report-client-soa /* CSV UPLOAD */
+    .upload-zone {border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg-secondary)}#view-report-client-soa .upload-zone:hover, #view-report-client-soa .upload-zone.drag {border-color:var(--primary);background:var(--primary-light)}#view-report-client-soa .upload-zone svg {width:32px;height:32px;color:var(--text-muted);margin-bottom:10px}#view-report-client-soa .upload-zone p {font-size:13.5px;color:var(--text-secondary);margin-bottom:4px}#view-report-client-soa .upload-zone small {font-size:12px;color:var(--text-muted)}#view-report-client-soa .upload-preview {margin-top:14px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12.5px}#view-report-client-soa /* CONTEXT BANNER */
+    .context-banner {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:18px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}#view-report-client-soa .context-banner .cb-label {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}#view-report-client-soa .context-banner .cb-val {font-size:13px;font-weight:600;color:var(--text)}#view-report-client-soa /* EMPTY STATE */
+    .empty-state {text-align:center;padding:52px 20px}#view-report-client-soa .empty-state svg {width:40px;height:40px;color:var(--text-muted);margin-bottom:14px;opacity:.5}#view-report-client-soa .empty-state h3 {font-size:15px;font-weight:600;margin-bottom:6px}#view-report-client-soa .empty-state p {font-size:13px;color:var(--text-muted);max-width:340px;margin:0 auto}#view-report-client-soa /* SPINNER / TOAST */
+    .spinner {width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}#view-report-client-soa #toast-container {position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}#view-report-client-soa .toast {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-width:280px;max-width:380px;box-shadow:var(--shadow-lg);display:flex;align-items:flex-start;gap:10px;pointer-events:all;animation:toastIn .2s ease;border-left:4px solid var(--primary)}#view-report-client-soa .toast.error {border-left-color:var(--red)}#view-report-client-soa .toast.warning {border-left-color:var(--amber)}#view-report-client-soa .toast-icon svg {width:16px;height:16px}#view-report-client-soa .toast-body {flex:1}#view-report-client-soa .toast-title {font-size:13.5px;font-weight:600}#view-report-client-soa .toast-msg {font-size:12.5px;color:var(--text-secondary);margin-top:2px}#view-report-client-soa .toast-close {background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0}#view-report-client-soa .toast-close svg {width:14px;height:14px}
+    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}#view-report-client-soa /* TREATMENT TYPE RECONFIGURE */
+    .inline-type-select {border:1px solid transparent;background:var(--green-bg);color:var(--green-text);font-size:11.5px;font-weight:600;cursor:pointer;border-radius:14px;padding:3px 22px 3px 8px;outline:none;font-family:var(--font);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2316a34a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;background-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .15s,box-shadow .15s}#view-report-client-soa .inline-type-select:hover {border-color:var(--primary)}#view-report-client-soa .inline-type-select:focus {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-report-client-soa /* RESCHEDULE HISTORY */
+    .reschedule-history {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:12.5px}#view-report-client-soa .reschedule-history-title {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px}#view-report-client-soa .reschedule-history-item {display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}#view-report-client-soa .reschedule-history-item:last-child {border-bottom:none}#view-report-client-soa .reschedule-history-item .rh-dot {width:7px;height:7px;background:var(--amber);border-radius:50%;flex-shrink:0;margin-top:5px}#view-report-client-soa .reschedule-history-item .rh-text {font-size:12px;color:var(--text-secondary)}#view-report-client-soa /* DRIVE LINK SECTION */
+    .drive-link-section {background:var(--blue-bg);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;margin-top:4px}#view-report-client-soa .drive-link-section label {font-size:12px;font-weight:700;color:var(--blue-text);display:block;margin-bottom:6px}#view-report-client-soa /* PAGE LOAD SCREEN */
+    #loading-screen {position:fixed;inset:0;background:#0f1b12;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .25s}#view-report-client-soa #loading-screen.fade-out {opacity:0;pointer-events:none}#view-report-client-soa .ls-logo {display:flex;align-items:center;justify-content:center;background:white;border-radius:12px;padding:10px 20px}#view-report-client-soa .ls-logo svg {width:34px;height:34px;color:white}#view-report-client-soa .ls-spinner {width:28px;height:28px;border:3px solid rgba(255,255,255,.15);border-top-color:hsl(142,76%,60%);border-radius:50%;animation:spin .7s linear infinite}#view-report-client-soa .ls-text {font-size:13px;color:rgba(255,255,255,.45);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.02em}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){#view-report-client-soa .summary-grid {grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:1024px){#view-report-client-soa .sidebar {transform:translateX(-100%)}#view-report-client-soa .sidebar.open {transform:translateX(0)}#view-report-client-soa .sidebar-overlay.open {display:block}#view-report-client-soa .main-wrapper {margin-left:0}#view-report-client-soa .hamburger {display:flex}#view-report-client-soa .form-row {grid-template-columns:1fr}
+    }
+    @media(max-width:768px){#view-report-client-soa .page-content {padding:16px}#view-report-client-soa .summary-grid {grid-template-columns:1fr 1fr}#view-report-client-soa .filters-bar {flex-direction:column;align-items:stretch}#view-report-client-soa .date-filter-group {flex-wrap:wrap;height:auto;width:100%}#view-report-client-soa .date-filter-input {min-width:0;flex:1}#view-report-client-soa .date-filter-field {flex:1}#view-report-client-soa .date-quick-filters {flex-wrap:wrap;width:100%;height:auto}#view-report-client-soa .date-quick-btn {flex:1;min-width:0}}
+    @media(max-width:480px){#view-report-client-soa .summary-grid {grid-template-columns:1fr}}#view-report-client-soa .sort-icon { font-size:10px; margin-left:3px; color:var(--primary); }#view-report-client-soa /* Inline status select */
+    .inline-status-select {
+      border:none; background:transparent; font-size:12px; font-weight:600;
+      cursor:pointer; border-radius:20px; padding:3px 8px; outline:none;
+      font-family:var(--font); appearance:none; -webkit-appearance:none;
+      text-align:center;
+    }#view-report-client-soa .inline-status-select.status-scheduled { background:var(--blue-bg);  color:var(--blue-text); }#view-report-client-soa .inline-status-select.status-overdue { background:var(--red-bg);   color:var(--red-text);  }#view-report-client-soa .inline-status-select.status-completed { background:var(--green-bg); color:var(--green-text);}#view-report-client-soa .inline-status-select.status-rescheduled { background:var(--amber-bg); color:var(--amber-text);}#view-report-client-soa .inline-status-select.status-cancelled { background:var(--gray-bg);  color:var(--gray-text); }#view-report-client-soa /* Column header dropdown menu (Google Sheets style) */
+    .col-header { position:relative; cursor:pointer; user-select:none; white-space:nowrap; }#view-report-client-soa .col-header:hover { background:var(--bg-tertiary); }#view-report-client-soa .col-header-inner { display:flex; align-items:center; gap:4px; }#view-report-client-soa .col-menu-btn { background:none; border:none; color:var(--text-muted); font-size:10px; padding:2px 3px; cursor:pointer; border-radius:2px; line-height:1; opacity:0; transition:opacity .15s; }#view-report-client-soa .col-header:hover .col-menu-btn { opacity:1; }#view-report-client-soa .col-menu-btn:hover { background:var(--border); color:var(--text); }#view-report-client-soa .col-dropdown { position:absolute; top:100%; left:0; z-index:100; background:white; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); min-width:200px; padding:6px 0; font-size:13px; font-weight:400; text-transform:none; letter-spacing:0; }#view-report-client-soa .col-dropdown-item { display:flex; align-items:center; gap:8px; padding:7px 14px; cursor:pointer; color:var(--text); transition:background .1s; white-space:nowrap; }#view-report-client-soa .col-dropdown-item:hover { background:var(--bg-secondary); }#view-report-client-soa .col-dropdown-item svg { width:14px; height:14px; color:var(--text-muted); flex-shrink:0; }#view-report-client-soa .col-dropdown-sep { height:1px; background:var(--border); margin:4px 0; }#view-report-client-soa .col-dropdown-search { padding:6px 10px; }#view-report-client-soa .col-dropdown-search input { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:12.5px; outline:none; }#view-report-client-soa .col-dropdown-search input:focus { border-color:var(--primary); box-shadow:0 0 0 2px rgba(34,197,94,.12); }#view-report-client-soa .col-dropdown-values { max-height:180px; overflow-y:auto; }#view-report-client-soa .col-dropdown-values label { display:flex; align-items:center; gap:8px; padding:5px 14px; cursor:pointer; font-size:12.5px; color:var(--text); }#view-report-client-soa .col-dropdown-values label:hover { background:var(--bg-secondary); }#view-report-client-soa .col-dropdown-values input[type="checkbox"] { accent-color:var(--primary); }#view-report-client-soa .col-dropdown-actions { display:flex; gap:6px; padding:6px 10px; border-top:1px solid var(--border); margin-top:4px; }#view-report-client-soa .col-dropdown-actions button { flex:1; padding:5px 8px; font-size:12px; border-radius:var(--radius-sm); cursor:pointer; }#view-report-client-soa /* Fixed table within screen */
+    .table-wrapper::-webkit-scrollbar { width:8px; height:8px; }#view-report-client-soa .table-wrapper::-webkit-scrollbar-thumb { background:var(--border-hover); border-radius:4px; }#view-report-client-soa .table-wrapper::-webkit-scrollbar-track { background:var(--bg-secondary); }#view-report-client-soa .table-wrapper::-webkit-scrollbar-corner { background:var(--bg-secondary); }#view-report-client-soa thead th { position:sticky; top:0; z-index:10; background:var(--bg-secondary); }
+
+    #view-report-client-soa #app-shell { display: flex; }
+#view-report-client-soa .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
+#view-report-client-soa .manage-list-link:hover{color:hsl(142,76%,28%)}
+
+
+/* ── Renewals-specific additions ── */
+#view-report-client-soa .sum-card{position:relative;overflow:hidden}
+#view-report-client-soa .sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
+#view-report-client-soa .sum-card.total-exp::before{background:var(--blue)}
+#view-report-client-soa .sum-card.renewed-c::before{background:var(--green)}
+#view-report-client-soa .sum-card.pending-c::before{background:var(--amber)}
+#view-report-client-soa .sum-card.declined-c::before{background:var(--red)}
+#view-report-client-soa .days-filter{display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:4px;width:fit-content}
+#view-report-client-soa .days-btn{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;border:none;cursor:pointer;color:var(--text-secondary);background:none;transition:all .15s;font-family:var(--font)}
+#view-report-client-soa .days-btn.active{background:var(--primary);color:white;font-weight:600}
+#view-report-client-soa .days-btn:hover:not(.active){background:var(--bg-secondary);color:var(--text)}
+#view-report-client-soa .days-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+#view-report-client-soa .days-pill.critical{background:var(--red-bg);color:var(--red-text)}
+#view-report-client-soa .days-pill.warning{background:var(--amber-bg);color:var(--amber-text)}
+#view-report-client-soa .days-pill.ok{background:var(--green-bg);color:var(--green-text)}
+#view-report-client-soa .days-pill.overdue{background:var(--red-bg);color:var(--red-text)}
+#view-report-client-soa .form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none;resize:vertical;min-height:80px;font-family:var(--font)}
+#view-report-client-soa .form-textarea::placeholder{color:var(--text-muted)}
+#view-report-client-soa .form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}
+#view-report-client-soa .modal-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
+
+
+/* ── Overdue-specific additions ── */
+#view-report-client-soa tbody tr.sev-critical{background:hsl(0,84%,99%)}
+#view-report-client-soa tbody tr.sev-critical:hover{background:hsl(0,84%,97%)}
+#view-report-client-soa tbody tr.sev-warning{background:hsl(38,92%,99%)}
+#view-report-client-soa tbody tr.sev-warning:hover{background:hsl(38,92%,97%)}
+#view-report-client-soa tbody tr.sev-attention{background:hsl(50,96%,99%)}
+#view-report-client-soa tbody tr.sev-attention:hover{background:hsl(50,96%,97%)}
+#view-report-client-soa .days-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
+#view-report-client-soa .days-pill.critical{background:var(--red-bg);color:var(--red-text)}
+#view-report-client-soa .days-pill.warning{background:var(--amber-bg);color:var(--amber-text)}
+#view-report-client-soa .days-pill.attention{background:var(--yellow-bg,hsl(50,96%,96%));color:var(--yellow-text,hsl(50,70%,32%))}
+#view-report-client-soa .section-header{display:flex;align-items:center;justify-content:space-between;margin:24px 0 14px;flex-wrap:wrap;gap:10px}
+#view-report-client-soa .section-header:first-of-type{margin-top:0}
+#view-report-client-soa .section-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:var(--text)}
+#view-report-client-soa .section-title-icon{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-report-client-soa .section-title-icon svg{width:16px;height:16px}
+#view-report-client-soa .section-count{font-size:12.5px;font-weight:500;color:var(--text-muted)}
+#view-report-client-soa .filter-select{padding:7px 30px 7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}
+#view-report-client-soa .btn-amber{background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}
+#view-report-client-soa .btn-amber:hover{background:#fef3c7}
+#view-report-client-soa .ctx-banner{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px}
+#view-report-client-soa .ctx-banner label{font-weight:600;color:var(--text-muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
+#view-report-client-soa .empty-section{background:white;border:1px solid var(--border);border-radius:var(--radius);text-align:center;padding:48px 24px;margin-bottom:28px}
+#view-report-client-soa .empty-section svg{width:40px;height:40px;color:var(--green);margin-bottom:12px}
+#view-report-client-soa .empty-section h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+#view-report-client-soa .empty-section p{font-size:13px;color:var(--text-muted)}
+
+
+/* ── Report-specific additions ── */
+#view-report-client-soa .page-content{padding:24px;display:block;overflow-y:auto}
+#view-report-client-soa .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
+#view-report-client-soa .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary)}
+#view-report-client-soa .date-input{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;outline:none;transition:border-color .15s;font-family:var(--font)}
+#view-report-client-soa .date-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}
+#view-report-client-soa .filter-select{padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}
+#view-report-client-soa .controls-spacer{flex:1}
+#view-report-client-soa .btn-secondary:disabled{opacity:.45;cursor:not-allowed}
+#view-report-client-soa .date-nav-group{display:flex;align-items:center;gap:6px}
+#view-report-client-soa .btn-date-arrow{padding:8px 10px}
+#view-report-client-soa .all-dates-toggle{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;user-select:none;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:white}
+#view-report-client-soa .all-dates-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--primary)}
+#view-report-client-soa .all-dates-toggle.active{background:var(--primary-light);border-color:var(--primary-border);color:var(--primary-hover)}
+#view-report-client-soa .orientation-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+#view-report-client-soa .orient-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;background:white;border:none;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s}
+#view-report-client-soa .orient-btn+.orient-btn{border-left:1px solid var(--border)}
+#view-report-client-soa .orient-btn svg{width:14px;height:14px}
+#view-report-client-soa .orient-btn:hover{background:var(--bg-secondary)}
+#view-report-client-soa .orient-btn.active{background:var(--primary);color:white}
+
+#view-report-client-soa .summary-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+#view-report-client-soa .sum-pill{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;display:flex;align-items:center;gap:10px;flex:1;min-width:100px}
+#view-report-client-soa .sum-pill-val{font-size:22px;font-weight:800;line-height:1}
+#view-report-client-soa .sum-pill-lbl{font-size:11.5px;color:var(--text-muted);margin-top:2px}
+
+#view-report-client-soa #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:32px 36px}
+
+#view-report-client-soa .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:20px;gap:20px}
+#view-report-client-soa .letterhead-logo{display:flex;align-items:center;gap:14px}
+#view-report-client-soa .letterhead-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-report-client-soa .letterhead-logo-icon svg{width:28px;height:28px;color:white}
+#view-report-client-soa .letterhead-company{line-height:1.3}
+#view-report-client-soa .letterhead-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
+#view-report-client-soa .letterhead-company p{font-size:12px;color:#555;margin-top:2px}
+#view-report-client-soa .letterhead-right{text-align:right}
+#view-report-client-soa .letterhead-doc-title{font-size:17px;font-weight:800;color:#111;text-transform:uppercase;letter-spacing:.04em}
+#view-report-client-soa .letterhead-doc-date{font-size:13px;color:#444;margin-top:4px}
+#view-report-client-soa .letterhead-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
+
+#view-report-client-soa .report-summary{display:flex;gap:20px;margin-bottom:22px;padding:12px 16px;background:#f8f9fa;border:1px solid #e5e7eb;border-radius:6px;flex-wrap:wrap}
+#view-report-client-soa .report-summary-item{text-align:center;flex:1;min-width:80px}
+#view-report-client-soa .report-summary-val{font-size:20px;font-weight:900;color:#111}
+#view-report-client-soa .report-summary-lbl{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+
+#view-report-client-soa .team-section{margin-bottom:28px}
+#view-report-client-soa .team-section-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#111;color:white;border-radius:6px 6px 0 0;margin-bottom:0}
+#view-report-client-soa .team-section-name{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+#view-report-client-soa .team-section-count{font-size:12px;opacity:.75;margin-left:auto}
+
+#view-report-client-soa .report-table{width:100%;border-collapse:collapse}
+#view-report-client-soa .report-table th{padding:9px 12px;background:#f1f3f5;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
+#view-report-client-soa .report-table td{padding:9px 12px;border:1px solid #e5e7eb;font-size:12.5px;color:#111;vertical-align:middle}
+#view-report-client-soa .report-table tbody tr:nth-child(even){background:#fafafa}
+#view-report-client-soa .report-table td.num{color:#6b7280;font-size:12px;text-align:center;width:36px}
+#view-report-client-soa .report-table td.treat-no{font-family:monospace;font-size:11.5px;color:#6b7280}
+#view-report-client-soa .status-dot{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:12px}
+#view-report-client-soa .status-dot.completed{background:#dcfce7;color:#15803d}
+#view-report-client-soa .status-dot.scheduled{background:#dbeafe;color:#1d4ed8}
+#view-report-client-soa .status-dot.overdue{background:#fee2e2;color:#dc2626}
+#view-report-client-soa .status-dot.rescheduled{background:#fef3c7;color:#b45309}
+#view-report-client-soa .status-dot.cancelled{background:#f3f4f6;color:#6b7280}
+#view-report-client-soa .status-dot::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+
+#view-report-client-soa .job-type-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+#view-report-client-soa .job-type-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+#view-report-client-soa .job-type-badge.treatment{background:#dbeafe;color:#1d4ed8}
+#view-report-client-soa .job-type-badge.inspection{background:#ede9fe;color:#5b21b6}
+
+#view-report-client-soa .no-treatments{text-align:center;padding:48px 20px;color:#9ca3af}
+#view-report-client-soa .no-treatments svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
+#view-report-client-soa .no-treatments h3{font-size:15px;font-weight:600;color:#374151;margin-bottom:6px}
+#view-report-client-soa .no-treatments p{font-size:13px}
+
+#view-report-client-soa .report-footer{margin-top:28px;padding-top:16px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#9ca3af}
+
+#view-report-client-soa .inspection-section{margin-top:28px;margin-bottom:28px}
+#view-report-client-soa .inspection-section-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:hsl(262,83%,38%);color:white;border-radius:6px 6px 0 0}
+#view-report-client-soa .inspection-section-name{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+#view-report-client-soa .inspection-section-count{font-size:12px;opacity:.75;margin-left:auto}
+#view-report-client-soa .inspection-table{width:100%;border-collapse:collapse}
+#view-report-client-soa .inspection-table th{padding:9px 12px;background:#f3f0ff;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#4c1d95;text-align:left}
+#view-report-client-soa .inspection-table td{padding:9px 12px;border:1px solid #e5e7eb;font-size:12.5px;color:#111;vertical-align:middle}
+#view-report-client-soa .inspection-table tbody tr:nth-child(even){background:#faf8ff}
+#view-report-client-soa .insp-status{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:12px}
+#view-report-client-soa .insp-status::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+#view-report-client-soa .insp-status.Scheduled{background:#ede9fe;color:#5b21b6}
+#view-report-client-soa .insp-status.Completed{background:#dcfce7;color:#15803d}
+#view-report-client-soa .insp-status.Converted{background:#dbeafe;color:#1d4ed8}
+#view-report-client-soa .insp-status.Cancelled{background:#f3f4f6;color:#6b7280}
+#view-report-client-soa .insp-status.No-Show{background:#fef3c7;color:#b45309}
+#view-report-client-soa .insp-status.Lost{background:#fee2e2;color:#dc2626}
+
+#view-report-client-soa .sig-block{display:flex;gap:40px;margin-top:28px;padding-top:20px;border-top:1px dashed #d1d5db}
+#view-report-client-soa .sig-line{flex:1;text-align:center}
+#view-report-client-soa .sig-line-bar{border-top:1px solid #111;margin-bottom:6px}
+#view-report-client-soa .sig-line-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}
+
+@media(max-width:768px){#view-report-client-soa .controls-bar{flex-direction:column;align-items:stretch}}
+
+/* ══════════════════════════════════════════
+   PRINT CSS — every selector scoped under
+   #view-report-client-soa. This module stays permanently mounted
+   in the DOM like every other one (just hidden when inactive), so
+   unscoped print rules here would leak into printing from ANY other
+   page the moment this module has been visited once in the session.
+   The base [data-view]:not(.active){display:none} rule already keeps
+   this module's whole subtree invisible when it isn't the active view
+   — display:none on that ancestor wins regardless of any !important
+   on these descendant rules — so this can only ever affect what gets
+   printed when Daily Schedule Report is itself the active view.
+══════════════════════════════════════════ */
+@media print{
+  @page{margin:12mm 10mm;size:A4}
+
+  #view-report-client-soa .sidebar,
+  #view-report-client-soa .sidebar-overlay,
+  #view-report-client-soa .topbar,
+  #view-report-client-soa .hamburger,
+  #view-report-client-soa .controls-bar,
+  #view-report-client-soa .summary-row,
+  #view-report-client-soa #toast-container,
+  #view-report-client-soa .btn-print,
+  #view-report-client-soa .btn-secondary,
+  #view-report-client-soa .btn-ghost,
+  #view-report-client-soa .page-content > *:not(#report-area){display:none!important}
+
+  #view-report-client-soa,
+  #view-report-client-soa #app-shell,
+  #view-report-client-soa .main-wrapper,
+  #view-report-client-soa .page-content{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    margin:0!important;padding:0!important;flex:none!important;background:white!important;
+  }
+  #view-report-client-soa .page-content{padding:0!important}
+  #view-report-client-soa #report-area{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
+  }
+  #view-report-client-soa table{width:100%!important;table-layout:auto!important}
+  #view-report-client-soa .team-section{page-break-inside:avoid;break-inside:avoid}
+  #view-report-client-soa .inspection-section{page-break-inside:avoid;break-inside:avoid}
+  #view-report-client-soa .sig-block{page-break-inside:avoid}
+  #view-report-client-soa .report-table th{background:#e5e7eb!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .report-table tbody tr:nth-child(even){background:#fafafa!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .team-section-header{background:#111!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .inspection-section-header{background:hsl(262,83%,38%)!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .inspection-table th{background:#f3f0ff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .inspection-table tbody tr:nth-child(even){background:#faf8ff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .status-dot,
+  #view-report-client-soa .insp-status,
+  #view-report-client-soa .report-summary{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+
+/* ── Monthly Collection-specific additions ── */
+#view-report-client-soa .page-content{padding:24px;display:block;overflow-y:auto}
+#view-report-client-soa .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
+#view-report-client-soa .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
+#view-report-client-soa .month-nav{display:flex;align-items:center;gap:8px}
+#view-report-client-soa .nav-btn{width:34px;height:34px;background:white;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s}
+#view-report-client-soa .nav-btn:hover{background:var(--bg-secondary);color:var(--text)}
+#view-report-client-soa .nav-btn svg{width:16px;height:16px}
+#view-report-client-soa .month-label{font-size:15px;font-weight:800;color:var(--text);min-width:160px;text-align:center}
+#view-report-client-soa .controls-spacer{flex:1}
+#view-report-client-soa .due-date-fallback-toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:pointer;user-select:none;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:white}
+#view-report-client-soa .due-date-fallback-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--primary)}
+#view-report-client-soa .due-date-fallback-toggle.active{background:var(--amber-bg);border-color:#fcd34d;color:var(--amber-text)}
+
+#view-report-client-soa .summary-pills{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+#view-report-client-soa .sum-pill{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;flex:1;min-width:120px}
+#view-report-client-soa .sum-pill-val{font-size:21px;font-weight:900;line-height:1;margin-bottom:3px}
+#view-report-client-soa .sum-pill-lbl{font-size:11.5px;color:var(--text-muted)}
+
+#view-report-client-soa #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px}
+
+#view-report-client-soa .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:14px;margin-bottom:20px;gap:20px}
+#view-report-client-soa .lh-logo{display:flex;align-items:center;gap:14px}
+#view-report-client-soa .lh-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-report-client-soa .lh-logo-icon svg{width:28px;height:28px;color:white}
+#view-report-client-soa .lh-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
+#view-report-client-soa .lh-company p{font-size:12px;color:#555;margin-top:2px}
+#view-report-client-soa .lh-right{text-align:right}
+#view-report-client-soa .lh-doc-title{font-size:16px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.04em}
+#view-report-client-soa .lh-doc-sub{font-size:13px;color:#333;margin-top:5px;font-weight:700}
+#view-report-client-soa .lh-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
+
+#view-report-client-soa .grand-banner{display:flex;align-items:center;justify-content:space-between;background:#111;color:white;border-radius:8px;padding:14px 20px;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+#view-report-client-soa .grand-banner-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.8}
+#view-report-client-soa .grand-banner-amount{font-size:26px;font-weight:900;letter-spacing:-.5px}
+#view-report-client-soa .grand-banner-meta{font-size:12px;opacity:.7}
+#view-report-client-soa .grand-stats{display:flex;gap:20px;flex-wrap:wrap}
+#view-report-client-soa .grand-stat{text-align:center}
+#view-report-client-soa .grand-stat-val{font-size:18px;font-weight:900}
+#view-report-client-soa .grand-stat-lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
+
+#view-report-client-soa .collector-section{margin-bottom:24px;break-inside:avoid;page-break-inside:avoid}
+#view-report-client-soa .collector-header{display:flex;align-items:center;justify-content:space-between;background:#1f2937;color:white;padding:10px 16px;border-radius:6px 6px 0 0;gap:12px}
+#view-report-client-soa .collector-name{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px}
+#view-report-client-soa .collector-name svg{width:15px;height:15px;opacity:.8}
+#view-report-client-soa .collector-count{font-size:12px;opacity:.75}
+#view-report-client-soa .collector-subtotal{font-size:14px;font-weight:900;color:#4ade80}
+
+#view-report-client-soa .coll-table{width:100%;border-collapse:collapse;font-size:12px}
+#view-report-client-soa .coll-table th{padding:8px 10px;background:#f1f3f5;border:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
+#view-report-client-soa .coll-table th.right{text-align:right}
+#view-report-client-soa .coll-table td{padding:8px 10px;border:1px solid #e5e7eb;vertical-align:middle;color:#111}
+#view-report-client-soa .coll-table td.num{text-align:center;color:#9ca3af;font-size:11px;width:28px}
+#view-report-client-soa .coll-table td.mono{font-family:monospace;font-size:11px;color:#6b7280}
+#view-report-client-soa .coll-table td.nowrap{white-space:nowrap}
+#view-report-client-soa .coll-table td.right{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+#view-report-client-soa .coll-table td.remarks-cell{font-size:11.5px;color:#6b7280;max-width:140px}
+#view-report-client-soa .coll-table tbody tr:nth-child(even){background:#fafafa}
+#view-report-client-soa .coll-table tfoot td{padding:9px 10px;background:#e5e7eb;font-weight:800;font-size:12.5px;border:1px solid #d1d5db}
+#view-report-client-soa .coll-table tfoot td.right{text-align:right;font-variant-numeric:tabular-nums;color:#15803d}
+
+#view-report-client-soa .mode-tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700;text-transform:capitalize;background:#f3f4f6;color:#374151}
+#view-report-client-soa .due-date-tag{display:inline-block;padding:0 5px;border-radius:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--amber-bg);color:var(--amber-text);margin-left:5px;vertical-align:middle}
+
+#view-report-client-soa .no-collections{text-align:center;padding:52px 20px;color:#9ca3af}
+#view-report-client-soa .no-collections svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
+#view-report-client-soa .no-collections h3{font-size:15px;font-weight:600;color:#374151;margin-bottom:6px}
+
+#view-report-client-soa .report-footer{margin-top:20px;padding-top:12px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:#9ca3af;flex-wrap:wrap;gap:6px}
+#view-report-client-soa .confidential-note{font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em}
+
+#view-report-client-soa .report-placeholder{text-align:center;padding:56px 20px;color:var(--text-muted)}
+#view-report-client-soa .report-placeholder svg{width:44px;height:44px;margin-bottom:14px;opacity:.4}
+#view-report-client-soa .report-placeholder h3{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+#view-report-client-soa .report-placeholder p{font-size:13px;max-width:360px;margin:0 auto}
+
+@media(max-width:768px){#view-report-client-soa .controls-bar{flex-direction:column;align-items:stretch}#view-report-client-soa .grand-banner{flex-direction:column}}
+
+/* ══════════════════════════════════════════
+   PRINT CSS — every selector scoped under
+   #view-report-client-soa, same reasoning as Daily Schedule
+   Report: this module stays permanently mounted like every other one,
+   so unscoped print rules would leak into printing from any other page.
+══════════════════════════════════════════ */
+@media print{
+  @page{margin:12mm 10mm;size:A4}
+
+  #view-report-client-soa .sidebar,
+  #view-report-client-soa .sidebar-overlay,
+  #view-report-client-soa .topbar,
+  #view-report-client-soa .hamburger,
+  #view-report-client-soa .controls-bar,
+  #view-report-client-soa .summary-pills,
+  #view-report-client-soa #toast-container,
+  #view-report-client-soa .btn-print,
+  #view-report-client-soa .btn-secondary,
+  #view-report-client-soa .page-content > *:not(#report-area){display:none!important}
+
+  #view-report-client-soa,
+  #view-report-client-soa #app-shell,
+  #view-report-client-soa .main-wrapper,
+  #view-report-client-soa .page-content{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    margin:0!important;padding:0!important;flex:none!important;background:white!important;
+  }
+  #view-report-client-soa .page-content{padding:0!important}
+  #view-report-client-soa #report-area{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
+  }
+  #view-report-client-soa table{width:100%!important;table-layout:auto!important}
+  #view-report-client-soa .collector-section{page-break-inside:avoid;break-inside:avoid}
+  #view-report-client-soa .grand-banner,
+  #view-report-client-soa .collector-header,
+  #view-report-client-soa .coll-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .coll-table tbody tr:nth-child(even),
+  #view-report-client-soa .coll-table tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+
+/* ── Service Report-specific additions ── */
+#view-report-client-soa .page-content{padding:24px;display:block;overflow-y:auto}
+#view-report-client-soa .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
+#view-report-client-soa .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
+#view-report-client-soa .combobox-wrap{position:relative;flex:1;min-width:280px}
+#view-report-client-soa .combobox-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;outline:none;transition:border-color .15s;font-family:var(--font)}
+#view-report-client-soa .combobox-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}
+#view-report-client-soa .combobox-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:100;max-height:280px;overflow-y:auto;display:none}
+#view-report-client-soa .combobox-dropdown.open{display:block}
+#view-report-client-soa .combobox-item{padding:9px 14px;cursor:pointer;font-size:13.5px;transition:background .1s}
+#view-report-client-soa .combobox-item:hover,#view-report-client-soa .combobox-item.active{background:var(--primary-light)}
+#view-report-client-soa .combobox-item-main{font-weight:600;color:var(--text)}
+#view-report-client-soa .combobox-item-sub{font-size:12px;color:var(--text-muted);margin-top:1px}
+#view-report-client-soa .combobox-empty{padding:16px;text-align:center;color:var(--text-muted);font-size:13px}
+#view-report-client-soa .controls-spacer{flex:1}
+
+#view-report-client-soa #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px}
+
+#view-report-client-soa .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:24px;gap:20px}
+#view-report-client-soa .letterhead-logo{display:flex;align-items:center;gap:14px}
+#view-report-client-soa .letterhead-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-report-client-soa .letterhead-logo-icon svg{width:28px;height:28px;color:white}
+#view-report-client-soa .letterhead-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
+#view-report-client-soa .letterhead-company p{font-size:12px;color:#555;margin-top:2px}
+#view-report-client-soa .letterhead-right{text-align:right}
+#view-report-client-soa .letterhead-doc-title{font-size:17px;font-weight:800;color:#111;text-transform:uppercase;letter-spacing:.04em}
+#view-report-client-soa .letterhead-doc-sub{font-size:13px;color:#444;margin-top:4px;font-weight:600}
+#view-report-client-soa .letterhead-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
+
+#view-report-client-soa .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+#view-report-client-soa .info-box{background:#f8f9fa;border:1px solid #e5e7eb;border-radius:6px;padding:14px 18px}
+#view-report-client-soa .info-box-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+#view-report-client-soa .info-box-title svg{width:13px;height:13px}
+#view-report-client-soa .info-row{display:flex;gap:8px;margin-bottom:5px;font-size:12.5px}
+#view-report-client-soa .info-row:last-child{margin-bottom:0}
+#view-report-client-soa .info-row label{color:#6b7280;min-width:110px;flex-shrink:0;font-weight:500}
+#view-report-client-soa .info-row span{color:#111;font-weight:600}
+
+#view-report-client-soa .report-section{margin-bottom:24px;page-break-inside:avoid}
+#view-report-client-soa .report-section-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#111;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+#view-report-client-soa .report-section-title svg{width:15px;height:15px}
+
+#view-report-client-soa .report-table{width:100%;border-collapse:collapse;margin-bottom:0}
+#view-report-client-soa .report-table th{padding:8px 10px;background:#f1f3f5;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
+#view-report-client-soa .report-table td{padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;color:#111;vertical-align:middle}
+#view-report-client-soa .report-table tbody tr:nth-child(even){background:#fafafa}
+#view-report-client-soa .report-table td.num{color:#6b7280;font-size:11.5px;text-align:center;width:32px}
+#view-report-client-soa .report-table td.mono{font-family:monospace;font-size:11.5px;color:#6b7280}
+#view-report-client-soa .report-table td.nowrap{white-space:nowrap}
+#view-report-client-soa .report-table td.notes-cell{font-size:11.5px;color:#555;max-width:180px;word-break:break-word}
+#view-report-client-soa .status-dot{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px}
+#view-report-client-soa .status-dot::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
+#view-report-client-soa .status-dot.completed{background:#dcfce7;color:#15803d}
+#view-report-client-soa .status-dot.scheduled{background:#dbeafe;color:#1d4ed8}
+#view-report-client-soa .status-dot.overdue{background:#fee2e2;color:#dc2626}
+#view-report-client-soa .status-dot.rescheduled{background:#fef3c7;color:#b45309}
+#view-report-client-soa .status-dot.cancelled{background:#f3f4f6;color:#6b7280}
+
+#view-report-client-soa .payment-summary{display:flex;gap:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden;margin-top:12px;flex-wrap:wrap}
+#view-report-client-soa .payment-sum-item{flex:1;min-width:100px;text-align:center;padding:12px 8px;border-right:1px solid #d1d5db}
+#view-report-client-soa .payment-sum-item:last-child{border-right:none}
+#view-report-client-soa .payment-sum-val{font-size:17px;font-weight:900;color:#111}
+#view-report-client-soa .payment-sum-val.green{color:#15803d}
+#view-report-client-soa .payment-sum-val.red{color:#dc2626}
+#view-report-client-soa .payment-sum-lbl{font-size:10.5px;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+
+#view-report-client-soa .sig-block{display:flex;gap:40px;margin-top:32px;padding-top:20px;border-top:1px dashed #d1d5db;page-break-inside:avoid;flex-wrap:wrap}
+#view-report-client-soa .sig-line{flex:1;min-width:140px;text-align:center}
+#view-report-client-soa .sig-line-bar{border-top:1px solid #111;margin-bottom:6px;margin-top:56px}
+#view-report-client-soa .sig-line-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}
+#view-report-client-soa .sig-line-sublabel{font-size:10.5px;color:#9ca3af;margin-top:2px}
+
+#view-report-client-soa .report-footer{margin-top:20px;padding-top:12px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:#9ca3af;flex-wrap:wrap;gap:6px}
+
+#view-report-client-soa .report-placeholder{text-align:center;padding:52px 20px;color:var(--text-muted)}
+#view-report-client-soa .report-placeholder svg{width:44px;height:44px;margin-bottom:14px;opacity:.4}
+#view-report-client-soa .report-placeholder h3{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+#view-report-client-soa .report-placeholder p{font-size:13px;max-width:340px;margin:0 auto}
+
+@media(max-width:768px){#view-report-client-soa .page-content{padding:16px}#view-report-client-soa .info-grid{grid-template-columns:1fr}#view-report-client-soa .controls-bar{flex-direction:column;align-items:stretch}}
+
+/* ══════════════════════════════════════════
+   PRINT CSS — scoped under #view-report-client-soa, same reasoning as
+   the other report modules.
+══════════════════════════════════════════ */
+@media print{
+  @page{margin:12mm 10mm;size:A4}
+
+  #view-report-client-soa .sidebar,
+  #view-report-client-soa .sidebar-overlay,
+  #view-report-client-soa .topbar,
+  #view-report-client-soa .hamburger,
+  #view-report-client-soa .controls-bar,
+  #view-report-client-soa #toast-container,
+  #view-report-client-soa .btn-print,
+  #view-report-client-soa .btn-secondary,
+  #view-report-client-soa .page-content > *:not(#report-area){display:none!important}
+
+  #view-report-client-soa,
+  #view-report-client-soa #app-shell,
+  #view-report-client-soa .main-wrapper,
+  #view-report-client-soa .page-content{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    margin:0!important;padding:0!important;flex:none!important;background:white!important;
+  }
+  #view-report-client-soa .page-content{padding:0!important}
+  #view-report-client-soa #report-area{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
+  }
+  #view-report-client-soa table{width:100%!important;table-layout:auto!important}
+  #view-report-client-soa .report-section{page-break-inside:avoid}
+  #view-report-client-soa .sig-block{page-break-inside:avoid}
+  #view-report-client-soa .report-table th,
+  #view-report-client-soa .report-table tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .payment-summary,
+  #view-report-client-soa .info-box,
+  #view-report-client-soa .status-dot{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+
+/* ── Client SOA-specific additions ── */
+#view-report-client-soa .page-content{padding:24px;display:block;overflow-y:auto}
+#view-report-client-soa .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
+#view-report-client-soa .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
+#view-report-client-soa .combobox-wrap{position:relative;flex:1;min-width:260px}
+#view-report-client-soa .combobox-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;outline:none;transition:border-color .15s;font-family:var(--font)}
+#view-report-client-soa .combobox-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}
+#view-report-client-soa .combobox-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:100;max-height:260px;overflow-y:auto;display:none}
+#view-report-client-soa .combobox-dropdown.open{display:block}
+#view-report-client-soa .combobox-item{padding:9px 14px;cursor:pointer;font-size:13.5px;transition:background .1s}
+#view-report-client-soa .combobox-item:hover{background:var(--primary-light)}
+#view-report-client-soa .combobox-item-main{font-weight:600;color:var(--text)}
+#view-report-client-soa .combobox-item-sub{font-size:12px;color:var(--text-muted);margin-top:1px}
+#view-report-client-soa .combobox-empty{padding:16px;text-align:center;color:var(--text-muted);font-size:13px}
+#view-report-client-soa .date-input{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;outline:none;transition:border-color .15s;font-family:var(--font)}
+#view-report-client-soa .date-input:focus{border-color:var(--primary)}
+#view-report-client-soa .controls-spacer{flex:1}
+
+#view-report-client-soa #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:40px 44px}
+
+#view-report-client-soa .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:24px;gap:20px}
+#view-report-client-soa .lh-logo{display:flex;align-items:center;gap:14px}
+#view-report-client-soa .lh-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-report-client-soa .lh-logo-icon svg{width:28px;height:28px;color:white}
+#view-report-client-soa .lh-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
+#view-report-client-soa .lh-company p{font-size:12px;color:#555;margin-top:2px}
+#view-report-client-soa .lh-right{text-align:right}
+#view-report-client-soa .lh-doc-title{font-size:18px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.04em}
+#view-report-client-soa .lh-doc-sub{font-size:13px;color:#444;margin-top:5px;font-weight:600}
+#view-report-client-soa .lh-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
+
+#view-report-client-soa .client-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:20px;padding:14px 18px;background:#f8f9fa;border:1px solid #e5e7eb;border-radius:6px;flex-wrap:wrap}
+#view-report-client-soa .client-header-left h2{font-size:16px;font-weight:900;color:#111;margin-bottom:4px}
+#view-report-client-soa .client-header-left p{font-size:12.5px;color:#555;line-height:1.6}
+#view-report-client-soa .client-header-right{text-align:right;flex-shrink:0}
+#view-report-client-soa .client-header-right .customer-no{font-size:13px;font-weight:800;color:#111;margin-bottom:4px}
+#view-report-client-soa .client-header-right p{font-size:12px;color:#6b7280}
+
+#view-report-client-soa .date-range-badge{display:inline-block;background:#111;color:white;padding:3px 12px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px}
+
+#view-report-client-soa .contracts-section{margin-bottom:20px}
+#view-report-client-soa .section-title{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#374151;border-bottom:2px solid #e5e7eb;padding-bottom:6px;margin-bottom:10px}
+#view-report-client-soa .contract-card{border:1px solid #e5e7eb;border-radius:6px;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+#view-report-client-soa .contract-card:last-child{margin-bottom:0}
+#view-report-client-soa .cc-left{flex:1}
+#view-report-client-soa .cc-no{font-size:11.5px;font-family:monospace;color:#6b7280;margin-bottom:2px}
+#view-report-client-soa .cc-type{font-size:13px;font-weight:700;color:#111}
+#view-report-client-soa .cc-period{font-size:12px;color:#6b7280;margin-top:2px}
+#view-report-client-soa .cc-right{text-align:right;flex-shrink:0}
+#view-report-client-soa .cc-amount{font-size:15px;font-weight:900;color:#111}
+#view-report-client-soa .cc-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;display:inline-block;margin-top:3px}
+#view-report-client-soa .cc-status.active{background:#dcfce7;color:#15803d}
+#view-report-client-soa .cc-status.expired{background:#fee2e2;color:#dc2626}
+#view-report-client-soa .cc-status.renewed{background:#dbeafe;color:#1d4ed8}
+#view-report-client-soa .cc-status.other{background:#f3f4f6;color:#6b7280}
+
+#view-report-client-soa .soa-table{width:100%;border-collapse:collapse;margin-bottom:0;font-size:12.5px}
+#view-report-client-soa .soa-table th{padding:8px 10px;background:#1f2937;color:white;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;text-align:left;border:1px solid #374151}
+#view-report-client-soa .soa-table th.right{text-align:right}
+#view-report-client-soa .soa-table td{padding:8px 10px;border:1px solid #e5e7eb;vertical-align:middle}
+#view-report-client-soa .soa-table td.right{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+#view-report-client-soa .soa-table td.num{text-align:center;color:#9ca3af;font-size:11.5px;width:32px}
+#view-report-client-soa .soa-table td.mono{font-family:monospace;font-size:11.5px;color:#6b7280}
+#view-report-client-soa .soa-table td.nowrap{white-space:nowrap}
+#view-report-client-soa .soa-table td.balance-positive{color:#15803d;font-weight:700}
+#view-report-client-soa .soa-table td.balance-negative{color:#dc2626;font-weight:700}
+#view-report-client-soa .soa-table tbody tr:nth-child(even){background:#fafafa}
+#view-report-client-soa .soa-table tfoot td{padding:10px;font-weight:700;font-size:13px;border:1px solid #d1d5db;background:#f1f3f5}
+#view-report-client-soa .soa-table tfoot td.right{text-align:right;font-variant-numeric:tabular-nums}
+#view-report-client-soa .row-credit{background:#f0fdf4!important}
+#view-report-client-soa .row-debit{background:#fff!important}
+
+#view-report-client-soa .type-tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700}
+#view-report-client-soa .type-tag.debit{background:#fee2e2;color:#dc2626}
+#view-report-client-soa .type-tag.credit{background:#dcfce7;color:#15803d}
+
+#view-report-client-soa .summary-box{display:flex;gap:0;border:2px solid #111;border-radius:8px;overflow:hidden;margin-top:20px;flex-wrap:wrap}
+#view-report-client-soa .sum-col{flex:1;min-width:100px;text-align:center;padding:16px 12px;border-right:1px solid #d1d5db}
+#view-report-client-soa .sum-col:last-child{border-right:none}
+#view-report-client-soa .sum-col-val{font-size:19px;font-weight:900;color:#111;margin-bottom:4px}
+#view-report-client-soa .sum-col-val.green{color:#15803d}
+#view-report-client-soa .sum-col-val.red{color:#dc2626}
+#view-report-client-soa .sum-col-val.neutral{color:#1d4ed8}
+#view-report-client-soa .sum-col-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#6b7280}
+
+#view-report-client-soa .report-footer{margin-top:24px;padding-top:14px;border-top:1px solid #e5e7eb;font-size:11px;color:#9ca3af;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px}
+#view-report-client-soa .sysgen-note{text-align:center;margin-top:14px;font-size:11px;color:#6b7280;font-style:italic;border-top:1px dashed #e5e7eb;padding-top:10px}
+
+#view-report-client-soa .report-placeholder{text-align:center;padding:56px 20px;color:var(--text-muted)}
+#view-report-client-soa .report-placeholder svg{width:44px;height:44px;margin-bottom:14px;opacity:.4}
+#view-report-client-soa .report-placeholder h3{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+#view-report-client-soa .report-placeholder p{font-size:13px;max-width:360px;margin:0 auto}
+
+@media(max-width:768px){#view-report-client-soa .page-content{padding:16px}#view-report-client-soa .controls-bar{flex-direction:column;align-items:stretch}#view-report-client-soa .client-header{flex-direction:column}}
+
+/* ══════════════════════════════════════════
+   PRINT CSS — scoped under #view-report-client-soa, same reasoning as
+   the other four report modules.
+══════════════════════════════════════════ */
+@media print{
+  @page{margin:12mm 10mm;size:A4}
+
+  #view-report-client-soa .sidebar,
+  #view-report-client-soa .sidebar-overlay,
+  #view-report-client-soa .topbar,
+  #view-report-client-soa .hamburger,
+  #view-report-client-soa .controls-bar,
+  #view-report-client-soa #toast-container,
+  #view-report-client-soa .btn-print,
+  #view-report-client-soa .btn-secondary,
+  #view-report-client-soa .page-content > *:not(#report-area){display:none!important}
+
+  #view-report-client-soa,
+  #view-report-client-soa #app-shell,
+  #view-report-client-soa .main-wrapper,
+  #view-report-client-soa .page-content{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    margin:0!important;padding:0!important;flex:none!important;background:white!important;
+  }
+  #view-report-client-soa .page-content{padding:0!important}
+  #view-report-client-soa #report-area{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
+  }
+  #view-report-client-soa table{width:100%!important;table-layout:auto!important}
+  #view-report-client-soa .contracts-section,
+  #view-report-client-soa .soa-section{page-break-inside:avoid}
+  #view-report-client-soa .soa-table th{background:#1f2937!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-client-soa .soa-table tbody tr:nth-child(even),
+  #view-report-client-soa .row-credit,
+  #view-report-client-soa .soa-table tfoot td,
+  #view-report-client-soa .summary-box{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+
+</style>
+
+<div data-view="report-client-soa" id="view-report-client-soa">
+<div id="app-shell">
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-item" href="#dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a class="nav-item" href="#clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</a>
+      <a class="nav-item" href="#contracts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Contracts</a>
+      <a class="nav-item" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
+      <div class="nav-section-label">Financial</div>
+      <a class="nav-item" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
+      <a class="nav-item" href="#renewals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
+      <div class="nav-section-label">Service</div>
+      <a class="nav-item" href="#complaints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Complaints</a>
+      <a class="nav-item" href="#inspections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Inspections</a>
+      <div class="nav-section-label">Monitoring</div>
+      <a class="nav-item" href="#overdue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue</a>
+      <a class="nav-item" href="#calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+      <div class="nav-section-label">Reports</div>
+      <a class="nav-item" href="#report-daily-schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Daily Schedule</a>
+      <a class="nav-item" href="#report-service"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Report</a>
+      <a class="nav-item active" href="#report-client-soa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Client SOA</a>
+      <a class="nav-item" href="#report-monthly-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Monthly Collection</a>
+      <a class="nav-item" href="#report-overdue-treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue Report</a>
+      <div class="nav-section-label" id="report-client-soa-admin-nav-label" style="display:none">Admin</div>
+      <a class="nav-item" href="#admin" id="report-client-soa-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-user">
+        <div class="user-avatar" id="user-avatar"><span id="user-initials">?</span></div>
+        <div class="user-info">
+          <div class="user-name" id="user-display-name">Loading…</div>
+          <div class="user-role" id="user-role-label">—</div>
+        </div>
+        <button class="btn-signout" id="btn-signout" title="Sign out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main-wrapper">
+    <header class="topbar">
+      <button class="hamburger" id="hamburger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title">Client Statement of Account</span>
+      <div class="topbar-spacer"></div>
+      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+    </header>
+
+    <main class="page-content">
+      <div class="controls-bar">
+        <label>Client</label>
+        <div class="combobox-wrap" id="cb-wrap">
+          <input type="text" class="combobox-input" id="client-search" placeholder="Search by name or customer number…" autocomplete="off" />
+          <div class="combobox-dropdown" id="client-dropdown"></div>
+        </div>
+        <label>From</label>
+        <input type="date" class="date-input" id="date-from" />
+        <label>To</label>
+        <input type="date" class="date-input" id="date-to" />
+        <div class="controls-spacer"></div>
+        <button class="btn btn-primary btn-print" id="btn-print" style="display:none">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          Print SOA
+        </button>
+      </div>
+
+      <div id="report-area">
+        <div class="report-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <h3>Select a Client</h3>
+          <p>Search and select a client above to generate their Statement of Account.</p>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+</div>
+
+
+<script type="module">
+import { auth, db } from './firebase-config.js';
+import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { collection, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { cachedGetDocs, cachedGetDoc, invalidate } from './js/firestore-cache.js';
+
+const VIEW_ROOT = document.getElementById('view-report-client-soa');
+const $ = id => VIEW_ROOT.querySelector('#' + id);
+
+/* ── State ── */
+let currentUser = null, currentRole = null;
+let allClients = [], companySettings = {};
+let selectedCustomerNo = null;
+let reportInitialized = false;
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+/* ── Helpers ── */
+function toLocalDate(v) {
+  if (!v) return null;
+  if (v.toDate) { const d = v.toDate(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
+  if (v instanceof Date) return new Date(v.getFullYear(), v.getMonth(), v.getDate());
+  const s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
+  const d = new Date(v);
+  return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+}
+function fmtDate(v) { const d = toLocalDate(v); if (!d) return '—'; return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }); }
+function fmtCur(n) { return '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+function cleanName(n) { return (n || '').replace(/\s*\(.*?\)\s*/g, '').trim() || '—'; }
+
+// Clients don't have a flat "address" or "emailAddress" field — email is
+// just `email`, and address is structured, same fix as Service Report.
+function fullAddress(c) {
+  const parts = [c.addressLine1 || '', c.addressLine2 || '', c.barangay || '', c.city || '', c.province || '', c.postalCode || ''].filter(Boolean);
+  return parts.join(', ');
+}
+
+async function loadRefData() {
+  allClients = await cachedGetDocs(query(collection(db, 'clients'), orderBy('customerNo', 'asc')), 'clients');
+  try {
+    const s = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings');
+    companySettings = s || {};
+  } catch { companySettings = {}; }
+
+  const now = new Date();
+  $('date-from').value = `${now.getFullYear()}-01-01`;
+  $('date-to').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
+/* ── Combobox ── */
+const searchInput = $('client-search'), dropdown = $('client-dropdown');
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.toLowerCase().trim();
+  if (!q) { dropdown.classList.remove('open'); dropdown.innerHTML = ''; return; }
+  const res = allClients.filter(c => [cleanName(c.clientName), c.customerNo, c.contactNumber || '', c.city || ''].some(f => f.toLowerCase().includes(q))).slice(0, 10);
+  if (!res.length) { dropdown.innerHTML = '<div class="combobox-empty">No clients found</div>'; dropdown.classList.add('open'); return; }
+  dropdown.innerHTML = res.map(c => `<div class="combobox-item" data-no="${c.customerNo}">
+    <div class="combobox-item-main">${esc(cleanName(c.clientName))}</div>
+    <div class="combobox-item-sub">${esc(c.customerNo)} · ${esc(c.contactNumber || '—')} · ${esc(c.city || '—')}</div>
+  </div>`).join('');
+  dropdown.classList.add('open');
+  dropdown.querySelectorAll('.combobox-item').forEach(item => {
+    item.addEventListener('click', () => {
+      selectedCustomerNo = item.dataset.no;
+      const c = allClients.find(x => x.customerNo === selectedCustomerNo);
+      searchInput.value = `${cleanName(c?.clientName || '')} (${selectedCustomerNo})`;
+      dropdown.classList.remove('open');
+      generateSOA();
+    });
+  });
+});
+document.addEventListener('click', e => { if (!$('cb-wrap').contains(e.target)) dropdown.classList.remove('open'); });
+$('date-from').addEventListener('change', () => { if (selectedCustomerNo) generateSOA(); });
+$('date-to').addEventListener('change', () => { if (selectedCustomerNo) generateSOA(); });
+
+/* ── Generate SOA ── */
+async function generateSOA() {
+  if (!selectedCustomerNo) return;
+  $('report-area').innerHTML = `<div style="text-align:center;padding:52px"><div class="spinner" style="margin:0 auto 12px"></div><p style="color:var(--text-muted)">Generating statement…</p></div>`;
+  $('btn-print').style.display = 'none';
+
+  const client = allClients.find(c => c.customerNo === selectedCustomerNo);
+  const clientName = cleanName(client?.clientName || selectedCustomerNo);
+  const companyName = companySettings.companyName || 'Pestastic Pest Control Services';
+  const companyAddr = companySettings.companyAddress || '';
+  const companyPhone = companySettings.companyPhone || '';
+  const genTime = new Date().toLocaleString('en-PH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+  const dfrom = $('date-from').value, dto = $('date-to').value;
+  const fromDate = dfrom ? new Date(...dfrom.split('-').map((v, i) => i === 1 ? Number(v) - 1 : Number(v))) : null;
+  const toDate = dto ? new Date(...dto.split('-').map((v, i) => i === 1 ? Number(v) - 1 : Number(v))) : null;
+  if (toDate) toDate.setHours(23, 59, 59, 999);
+
+  const dateRangeLabel = dfrom && dto ? `${fmtDate(fromDate)} – ${fmtDate(toDate)}` : 'All dates';
+
+  const contracts = (await cachedGetDocs(query(collection(db, 'contracts'), where('customerNo', '==', selectedCustomerNo)), `contracts:customer:${selectedCustomerNo}`))
+    .sort((a, b) => { const da = toLocalDate(a.contractStartDate), db2 = toLocalDate(b.contractStartDate); return da && db2 ? da - db2 : 0; });
+
+  let payments = await cachedGetDocs(query(collection(db, 'payments'), where('customerNo', '==', selectedCustomerNo)), `payments:customer:${selectedCustomerNo}`);
+
+  const allPaymentsUnfiltered = [...payments];
+  if (fromDate || toDate) {
+    payments = payments.filter(p => {
+      const dd = toLocalDate(p.dueDate);
+      const pd = toLocalDate(p.paymentDate);
+      const dueDateInRange = dd && (!fromDate || dd >= fromDate) && (!toDate || dd <= toDate);
+      const payDateInRange = pd && (!fromDate || pd >= fromDate) && (!toDate || pd <= toDate);
+      return dueDateInRange || payDateInRange;
+    });
+  }
+  payments.sort((a, b) => { const da = toLocalDate(a.dueDate), db2 = toLocalDate(b.dueDate); return da && db2 ? da - db2 : 0; });
+
+  // "Received" must be an explicit allowlist of collected statuses — an
+  // "anything that isn't literally 'Pending'" check would silently count
+  // Cancelled payments as money the client had paid, both overstating
+  // totalReceived and understating the true outstanding balance. That's
+  // especially wrong now that cascadeCancelContract() (contracts.html)
+  // sets voided payments to status 'Cancelled' instead of leaving them
+  // 'Pending' — those must be excluded from both received and still-owed.
+  const RECEIVED_STATUSES = ['Received', 'Deposited', 'Remitted', 'Collected'];
+  const isReceived = p => RECEIVED_STATUSES.includes(p.status);
+  const isCancelledPayment = p => p.status === 'Cancelled';
+
+  const paymentsByContract = {};
+  allPaymentsUnfiltered.forEach(p => { const cid = p.contractId || '_unassigned'; (paymentsByContract[cid] ||= []).push(p); });
+
+  const filteredPaymentsByContract = {};
+  payments.forEach(p => { const cid = p.contractId || '_unassigned'; (filteredPaymentsByContract[cid] ||= []).push(p); });
+
+  const contractSummaries = contracts.map(c => {
+    const allPmts = paymentsByContract[c.id] || [];
+    const contractAmt = Number(c.totalAmount || 0);
+    const totalReceived = allPmts.filter(isReceived).reduce((s, p) => s + Number(p.amount || 0), 0);
+    const totalPendingC = allPmts.filter(p => !isReceived(p) && !isCancelledPayment(p)).reduce((s, p) => s + Number(p.amount || 0), 0);
+    const addendum = Math.max(0, totalReceived + totalPendingC - contractAmt);
+    const effectiveBilled = contractAmt + addendum;
+    const balance = effectiveBilled - totalReceived;
+    return { contract: c, contractAmt, totalReceived, totalPendingC, addendum, effectiveBilled, balance };
+  });
+
+  const unassignedAll = paymentsByContract['_unassigned'] || [];
+  const unassignedFiltered = filteredPaymentsByContract['_unassigned'] || [];
+
+  const totalBilledAll = contractSummaries.reduce((s, cs) => s + cs.effectiveBilled, 0) + unassignedAll.filter(p => !isReceived(p) && !isCancelledPayment(p)).reduce((s, p) => s + Number(p.amount || 0), 0);
+  const totalPaidAll = contractSummaries.reduce((s, cs) => s + cs.totalReceived, 0) + unassignedAll.filter(isReceived).reduce((s, p) => s + Number(p.amount || 0), 0);
+  const outstanding = totalBilledAll - totalPaidAll;
+
+  const totalBilled = contractSummaries.reduce((s, cs) => s + cs.effectiveBilled, 0);
+  const totalPaid = contractSummaries.reduce((s, cs) => s + cs.totalReceived, 0);
+  const totalPending = contractSummaries.reduce((s, cs) => s + cs.totalPendingC, 0);
+  const totalPendingAll = totalPending + unassignedAll.filter(p => !isReceived(p) && !isCancelledPayment(p)).reduce((s, p) => s + Number(p.amount || 0), 0);
+
+  const clientAddr = fullAddress(client || {});
+
+  let html = `
+    <div class="letterhead">
+      <div class="lh-logo">
+        <div class="lh-logo-icon"><img src="logo.jpg" alt="Pestastic" style="width:28px;height:28px;object-fit:contain;filter:brightness(0) invert(1)" /></div>
+        <div class="lh-company">
+          <h1>${esc(companyName)}</h1>
+          <p>${esc([companyAddr, companyPhone].filter(Boolean).join(' · '))}</p>
+        </div>
+      </div>
+      <div class="lh-right">
+        <div class="lh-doc-title">Statement of Account</div>
+        <div class="lh-doc-sub">${esc(selectedCustomerNo)}</div>
+        <div class="lh-doc-meta">Generated: ${genTime}</div>
+      </div>
+    </div>
+
+    <div class="client-header">
+      <div class="client-header-left">
+        <h2>${esc(clientName)}</h2>
+        <p>
+          ${client?.contactNumber ? '📞 ' + esc(client.contactNumber) + '<br>' : ''}
+          ${client?.email ? '✉ ' + esc(client.email) + '<br>' : ''}
+          ${clientAddr ? '📍 ' + esc(clientAddr) : ''}
+        </p>
+      </div>
+      <div class="client-header-right">
+        <div class="customer-no">${esc(selectedCustomerNo)}</div>
+        <p>Sales Agent: ${esc(client?.salesAgent || '—')}</p>
+      </div>
+    </div>
+
+    <div class="date-range-badge">Period: ${esc(dateRangeLabel)}</div>`;
+
+  html += `<div class="contracts-section">
+    <div class="section-title">Active Contracts (${contracts.length})</div>`;
+  if (contracts.length) {
+    contracts.forEach(c => {
+      const today = new Date(); today.setHours(0, 0, 0, 0);
+      const endDate = toLocalDate(c.contractEndDate);
+      let statusCls = 'other', statusLbl = c.status || '—';
+      if (c.status === 'active' && endDate && endDate < today) { statusCls = 'expired'; statusLbl = 'Expired'; }
+      else if (c.status === 'active') { statusCls = 'active'; statusLbl = 'Active'; }
+      else if (c.status === 'renewed') { statusCls = 'other'; statusLbl = 'Renewed'; }
+      html += `<div class="contract-card">
+        <div class="cc-left">
+          <div class="cc-no">${esc(c.contractNumber || c.id.slice(0, 8))}</div>
+          <div class="cc-type">${esc(c.contractType || '—')}</div>
+          <div class="cc-period">${fmtDate(c.contractStartDate)} – ${fmtDate(c.contractEndDate)} · ${esc(c.frequency || '—')} · ${esc(c.noOfSessions || '?')} sessions</div>
+        </div>
+        <div class="cc-right">
+          <div class="cc-amount">${fmtCur(c.totalAmount)}</div>
+          <span class="cc-status ${statusCls}">${esc(statusLbl)}</span>
+        </div>
+      </div>`;
+    });
+  } else {
+    html += `<p style="color:#9ca3af;font-size:13px;padding:8px 0">No contracts on record.</p>`;
+  }
+  html += `</div>`;
+
+  let grandRunningBalance = 0;
+  let rowNum = 0;
+  const modeLabelMap = { 'cash': 'Cash', 'check': 'Check', 'bank-transfer': 'Bank Transfer', 'credit-card': 'Credit Card', 'gcash': 'GCash', 'maya': 'Maya' };
+
+  contractSummaries.forEach(cs => {
+    const c = cs.contract;
+    const cPayments = (filteredPaymentsByContract[c.id] || []).sort((a, b) => { const da = toLocalDate(a.dueDate || a.paymentDate), db2 = toLocalDate(b.dueDate || b.paymentDate); return da && db2 ? da - db2 : 0; });
+
+    html += `<div class="soa-section" style="margin-bottom:24px">
+      <div class="section-title" style="display:flex;justify-content:space-between;align-items:center">
+        <span>${esc(c.contractNumber || c.id.slice(0, 8))} — ${esc(c.contractType || '—')}</span>
+        <span style="font-size:11px;font-weight:600;color:${cs.balance > 0 ? '#dc2626' : '#15803d'}">Balance: ${fmtCur(cs.balance)}</span>
+      </div>`;
+
+    html += `<div style="display:flex;gap:16px;padding:8px 12px;background:#f8f9fa;border:1px solid #e5e7eb;border-radius:4px;margin-bottom:8px;font-size:12px;color:#6b7280;flex-wrap:wrap">
+      <span>Contract Amount: <strong style="color:#111">${fmtCur(cs.contractAmt)}</strong></span>
+      ${cs.addendum > 0 ? `<span>Addendum: <strong style="color:#1d4ed8">+${fmtCur(cs.addendum)}</strong></span>` : ''}
+      <span>Effective Billed: <strong style="color:#111">${fmtCur(cs.effectiveBilled)}</strong></span>
+      <span>Received: <strong style="color:#15803d">${fmtCur(cs.totalReceived)}</strong></span>
+      <span>Pending: <strong style="color:#f59e0b">${fmtCur(cs.totalPendingC)}</strong></span>
+      <span>Period: ${fmtDate(c.contractStartDate)} – ${fmtDate(c.contractEndDate)}</span>
+    </div>`;
+
+    html += `<table class="soa-table"><thead><tr>
+      <th>#</th><th>Date</th><th>Due Date</th><th>OR No.</th><th>Description</th><th>Status</th>
+      <th class="right">Debit ₱</th><th class="right">Credit ₱</th><th class="right">Running Balance ₱</th>
+    </tr></thead><tbody>`;
+
+    grandRunningBalance += Number(cs.contractAmt);
+    rowNum++;
+    html += `<tr class="row-debit">
+      <td class="num">${rowNum}</td>
+      <td class="nowrap">${fmtDate(c.contractStartDate)}</td>
+      <td class="nowrap" style="color:#9ca3af">—</td>
+      <td class="mono">—</td>
+      <td><span class="type-tag debit">DEBIT</span> <span style="font-size:12px;margin-left:6px;color:#374151">Contract Billed: ${esc(c.contractType || '—')}</span></td>
+      <td><span style="font-size:11px;color:#6b7280">—</span></td>
+      <td class="right">${fmtCur(cs.contractAmt)}</td>
+      <td class="right" style="color:#15803d">—</td>
+      <td class="right balance-positive">${fmtCur(grandRunningBalance)}</td>
+    </tr>`;
+
+    if (cs.addendum > 0) {
+      grandRunningBalance += cs.addendum;
+      rowNum++;
+      html += `<tr class="row-debit" style="background:#eff6ff!important">
+        <td class="num">${rowNum}</td>
+        <td class="nowrap">${fmtDate(c.contractStartDate)}</td>
+        <td class="nowrap" style="color:#9ca3af">—</td>
+        <td class="mono">—</td>
+        <td><span class="type-tag debit" style="background:#dbeafe;color:#1d4ed8">ADDENDUM</span> <span style="font-size:12px;margin-left:6px;color:#374151">Additional charges beyond contract</span></td>
+        <td><span style="font-size:11px;color:#6b7280">—</span></td>
+        <td class="right" style="color:#1d4ed8">${fmtCur(cs.addendum)}</td>
+        <td class="right" style="color:#15803d">—</td>
+        <td class="right balance-positive">${fmtCur(grandRunningBalance)}</td>
+      </tr>`;
+    }
+
+    cPayments.forEach(p => {
+      const paid = isReceived(p);
+      const cancelledRow = isCancelledPayment(p);
+      const isPending = !paid && !cancelledRow;
+      rowNum++;
+      const modeLabel = modeLabelMap[p.paymentMode] || p.paymentMode || '—';
+
+      if (paid) grandRunningBalance -= Number(p.amount || 0);
+      // Cancelled payments are no longer owed — remove them from the
+      // running balance the same way a write-off would, so this ledger
+      // stays consistent with cs.balance above (which already excludes
+      // cancelled amounts).
+      else if (cancelledRow) grandRunningBalance -= Number(p.amount || 0);
+
+      const statusColor = cancelledRow ? '#6b7280' : (isPending ? '#f59e0b' : '#15803d');
+      const statusLabel = cancelledRow ? 'Cancelled' : (isPending ? 'Pending' : (p.status || 'Received'));
+      const statusBadge = `<span style="display:inline-block;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700;background:${cancelledRow ? '#f3f4f6' : (isPending ? '#fef3c7' : '#dcfce7')};color:${statusColor}">${esc(statusLabel)}</span>`;
+
+      html += `<tr class="${paid ? 'row-credit' : (cancelledRow ? '' : 'row-debit')}" style="${cancelledRow ? 'opacity:.6' : ''}">
+        <td class="num">${rowNum}</td>
+        <td class="nowrap">${fmtDate(p.paymentDate || p.dueDate)}</td>
+        <td class="nowrap" style="color:${isPending ? '#f59e0b' : '#9ca3af'}">${p.dueDate ? fmtDate(p.dueDate) : '—'}</td>
+        <td class="mono">${esc(p.orNumber || '—')}</td>
+        <td>
+          <span class="type-tag ${paid ? 'credit' : 'debit'}">${paid ? 'CREDIT' : (cancelledRow ? 'VOID' : 'PENDING')}</span>
+          <span style="font-size:12px;margin-left:6px;color:#374151">Payment: ${esc(modeLabel)}${p.orNumber ? ' (OR# ' + esc(p.orNumber) + ')' : ''}</span>
+        </td>
+        <td>${statusBadge}</td>
+        <td class="right" style="${cancelledRow ? 'text-decoration:line-through;color:#9ca3af' : ''}">${isPending || cancelledRow ? fmtCur(p.amount) : '—'}</td>
+        <td class="right" style="color:#15803d">${paid ? fmtCur(p.amount) : '—'}</td>
+        <td class="right ${grandRunningBalance > 0 ? 'balance-positive' : grandRunningBalance < 0 ? 'balance-negative' : ''}">${(paid || cancelledRow) ? fmtCur(grandRunningBalance) : '<span style="color:#f59e0b;font-style:italic">' + fmtCur(grandRunningBalance) + '</span>'}</td>
+      </tr>`;
+    });
+
+    html += `</tbody><tfoot><tr>
+      <td colspan="6" style="font-weight:700;text-align:right">Subtotal — ${esc(c.contractNumber || c.id.slice(0, 8))}</td>
+      <td class="right">${fmtCur(cs.effectiveBilled)}</td>
+      <td class="right" style="color:#15803d">${fmtCur(cs.totalReceived)}</td>
+      <td class="right ${cs.balance > 0 ? 'balance-positive' : ''}">${fmtCur(cs.balance)}</td>
+    </tr></tfoot></table></div>`;
+  });
+
+  if (unassignedFiltered.length) {
+    html += `<div class="soa-section" style="margin-bottom:24px">
+      <div class="section-title">Unassigned Payments (No Contract Linked)</div>
+      <table class="soa-table"><thead><tr>
+        <th>#</th><th>Date</th><th>Due Date</th><th>OR No.</th><th>Description</th><th>Status</th>
+        <th class="right">Debit ₱</th><th class="right">Credit ₱</th><th class="right">Balance ₱</th>
+      </tr></thead><tbody>`;
+    unassignedFiltered.forEach(p => {
+      const paid = isReceived(p);
+      const cancelledRow = isCancelledPayment(p);
+      rowNum++;
+      if (paid) grandRunningBalance -= Number(p.amount || 0);
+      else if (!cancelledRow) grandRunningBalance += Number(p.amount || 0);
+      const modeLabel = modeLabelMap[p.paymentMode] || p.paymentMode || '—';
+      html += `<tr class="${paid ? 'row-credit' : (cancelledRow ? '' : 'row-debit')}" style="${cancelledRow ? 'opacity:.6' : ''}">
+        <td class="num">${rowNum}</td>
+        <td class="nowrap">${fmtDate(p.paymentDate || p.dueDate)}</td>
+        <td class="nowrap">${p.dueDate ? fmtDate(p.dueDate) : '—'}</td>
+        <td class="mono">${esc(p.orNumber || '—')}</td>
+        <td><span class="type-tag ${paid ? 'credit' : 'debit'}">${paid ? 'CREDIT' : (cancelledRow ? 'VOID' : 'PENDING')}</span> <span style="font-size:12px;margin-left:6px;color:#374151">${esc(modeLabel)}</span></td>
+        <td><span style="font-size:10.5px;font-weight:700;color:${cancelledRow ? '#6b7280' : (paid ? '#15803d' : '#f59e0b')}">${cancelledRow ? 'Cancelled' : (paid ? esc(p.status || 'Received') : 'Pending')}</span></td>
+        <td class="right" style="${cancelledRow ? 'text-decoration:line-through;color:#9ca3af' : ''}">${!paid ? fmtCur(p.amount) : '—'}</td>
+        <td class="right" style="color:#15803d">${paid ? fmtCur(p.amount) : '—'}</td>
+        <td class="right">${fmtCur(grandRunningBalance)}</td>
+      </tr>`;
+    });
+    html += `</tbody></table></div>`;
+  }
+
+  html += `<div class="soa-section">
+    <table class="soa-table"><tfoot><tr style="background:#1f2937!important">
+      <td colspan="6" style="font-weight:800;text-align:right;color:white;font-size:13px;border-color:#374151">GRAND TOTAL</td>
+      <td class="right" style="color:#fca5a5;border-color:#374151">${fmtCur(totalBilledAll)}</td>
+      <td class="right" style="color:#86efac;border-color:#374151">${fmtCur(totalPaidAll)}</td>
+      <td class="right" style="color:white;font-weight:900;border-color:#374151">${fmtCur(outstanding)}</td>
+    </tr></tfoot></table>
+  </div>`;
+
+  html += `
+    <div class="summary-box">
+      <div class="sum-col"><div class="sum-col-val">${fmtCur(totalBilledAll)}</div><div class="sum-col-lbl">Total Billed</div></div>
+      <div class="sum-col"><div class="sum-col-val green">${fmtCur(totalPaidAll)}</div><div class="sum-col-lbl">Total Received</div></div>
+      <div class="sum-col"><div class="sum-col-val" style="color:#f59e0b">${fmtCur(totalPendingAll)}</div><div class="sum-col-lbl">Total Pending</div></div>
+      <div class="sum-col"><div class="sum-col-val ${outstanding > 0 ? 'red' : ''}">${fmtCur(outstanding)}</div><div class="sum-col-lbl">${outstanding > 0 ? 'Outstanding' : 'Settled'}</div></div>
+      <div class="sum-col"><div class="sum-col-val neutral">${contracts.length}</div><div class="sum-col-lbl">Contracts</div></div>
+    </div>`;
+
+  html += `
+    <div class="report-footer">
+      <span>${esc(companyName)}</span>
+      <span>Generated: ${genTime}</span>
+    </div>
+    <div class="sysgen-note">This is a system-generated document. For concerns, please contact ${esc(companyName)}.</div>`;
+
+  $('report-area').innerHTML = html;
+  $('btn-print').style.display = '';
+}
+
+$('btn-print').addEventListener('click', () => window.print());
+$('btn-refresh').addEventListener('click', () => {
+  invalidate('clients', 'config:settings');
+  if (selectedCustomerNo) {
+    invalidate(`contracts:customer:${selectedCustomerNo}`, `payments:customer:${selectedCustomerNo}`);
+    generateSOA();
+  }
+});
+
+/* Lets other modules (Clients' detail view) jump straight into a
+   specific client's SOA, pre-selected and generated — same shape as
+   every other pc:open-... bridge in this app, replacing the original
+   standalone app's ?customer=XXX URL param approach (this SPA doesn't
+   use query params for navigation). */
+function selectAndGenerate(customerNo) {
+  const c = allClients.find(x => x.customerNo === customerNo);
+  if (!c) return;
+  selectedCustomerNo = customerNo;
+  searchInput.value = `${cleanName(c.clientName)} (${customerNo})`;
+  generateSOA();
+}
+window.addEventListener('pc:open-client-soa', e => {
+  const customerNo = e.detail?.customerNo;
+  if (!customerNo) return;
+  const tryOpen = (attempts = 0) => {
+    if (reportInitialized) { selectAndGenerate(customerNo); }
+    else if (attempts < 50) { setTimeout(() => tryOpen(attempts + 1), 100); }
+  };
+  tryOpen();
+});
+
+/* ══════════════════════════════════
+   Auth wiring
+══════════════════════════════════ */
+async function applyProfile(p) {
+  currentUser = { uid: p.uid, email: p.email };
+  currentRole = p.role;
+
+  const name = p.name || p.email || 'there';
+  $('user-display-name').textContent = name;
+  $('user-role-label').textContent = (p.role || 'user').replace('_', ' ');
+  $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+
+  const isSuperAdmin = p.role === 'superadmin';
+  $('report-client-soa-admin-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('report-client-soa-nav-admin').style.display = isSuperAdmin ? '' : 'none';
+
+  if (!reportInitialized) {
+    reportInitialized = true;
+    await loadRefData();
+  }
+}
+if (window.__pcProfile) applyProfile(window.__pcProfile);
+window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+/* Refresh reference data on every re-visit — a newly created client
+   should be searchable right away. */
+window.addEventListener('router:view-shown', e => {
+  if (e.detail?.name === 'report-client-soa' && reportInitialized) {
+    invalidate('clients', 'config:settings');
+    loadRefData();
+  }
+});
+
+$('btn-signout').addEventListener('click', () => {
+  if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
+});
+
+const sidebar = $('sidebar'), overlay = $('sidebar-overlay'), hamburger = $('hamburger');
+const openSB = () => { sidebar.classList.add('open'); overlay.classList.add('open'); };
+const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
+hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
+overlay.addEventListener('click', closeSB);
+
+</script>
