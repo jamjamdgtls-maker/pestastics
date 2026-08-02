@@ -13,7 +13,8 @@ anywhere, ever.
   injected).
 - `clients.html` / `contracts.html` / `treatments.html` / `payments.html` /
   `renewals.html` / `complaints.html` / `inspections.html` / `overdue.html` /
-  `calendar.html` / `report-daily-schedule.html` —
+  `calendar.html` / `report-daily-schedule.html` /
+  `report-monthly-collection.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -74,9 +75,9 @@ anywhere, ever.
   `router:view-shown` event after every navigation, which is what the
   cross-module bridges below wait on.
 - **Print CSS must be scoped too, same as everything else.**
-  `report-daily-schedule.html` is the first module with a `@media
+  `report-daily-schedule.html` was the first module with a `@media
   print` block, and it matters more there than the usual ID-collision
-  gotcha: the original standalone page hid shell chrome with plain,
+  gotcha: the original standalone pages hid shell chrome with plain,
   unscoped selectors (`.sidebar`, `.topbar`, `#app-shell`,
   `.page-content > *:not(#report-area)`), which only worked because
   nothing else was ever loaded into that page. In this SPA every module
@@ -85,14 +86,21 @@ anywhere, ever.
   someone printed from a *different* page — e.g. `.page-content > *
   :not(#report-area){display:none}` would hide Treatments' own content
   when printing from Treatments, since Treatments' content doesn't have
-  `id="report-area"` either. Every print selector here is scoped under
-  `#view-report-daily-schedule`, which works correctly because the base
-  `[data-view]:not(.active){display:none}` rule already keeps this
-  module's entire subtree invisible whenever it isn't the active view —
-  an ancestor's `display:none` wins regardless of any `!important` on
-  descendant print rules trying to override their own display. Any
-  future report page needs the same scoping from the start, not
-  retrofitted after the fact.
+  `id="report-area"` either. Every print selector in both
+  `report-daily-schedule.html` and `report-monthly-collection.html` is
+  scoped under their own `#view-report-...` root, which works correctly
+  because the base `[data-view]:not(.active){display:none}` rule
+  already keeps a module's entire subtree invisible whenever it isn't
+  the active view — an ancestor's `display:none` wins regardless of any
+  `!important` on descendant print rules trying to override their own
+  display. Any future report page needs the same scoping from the
+  start, not retrofitted after the fact — and should drop the original
+  files' `beforeprint`/`afterprint` JS handlers entirely rather than
+  port them: those queried `.main-wrapper`/`.page-content` with plain
+  `document.querySelector()`, which grabs whichever module's element
+  happens to be first in the whole DOM, not necessarily this module's
+  own — the exact same collision class fixed everywhere else, just in
+  JS form instead of CSS. The scoped print CSS alone is sufficient.
 - **Cross-module bridges** — modules jump into each other and act on a
   specific record via `window` custom events rather than any direct
   reference (they're independently loaded and don't import each other).
