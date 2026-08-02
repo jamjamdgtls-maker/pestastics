@@ -64,7 +64,21 @@
 
     #view-clients .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
     #view-clients .manage-list-link:hover{color:hsl(142,76%,28%)}
-</style>
+
+    /* ── Layout polish (topbar removed) ── */
+    #view-clients .page-content {padding:22px 26px 20px}
+    #view-clients .page-header {padding-bottom:14px;border-bottom:1px solid var(--border);margin-bottom:18px}
+    #view-clients .page-header-left h2 {font-size:20px;font-weight:700;letter-spacing:-.2px}
+    #view-clients .page-header .hamburger {margin-bottom:6px}
+    #view-clients .table-card {box-shadow:var(--shadow-sm,0 1px 3px rgba(0,0,0,.06))}
+    #view-clients .table-wrapper {overflow:auto;min-height:0}
+    #view-clients .table-wrapper::-webkit-scrollbar {width:10px;height:10px}
+    #view-clients .table-wrapper::-webkit-scrollbar-thumb {background:var(--border-hover);border-radius:5px;border:2px solid var(--bg-secondary)}
+    #view-clients .table-wrapper::-webkit-scrollbar-thumb:hover {background:var(--text-muted)}
+    #view-clients .table-wrapper::-webkit-scrollbar-track {background:var(--bg-secondary)}
+    #view-clients .table-wrapper {scrollbar-width:thin;scrollbar-color:var(--border-hover) var(--bg-secondary)}
+    #view-clients .pagination {position:sticky;bottom:0}
+  </style>
 
 <div data-view="clients" id="view-clients">
 <div id="app-shell">
@@ -108,20 +122,17 @@
   </aside>
 
   <div class="main-wrapper">
-    <header class="topbar">
-      <button class="hamburger" id="hamburger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-      <span class="topbar-title">Clients</span>
-      <div class="topbar-spacer"></div>
-      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-    </header>
 
     <main class="page-content">
       <div class="page-header">
         <div class="page-header-left">
+          <button class="hamburger" id="hamburger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+
           <h2>Clients</h2>
           <p>Manage all registered pest control clients</p>
         </div>
         <div class="page-header-right">
+          <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
           <button class="btn btn-secondary" id="btn-download-template">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             CSV Template
@@ -418,7 +429,7 @@ import { getSettingsList, openListManager } from './js/list-manager.js';
 /* ── State ── */
 let currentUser = null, currentRole = null;
 let allClients = [], filteredClients = [], currentPage = 1;
-const PER_PAGE = 20;
+const PER_PAGE = 100;
 let salesAgents = [];
 let activeDetailClientId = null;
 let csvRows = [];
