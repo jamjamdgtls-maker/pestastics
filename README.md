@@ -14,7 +14,8 @@ anywhere, ever.
 - `clients.html` / `contracts.html` / `treatments.html` / `payments.html` /
   `renewals.html` / `complaints.html` / `inspections.html` / `overdue.html` /
   `calendar.html` / `report-daily-schedule.html` /
-  `report-monthly-collection.html` —
+  `report-monthly-collection.html` / `report-service.html` /
+  `report-overdue-treatments.html` —
   self-contained feature modules. Each has its own `<style>` (scoped
   under `#view-clients` / `#view-contracts` / etc. so they can't clash
   with each other or the shell) and its own `<script type="module">`.
@@ -101,6 +102,26 @@ anywhere, ever.
   happens to be first in the whole DOM, not necessarily this module's
   own — the exact same collision class fixed everywhere else, just in
   JS form instead of CSS. The scoped print CSS alone is sufficient.
+  `report-service.html` and `report-overdue-treatments.html` follow
+  the exact same pattern for their own `@media print` blocks.
+- **A report's own definition of "overdue" needs to match the live
+  page's, not be reinvented.** `report-overdue-treatments.html` shares
+  the same `RESOLVED_TREATMENT_STATUSES` exclusion (`completed`,
+  `cancelled`) as `overdue.html` itself, on purpose — the original
+  source file queried `status:'scheduled'` only, which would silently
+  disagree with what the live Overdue page shows the moment a
+  rescheduled treatment's new date also passed (Overdue counts that as
+  overdue; the narrower query wouldn't). Two views computing the same
+  concept from the same data should use the same rule, not two
+  independently-drifting ones.
+- `report-service.html`'s client info box is a good example of the
+  address/field-name class of bug worth checking for on every new
+  report, not assuming away: the source file read `clientData.address`
+  and `clientData.emailAddress` directly, neither of which exists on a
+  client doc — address is structured (`addressLine1`/`barangay`/`city`/
+  `province`/`postalCode`), and the email field is just `email`. Fixed
+  to match Clients' actual schema, same as every other module that
+  displays a client's address.
 - **Cross-module bridges** — modules jump into each other and act on a
   specific record via `window` custom events rather than any direct
   reference (they're independently loaded and don't import each other).
