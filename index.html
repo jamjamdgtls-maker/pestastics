@@ -425,6 +425,179 @@
   #view-dashboard .topbar { padding: 0 14px; }
   #view-dashboard .dash-header-left h2 { font-size: 20px; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   COMPACT DASHBOARD — single viewport, no scroll
+   Reduces card sizes, spacing and typography so the whole dashboard
+   fits within the available height above the sidebar/topbar chrome.
+   ══════════════════════════════════════════════════════════════ */
+#view-dashboard .page-content {
+  overflow: hidden;
+  padding: 16px 22px 18px;
+}
+#view-dashboard .dash-filter-bar {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  gap: 12px;
+}
+#view-dashboard .dash-header-left h2 {
+  font-size: 18px;
+  line-height: 1.25;
+}
+#view-dashboard .dash-header-left p {
+  font-size: 12px;
+  margin-top: 1px;
+}
+#view-dashboard .date-filter-row {
+  gap: 6px;
+}
+#view-dashboard .date-input {
+  padding: 5px 9px;
+  font-size: 12px;
+}
+#view-dashboard .btn-apply-filter {
+  padding: 5px 11px;
+  font-size: 12px;
+}
+#view-dashboard .btn-preset {
+  padding: 4px 9px;
+  font-size: 11px;
+}
+#view-dashboard .section-label {
+  margin: 10px 0 8px;
+  font-size: 10px;
+}
+#view-dashboard .kpi-grid-4 {
+  gap: 10px;
+  margin-bottom: 2px;
+}
+#view-dashboard .kpi-card {
+  padding: 12px 14px 11px;
+}
+#view-dashboard .kpi-top {
+  margin-bottom: 8px;
+}
+#view-dashboard .kpi-icon {
+  width: 32px;
+  height: 32px;
+}
+#view-dashboard .kpi-icon svg {
+  width: 16px;
+  height: 16px;
+}
+#view-dashboard .kpi-value {
+  font-size: 22px;
+}
+#view-dashboard .kpi-value.currency {
+  font-size: 18px;
+}
+#view-dashboard .kpi-label {
+  font-size: 11px;
+}
+#view-dashboard .kpi-sub {
+  font-size: 10.5px;
+  margin-top: 5px;
+  padding-top: 5px;
+}
+#view-dashboard .quick-stats {
+  gap: 10px;
+  margin-bottom: 2px;
+}
+#view-dashboard .quick-stat-card {
+  padding: 10px 12px;
+  gap: 10px;
+}
+#view-dashboard .quick-stat-icon {
+  width: 30px;
+  height: 30px;
+}
+#view-dashboard .quick-stat-icon svg {
+  width: 15px;
+  height: 15px;
+}
+#view-dashboard .quick-stat-info .value {
+  font-size: 17px;
+}
+#view-dashboard .quick-stat-info .label {
+  font-size: 11px;
+}
+#view-dashboard .dash-bottom {
+  gap: 12px;
+  margin-top: 4px;
+  min-height: 0;
+}
+#view-dashboard .dcard {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#view-dashboard .dcard-header {
+  padding: 10px 14px;
+  flex-shrink: 0;
+}
+#view-dashboard .dcard-title {
+  font-size: 13px;
+}
+#view-dashboard .dcard-subtitle {
+  font-size: 11px;
+}
+#view-dashboard .gt-quick-filters {
+  padding: 8px 14px 0;
+  gap: 5px;
+  flex-shrink: 0;
+}
+#view-dashboard .gt-quick-btn {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+#view-dashboard .dcard-body {
+  padding: 8px 14px 10px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+#view-dashboard .mini-table thead th {
+  padding: 0 14px 6px;
+  font-size: 10px;
+}
+#view-dashboard .mini-table tbody td {
+  padding: 6px 14px;
+  font-size: 11.5px;
+}
+#view-dashboard .activity-list {
+  max-height: none;
+  overflow-y: auto;
+}
+#view-dashboard .activity-item {
+  padding: 7px 0;
+}
+#view-dashboard .activity-title {
+  font-size: 11.5px;
+}
+#view-dashboard .activity-desc,
+#view-dashboard .activity-time {
+  font-size: 10.5px;
+}
+#view-dashboard .empty-mini {
+  padding: 18px 14px;
+}
+
+@media (max-width: 1200px) {
+  #view-dashboard .dash-bottom { grid-template-columns: 1fr; }
+}
+@media (max-width: 1024px) {
+  #view-dashboard .page-content { overflow-y: auto; }
+}
+@media (max-width: 768px) {
+  #view-dashboard .page-content { padding: 12px 14px 16px; overflow-y: auto; }
+  #view-dashboard .dash-filter-bar { flex-direction: column; align-items: stretch; }
+  #view-dashboard .kpi-grid-4,
+  #view-dashboard .quick-stats { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 480px) {
+  #view-dashboard .kpi-grid-4,
+  #view-dashboard .quick-stats { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
@@ -604,7 +777,6 @@
       <button class="hamburger" id="dash-hamburger">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
-      <span class="topbar-title">Dashboard</span>
       <div class="topbar-spacer"></div>
       <button id="dash-btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
     </header>
