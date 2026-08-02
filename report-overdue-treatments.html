@@ -75,459 +75,6 @@
 #view-report-overdue-treatments .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
 #view-report-overdue-treatments .manage-list-link:hover{color:hsl(142,76%,28%)}
 
-
-/* ── Renewals-specific additions ── */
-#view-report-overdue-treatments .sum-card{position:relative;overflow:hidden}
-#view-report-overdue-treatments .sum-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}
-#view-report-overdue-treatments .sum-card.total-exp::before{background:var(--blue)}
-#view-report-overdue-treatments .sum-card.renewed-c::before{background:var(--green)}
-#view-report-overdue-treatments .sum-card.pending-c::before{background:var(--amber)}
-#view-report-overdue-treatments .sum-card.declined-c::before{background:var(--red)}
-#view-report-overdue-treatments .days-filter{display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:4px;width:fit-content}
-#view-report-overdue-treatments .days-btn{padding:6px 16px;border-radius:6px;font-size:13px;font-weight:500;border:none;cursor:pointer;color:var(--text-secondary);background:none;transition:all .15s;font-family:var(--font)}
-#view-report-overdue-treatments .days-btn.active{background:var(--primary);color:white;font-weight:600}
-#view-report-overdue-treatments .days-btn:hover:not(.active){background:var(--bg-secondary);color:var(--text)}
-#view-report-overdue-treatments .days-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
-#view-report-overdue-treatments .days-pill.critical{background:var(--red-bg);color:var(--red-text)}
-#view-report-overdue-treatments .days-pill.warning{background:var(--amber-bg);color:var(--amber-text)}
-#view-report-overdue-treatments .days-pill.ok{background:var(--green-bg);color:var(--green-text)}
-#view-report-overdue-treatments .days-pill.overdue{background:var(--red-bg);color:var(--red-text)}
-#view-report-overdue-treatments .form-textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none;resize:vertical;min-height:80px;font-family:var(--font)}
-#view-report-overdue-treatments .form-textarea::placeholder{color:var(--text-muted)}
-#view-report-overdue-treatments .form-textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}
-#view-report-overdue-treatments .modal-subtitle{font-size:12px;color:var(--text-muted);margin-top:2px}
-
-
-/* ── Overdue-specific additions ── */
-#view-report-overdue-treatments tbody tr.sev-critical{background:hsl(0,84%,99%)}
-#view-report-overdue-treatments tbody tr.sev-critical:hover{background:hsl(0,84%,97%)}
-#view-report-overdue-treatments tbody tr.sev-warning{background:hsl(38,92%,99%)}
-#view-report-overdue-treatments tbody tr.sev-warning:hover{background:hsl(38,92%,97%)}
-#view-report-overdue-treatments tbody tr.sev-attention{background:hsl(50,96%,99%)}
-#view-report-overdue-treatments tbody tr.sev-attention:hover{background:hsl(50,96%,97%)}
-#view-report-overdue-treatments .days-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
-#view-report-overdue-treatments .days-pill.critical{background:var(--red-bg);color:var(--red-text)}
-#view-report-overdue-treatments .days-pill.warning{background:var(--amber-bg);color:var(--amber-text)}
-#view-report-overdue-treatments .days-pill.attention{background:var(--yellow-bg,hsl(50,96%,96%));color:var(--yellow-text,hsl(50,70%,32%))}
-#view-report-overdue-treatments .section-header{display:flex;align-items:center;justify-content:space-between;margin:24px 0 14px;flex-wrap:wrap;gap:10px}
-#view-report-overdue-treatments .section-header:first-of-type{margin-top:0}
-#view-report-overdue-treatments .section-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:var(--text)}
-#view-report-overdue-treatments .section-title-icon{width:30px;height:30px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#view-report-overdue-treatments .section-title-icon svg{width:16px;height:16px}
-#view-report-overdue-treatments .section-count{font-size:12.5px;font-weight:500;color:var(--text-muted)}
-#view-report-overdue-treatments .filter-select{padding:7px 30px 7px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}
-#view-report-overdue-treatments .btn-amber{background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}
-#view-report-overdue-treatments .btn-amber:hover{background:#fef3c7}
-#view-report-overdue-treatments .ctx-banner{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:16px;font-size:13px}
-#view-report-overdue-treatments .ctx-banner label{font-weight:600;color:var(--text-muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.04em}
-#view-report-overdue-treatments .empty-section{background:white;border:1px solid var(--border);border-radius:var(--radius);text-align:center;padding:48px 24px;margin-bottom:28px}
-#view-report-overdue-treatments .empty-section svg{width:40px;height:40px;color:var(--green);margin-bottom:12px}
-#view-report-overdue-treatments .empty-section h3{font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
-#view-report-overdue-treatments .empty-section p{font-size:13px;color:var(--text-muted)}
-
-
-/* ── Report-specific additions ── */
-#view-report-overdue-treatments .page-content{padding:24px;display:block;overflow-y:auto}
-#view-report-overdue-treatments .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
-#view-report-overdue-treatments .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary)}
-#view-report-overdue-treatments .date-input{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;outline:none;transition:border-color .15s;font-family:var(--font)}
-#view-report-overdue-treatments .date-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}
-#view-report-overdue-treatments .filter-select{padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}
-#view-report-overdue-treatments .controls-spacer{flex:1}
-#view-report-overdue-treatments .btn-secondary:disabled{opacity:.45;cursor:not-allowed}
-#view-report-overdue-treatments .date-nav-group{display:flex;align-items:center;gap:6px}
-#view-report-overdue-treatments .btn-date-arrow{padding:8px 10px}
-#view-report-overdue-treatments .all-dates-toggle{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;user-select:none;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:white}
-#view-report-overdue-treatments .all-dates-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--primary)}
-#view-report-overdue-treatments .all-dates-toggle.active{background:var(--primary-light);border-color:var(--primary-border);color:var(--primary-hover)}
-#view-report-overdue-treatments .orientation-toggle{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-#view-report-overdue-treatments .orient-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;background:white;border:none;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s}
-#view-report-overdue-treatments .orient-btn+.orient-btn{border-left:1px solid var(--border)}
-#view-report-overdue-treatments .orient-btn svg{width:14px;height:14px}
-#view-report-overdue-treatments .orient-btn:hover{background:var(--bg-secondary)}
-#view-report-overdue-treatments .orient-btn.active{background:var(--primary);color:white}
-
-#view-report-overdue-treatments .summary-row{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-#view-report-overdue-treatments .sum-pill{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:10px 16px;display:flex;align-items:center;gap:10px;flex:1;min-width:100px}
-#view-report-overdue-treatments .sum-pill-val{font-size:22px;font-weight:800;line-height:1}
-#view-report-overdue-treatments .sum-pill-lbl{font-size:11.5px;color:var(--text-muted);margin-top:2px}
-
-#view-report-overdue-treatments #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:32px 36px}
-
-#view-report-overdue-treatments .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:20px;gap:20px}
-#view-report-overdue-treatments .letterhead-logo{display:flex;align-items:center;gap:14px}
-#view-report-overdue-treatments .letterhead-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#view-report-overdue-treatments .letterhead-logo-icon svg{width:28px;height:28px;color:white}
-#view-report-overdue-treatments .letterhead-company{line-height:1.3}
-#view-report-overdue-treatments .letterhead-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
-#view-report-overdue-treatments .letterhead-company p{font-size:12px;color:#555;margin-top:2px}
-#view-report-overdue-treatments .letterhead-right{text-align:right}
-#view-report-overdue-treatments .letterhead-doc-title{font-size:17px;font-weight:800;color:#111;text-transform:uppercase;letter-spacing:.04em}
-#view-report-overdue-treatments .letterhead-doc-date{font-size:13px;color:#444;margin-top:4px}
-#view-report-overdue-treatments .letterhead-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
-
-#view-report-overdue-treatments .report-summary{display:flex;gap:20px;margin-bottom:22px;padding:12px 16px;background:#f8f9fa;border:1px solid #e5e7eb;border-radius:6px;flex-wrap:wrap}
-#view-report-overdue-treatments .report-summary-item{text-align:center;flex:1;min-width:80px}
-#view-report-overdue-treatments .report-summary-val{font-size:20px;font-weight:900;color:#111}
-#view-report-overdue-treatments .report-summary-lbl{font-size:11px;color:#666;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
-
-#view-report-overdue-treatments .team-section{margin-bottom:28px}
-#view-report-overdue-treatments .team-section-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#111;color:white;border-radius:6px 6px 0 0;margin-bottom:0}
-#view-report-overdue-treatments .team-section-name{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
-#view-report-overdue-treatments .team-section-count{font-size:12px;opacity:.75;margin-left:auto}
-
-#view-report-overdue-treatments .report-table{width:100%;border-collapse:collapse}
-#view-report-overdue-treatments .report-table th{padding:9px 12px;background:#f1f3f5;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
-#view-report-overdue-treatments .report-table td{padding:9px 12px;border:1px solid #e5e7eb;font-size:12.5px;color:#111;vertical-align:middle}
-#view-report-overdue-treatments .report-table tbody tr:nth-child(even){background:#fafafa}
-#view-report-overdue-treatments .report-table td.num{color:#6b7280;font-size:12px;text-align:center;width:36px}
-#view-report-overdue-treatments .report-table td.treat-no{font-family:monospace;font-size:11.5px;color:#6b7280}
-#view-report-overdue-treatments .status-dot{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:12px}
-#view-report-overdue-treatments .status-dot.completed{background:#dcfce7;color:#15803d}
-#view-report-overdue-treatments .status-dot.scheduled{background:#dbeafe;color:#1d4ed8}
-#view-report-overdue-treatments .status-dot.overdue{background:#fee2e2;color:#dc2626}
-#view-report-overdue-treatments .status-dot.rescheduled{background:#fef3c7;color:#b45309}
-#view-report-overdue-treatments .status-dot.cancelled{background:#f3f4f6;color:#6b7280}
-#view-report-overdue-treatments .status-dot::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-
-#view-report-overdue-treatments .job-type-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
-#view-report-overdue-treatments .job-type-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-#view-report-overdue-treatments .job-type-badge.treatment{background:#dbeafe;color:#1d4ed8}
-#view-report-overdue-treatments .job-type-badge.inspection{background:#ede9fe;color:#5b21b6}
-
-#view-report-overdue-treatments .no-treatments{text-align:center;padding:48px 20px;color:#9ca3af}
-#view-report-overdue-treatments .no-treatments svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
-#view-report-overdue-treatments .no-treatments h3{font-size:15px;font-weight:600;color:#374151;margin-bottom:6px}
-#view-report-overdue-treatments .no-treatments p{font-size:13px}
-
-#view-report-overdue-treatments .report-footer{margin-top:28px;padding-top:16px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:#9ca3af}
-
-#view-report-overdue-treatments .inspection-section{margin-top:28px;margin-bottom:28px}
-#view-report-overdue-treatments .inspection-section-header{display:flex;align-items:center;gap:10px;padding:10px 14px;background:hsl(262,83%,38%);color:white;border-radius:6px 6px 0 0}
-#view-report-overdue-treatments .inspection-section-name{font-size:14px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}
-#view-report-overdue-treatments .inspection-section-count{font-size:12px;opacity:.75;margin-left:auto}
-#view-report-overdue-treatments .inspection-table{width:100%;border-collapse:collapse}
-#view-report-overdue-treatments .inspection-table th{padding:9px 12px;background:#f3f0ff;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#4c1d95;text-align:left}
-#view-report-overdue-treatments .inspection-table td{padding:9px 12px;border:1px solid #e5e7eb;font-size:12.5px;color:#111;vertical-align:middle}
-#view-report-overdue-treatments .inspection-table tbody tr:nth-child(even){background:#faf8ff}
-#view-report-overdue-treatments .insp-status{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:12px}
-#view-report-overdue-treatments .insp-status::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-#view-report-overdue-treatments .insp-status.Scheduled{background:#ede9fe;color:#5b21b6}
-#view-report-overdue-treatments .insp-status.Completed{background:#dcfce7;color:#15803d}
-#view-report-overdue-treatments .insp-status.Converted{background:#dbeafe;color:#1d4ed8}
-#view-report-overdue-treatments .insp-status.Cancelled{background:#f3f4f6;color:#6b7280}
-#view-report-overdue-treatments .insp-status.No-Show{background:#fef3c7;color:#b45309}
-#view-report-overdue-treatments .insp-status.Lost{background:#fee2e2;color:#dc2626}
-
-#view-report-overdue-treatments .sig-block{display:flex;gap:40px;margin-top:28px;padding-top:20px;border-top:1px dashed #d1d5db}
-#view-report-overdue-treatments .sig-line{flex:1;text-align:center}
-#view-report-overdue-treatments .sig-line-bar{border-top:1px solid #111;margin-bottom:6px}
-#view-report-overdue-treatments .sig-line-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}
-
-@media(max-width:768px){#view-report-overdue-treatments .controls-bar{flex-direction:column;align-items:stretch}}
-
-/* ══════════════════════════════════════════
-   PRINT CSS — every selector scoped under
-   #view-report-overdue-treatments. This module stays permanently mounted
-   in the DOM like every other one (just hidden when inactive), so
-   unscoped print rules here would leak into printing from ANY other
-   page the moment this module has been visited once in the session.
-   The base [data-view]:not(.active){display:none} rule already keeps
-   this module's whole subtree invisible when it isn't the active view
-   — display:none on that ancestor wins regardless of any !important
-   on these descendant rules — so this can only ever affect what gets
-   printed when Daily Schedule Report is itself the active view.
-══════════════════════════════════════════ */
-@media print{
-  @page{margin:12mm 10mm;size:A4}
-
-  #view-report-overdue-treatments .sidebar,
-  #view-report-overdue-treatments .sidebar-overlay,
-  #view-report-overdue-treatments .topbar,
-  #view-report-overdue-treatments .hamburger,
-  #view-report-overdue-treatments .controls-bar,
-  #view-report-overdue-treatments .summary-row,
-  #view-report-overdue-treatments #toast-container,
-  #view-report-overdue-treatments .btn-print,
-  #view-report-overdue-treatments .btn-secondary,
-  #view-report-overdue-treatments .btn-ghost,
-  #view-report-overdue-treatments .page-content > *:not(#report-area){display:none!important}
-
-  #view-report-overdue-treatments,
-  #view-report-overdue-treatments #app-shell,
-  #view-report-overdue-treatments .main-wrapper,
-  #view-report-overdue-treatments .page-content{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    margin:0!important;padding:0!important;flex:none!important;background:white!important;
-  }
-  #view-report-overdue-treatments .page-content{padding:0!important}
-  #view-report-overdue-treatments #report-area{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
-  }
-  #view-report-overdue-treatments table{width:100%!important;table-layout:auto!important}
-  #view-report-overdue-treatments .team-section{page-break-inside:avoid;break-inside:avoid}
-  #view-report-overdue-treatments .inspection-section{page-break-inside:avoid;break-inside:avoid}
-  #view-report-overdue-treatments .sig-block{page-break-inside:avoid}
-  #view-report-overdue-treatments .report-table th{background:#e5e7eb!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .report-table tbody tr:nth-child(even){background:#fafafa!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .team-section-header{background:#111!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .inspection-section-header{background:hsl(262,83%,38%)!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .inspection-table th{background:#f3f0ff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .inspection-table tbody tr:nth-child(even){background:#faf8ff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .status-dot,
-  #view-report-overdue-treatments .insp-status,
-  #view-report-overdue-treatments .report-summary{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-}
-
-
-/* ── Monthly Collection-specific additions ── */
-#view-report-overdue-treatments .page-content{padding:24px;display:block;overflow-y:auto}
-#view-report-overdue-treatments .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
-#view-report-overdue-treatments .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
-#view-report-overdue-treatments .month-nav{display:flex;align-items:center;gap:8px}
-#view-report-overdue-treatments .nav-btn{width:34px;height:34px;background:white;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s}
-#view-report-overdue-treatments .nav-btn:hover{background:var(--bg-secondary);color:var(--text)}
-#view-report-overdue-treatments .nav-btn svg{width:16px;height:16px}
-#view-report-overdue-treatments .month-label{font-size:15px;font-weight:800;color:var(--text);min-width:160px;text-align:center}
-#view-report-overdue-treatments .controls-spacer{flex:1}
-#view-report-overdue-treatments .due-date-fallback-toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:pointer;user-select:none;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:white}
-#view-report-overdue-treatments .due-date-fallback-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--primary)}
-#view-report-overdue-treatments .due-date-fallback-toggle.active{background:var(--amber-bg);border-color:#fcd34d;color:var(--amber-text)}
-
-#view-report-overdue-treatments .summary-pills{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-#view-report-overdue-treatments .sum-pill{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;flex:1;min-width:120px}
-#view-report-overdue-treatments .sum-pill-val{font-size:21px;font-weight:900;line-height:1;margin-bottom:3px}
-#view-report-overdue-treatments .sum-pill-lbl{font-size:11.5px;color:var(--text-muted)}
-
-#view-report-overdue-treatments #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px}
-
-#view-report-overdue-treatments .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:14px;margin-bottom:20px;gap:20px}
-#view-report-overdue-treatments .lh-logo{display:flex;align-items:center;gap:14px}
-#view-report-overdue-treatments .lh-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#view-report-overdue-treatments .lh-logo-icon svg{width:28px;height:28px;color:white}
-#view-report-overdue-treatments .lh-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
-#view-report-overdue-treatments .lh-company p{font-size:12px;color:#555;margin-top:2px}
-#view-report-overdue-treatments .lh-right{text-align:right}
-#view-report-overdue-treatments .lh-doc-title{font-size:16px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.04em}
-#view-report-overdue-treatments .lh-doc-sub{font-size:13px;color:#333;margin-top:5px;font-weight:700}
-#view-report-overdue-treatments .lh-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
-
-#view-report-overdue-treatments .grand-banner{display:flex;align-items:center;justify-content:space-between;background:#111;color:white;border-radius:8px;padding:14px 20px;margin-bottom:20px;gap:12px;flex-wrap:wrap}
-#view-report-overdue-treatments .grand-banner-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.8}
-#view-report-overdue-treatments .grand-banner-amount{font-size:26px;font-weight:900;letter-spacing:-.5px}
-#view-report-overdue-treatments .grand-banner-meta{font-size:12px;opacity:.7}
-#view-report-overdue-treatments .grand-stats{display:flex;gap:20px;flex-wrap:wrap}
-#view-report-overdue-treatments .grand-stat{text-align:center}
-#view-report-overdue-treatments .grand-stat-val{font-size:18px;font-weight:900}
-#view-report-overdue-treatments .grand-stat-lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
-
-#view-report-overdue-treatments .collector-section{margin-bottom:24px;break-inside:avoid;page-break-inside:avoid}
-#view-report-overdue-treatments .collector-header{display:flex;align-items:center;justify-content:space-between;background:#1f2937;color:white;padding:10px 16px;border-radius:6px 6px 0 0;gap:12px}
-#view-report-overdue-treatments .collector-name{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px}
-#view-report-overdue-treatments .collector-name svg{width:15px;height:15px;opacity:.8}
-#view-report-overdue-treatments .collector-count{font-size:12px;opacity:.75}
-#view-report-overdue-treatments .collector-subtotal{font-size:14px;font-weight:900;color:#4ade80}
-
-#view-report-overdue-treatments .coll-table{width:100%;border-collapse:collapse;font-size:12px}
-#view-report-overdue-treatments .coll-table th{padding:8px 10px;background:#f1f3f5;border:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
-#view-report-overdue-treatments .coll-table th.right{text-align:right}
-#view-report-overdue-treatments .coll-table td{padding:8px 10px;border:1px solid #e5e7eb;vertical-align:middle;color:#111}
-#view-report-overdue-treatments .coll-table td.num{text-align:center;color:#9ca3af;font-size:11px;width:28px}
-#view-report-overdue-treatments .coll-table td.mono{font-family:monospace;font-size:11px;color:#6b7280}
-#view-report-overdue-treatments .coll-table td.nowrap{white-space:nowrap}
-#view-report-overdue-treatments .coll-table td.right{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
-#view-report-overdue-treatments .coll-table td.remarks-cell{font-size:11.5px;color:#6b7280;max-width:140px}
-#view-report-overdue-treatments .coll-table tbody tr:nth-child(even){background:#fafafa}
-#view-report-overdue-treatments .coll-table tfoot td{padding:9px 10px;background:#e5e7eb;font-weight:800;font-size:12.5px;border:1px solid #d1d5db}
-#view-report-overdue-treatments .coll-table tfoot td.right{text-align:right;font-variant-numeric:tabular-nums;color:#15803d}
-
-#view-report-overdue-treatments .mode-tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700;text-transform:capitalize;background:#f3f4f6;color:#374151}
-#view-report-overdue-treatments .due-date-tag{display:inline-block;padding:0 5px;border-radius:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--amber-bg);color:var(--amber-text);margin-left:5px;vertical-align:middle}
-
-#view-report-overdue-treatments .no-collections{text-align:center;padding:52px 20px;color:#9ca3af}
-#view-report-overdue-treatments .no-collections svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
-#view-report-overdue-treatments .no-collections h3{font-size:15px;font-weight:600;color:#374151;margin-bottom:6px}
-
-#view-report-overdue-treatments .report-footer{margin-top:20px;padding-top:12px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:#9ca3af;flex-wrap:wrap;gap:6px}
-#view-report-overdue-treatments .confidential-note{font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em}
-
-#view-report-overdue-treatments .report-placeholder{text-align:center;padding:56px 20px;color:var(--text-muted)}
-#view-report-overdue-treatments .report-placeholder svg{width:44px;height:44px;margin-bottom:14px;opacity:.4}
-#view-report-overdue-treatments .report-placeholder h3{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
-#view-report-overdue-treatments .report-placeholder p{font-size:13px;max-width:360px;margin:0 auto}
-
-@media(max-width:768px){#view-report-overdue-treatments .controls-bar{flex-direction:column;align-items:stretch}#view-report-overdue-treatments .grand-banner{flex-direction:column}}
-
-/* ══════════════════════════════════════════
-   PRINT CSS — every selector scoped under
-   #view-report-overdue-treatments, same reasoning as Daily Schedule
-   Report: this module stays permanently mounted like every other one,
-   so unscoped print rules would leak into printing from any other page.
-══════════════════════════════════════════ */
-@media print{
-  @page{margin:12mm 10mm;size:A4}
-
-  #view-report-overdue-treatments .sidebar,
-  #view-report-overdue-treatments .sidebar-overlay,
-  #view-report-overdue-treatments .topbar,
-  #view-report-overdue-treatments .hamburger,
-  #view-report-overdue-treatments .controls-bar,
-  #view-report-overdue-treatments .summary-pills,
-  #view-report-overdue-treatments #toast-container,
-  #view-report-overdue-treatments .btn-print,
-  #view-report-overdue-treatments .btn-secondary,
-  #view-report-overdue-treatments .page-content > *:not(#report-area){display:none!important}
-
-  #view-report-overdue-treatments,
-  #view-report-overdue-treatments #app-shell,
-  #view-report-overdue-treatments .main-wrapper,
-  #view-report-overdue-treatments .page-content{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    margin:0!important;padding:0!important;flex:none!important;background:white!important;
-  }
-  #view-report-overdue-treatments .page-content{padding:0!important}
-  #view-report-overdue-treatments #report-area{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
-  }
-  #view-report-overdue-treatments table{width:100%!important;table-layout:auto!important}
-  #view-report-overdue-treatments .collector-section{page-break-inside:avoid;break-inside:avoid}
-  #view-report-overdue-treatments .grand-banner,
-  #view-report-overdue-treatments .collector-header,
-  #view-report-overdue-treatments .coll-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .coll-table tbody tr:nth-child(even),
-  #view-report-overdue-treatments .coll-table tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-}
-
-
-/* ── Service Report-specific additions ── */
-#view-report-overdue-treatments .page-content{padding:24px;display:block;overflow-y:auto}
-#view-report-overdue-treatments .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
-#view-report-overdue-treatments .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
-#view-report-overdue-treatments .combobox-wrap{position:relative;flex:1;min-width:280px}
-#view-report-overdue-treatments .combobox-input{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;outline:none;transition:border-color .15s;font-family:var(--font)}
-#view-report-overdue-treatments .combobox-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}
-#view-report-overdue-treatments .combobox-dropdown{position:absolute;top:calc(100% + 4px);left:0;right:0;background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow-lg);z-index:100;max-height:280px;overflow-y:auto;display:none}
-#view-report-overdue-treatments .combobox-dropdown.open{display:block}
-#view-report-overdue-treatments .combobox-item{padding:9px 14px;cursor:pointer;font-size:13.5px;transition:background .1s}
-#view-report-overdue-treatments .combobox-item:hover,#view-report-overdue-treatments .combobox-item.active{background:var(--primary-light)}
-#view-report-overdue-treatments .combobox-item-main{font-weight:600;color:var(--text)}
-#view-report-overdue-treatments .combobox-item-sub{font-size:12px;color:var(--text-muted);margin-top:1px}
-#view-report-overdue-treatments .combobox-empty{padding:16px;text-align:center;color:var(--text-muted);font-size:13px}
-#view-report-overdue-treatments .controls-spacer{flex:1}
-
-#view-report-overdue-treatments #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px}
-
-#view-report-overdue-treatments .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:24px;gap:20px}
-#view-report-overdue-treatments .letterhead-logo{display:flex;align-items:center;gap:14px}
-#view-report-overdue-treatments .letterhead-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#view-report-overdue-treatments .letterhead-logo-icon svg{width:28px;height:28px;color:white}
-#view-report-overdue-treatments .letterhead-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
-#view-report-overdue-treatments .letterhead-company p{font-size:12px;color:#555;margin-top:2px}
-#view-report-overdue-treatments .letterhead-right{text-align:right}
-#view-report-overdue-treatments .letterhead-doc-title{font-size:17px;font-weight:800;color:#111;text-transform:uppercase;letter-spacing:.04em}
-#view-report-overdue-treatments .letterhead-doc-sub{font-size:13px;color:#444;margin-top:4px;font-weight:600}
-#view-report-overdue-treatments .letterhead-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
-
-#view-report-overdue-treatments .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
-#view-report-overdue-treatments .info-box{background:#f8f9fa;border:1px solid #e5e7eb;border-radius:6px;padding:14px 18px}
-#view-report-overdue-treatments .info-box-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#6b7280;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-#view-report-overdue-treatments .info-box-title svg{width:13px;height:13px}
-#view-report-overdue-treatments .info-row{display:flex;gap:8px;margin-bottom:5px;font-size:12.5px}
-#view-report-overdue-treatments .info-row:last-child{margin-bottom:0}
-#view-report-overdue-treatments .info-row label{color:#6b7280;min-width:110px;flex-shrink:0;font-weight:500}
-#view-report-overdue-treatments .info-row span{color:#111;font-weight:600}
-
-#view-report-overdue-treatments .report-section{margin-bottom:24px;page-break-inside:avoid}
-#view-report-overdue-treatments .report-section-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#111;border-bottom:2px solid #111;padding-bottom:6px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-#view-report-overdue-treatments .report-section-title svg{width:15px;height:15px}
-
-#view-report-overdue-treatments .report-table{width:100%;border-collapse:collapse;margin-bottom:0}
-#view-report-overdue-treatments .report-table th{padding:8px 10px;background:#f1f3f5;border:1px solid #d1d5db;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
-#view-report-overdue-treatments .report-table td{padding:8px 10px;border:1px solid #e5e7eb;font-size:12px;color:#111;vertical-align:middle}
-#view-report-overdue-treatments .report-table tbody tr:nth-child(even){background:#fafafa}
-#view-report-overdue-treatments .report-table td.num{color:#6b7280;font-size:11.5px;text-align:center;width:32px}
-#view-report-overdue-treatments .report-table td.mono{font-family:monospace;font-size:11.5px;color:#6b7280}
-#view-report-overdue-treatments .report-table td.nowrap{white-space:nowrap}
-#view-report-overdue-treatments .report-table td.notes-cell{font-size:11.5px;color:#555;max-width:180px;word-break:break-word}
-#view-report-overdue-treatments .status-dot{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px}
-#view-report-overdue-treatments .status-dot::before{content:'';width:5px;height:5px;border-radius:50%;background:currentColor}
-#view-report-overdue-treatments .status-dot.completed{background:#dcfce7;color:#15803d}
-#view-report-overdue-treatments .status-dot.scheduled{background:#dbeafe;color:#1d4ed8}
-#view-report-overdue-treatments .status-dot.overdue{background:#fee2e2;color:#dc2626}
-#view-report-overdue-treatments .status-dot.rescheduled{background:#fef3c7;color:#b45309}
-#view-report-overdue-treatments .status-dot.cancelled{background:#f3f4f6;color:#6b7280}
-
-#view-report-overdue-treatments .payment-summary{display:flex;gap:0;border:1px solid #d1d5db;border-radius:6px;overflow:hidden;margin-top:12px;flex-wrap:wrap}
-#view-report-overdue-treatments .payment-sum-item{flex:1;min-width:100px;text-align:center;padding:12px 8px;border-right:1px solid #d1d5db}
-#view-report-overdue-treatments .payment-sum-item:last-child{border-right:none}
-#view-report-overdue-treatments .payment-sum-val{font-size:17px;font-weight:900;color:#111}
-#view-report-overdue-treatments .payment-sum-val.green{color:#15803d}
-#view-report-overdue-treatments .payment-sum-val.red{color:#dc2626}
-#view-report-overdue-treatments .payment-sum-lbl{font-size:10.5px;color:#6b7280;text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
-
-#view-report-overdue-treatments .sig-block{display:flex;gap:40px;margin-top:32px;padding-top:20px;border-top:1px dashed #d1d5db;page-break-inside:avoid;flex-wrap:wrap}
-#view-report-overdue-treatments .sig-line{flex:1;min-width:140px;text-align:center}
-#view-report-overdue-treatments .sig-line-bar{border-top:1px solid #111;margin-bottom:6px;margin-top:56px}
-#view-report-overdue-treatments .sig-line-label{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:.05em}
-#view-report-overdue-treatments .sig-line-sublabel{font-size:10.5px;color:#9ca3af;margin-top:2px}
-
-#view-report-overdue-treatments .report-footer{margin-top:20px;padding-top:12px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:#9ca3af;flex-wrap:wrap;gap:6px}
-
-#view-report-overdue-treatments .report-placeholder{text-align:center;padding:52px 20px;color:var(--text-muted)}
-#view-report-overdue-treatments .report-placeholder svg{width:44px;height:44px;margin-bottom:14px;opacity:.4}
-#view-report-overdue-treatments .report-placeholder h3{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
-#view-report-overdue-treatments .report-placeholder p{font-size:13px;max-width:340px;margin:0 auto}
-
-@media(max-width:768px){#view-report-overdue-treatments .page-content{padding:16px}#view-report-overdue-treatments .info-grid{grid-template-columns:1fr}#view-report-overdue-treatments .controls-bar{flex-direction:column;align-items:stretch}}
-
-/* ══════════════════════════════════════════
-   PRINT CSS — scoped under #view-report-overdue-treatments, same reasoning as
-   the other report modules.
-══════════════════════════════════════════ */
-@media print{
-  @page{margin:12mm 10mm;size:A4}
-
-  #view-report-overdue-treatments .sidebar,
-  #view-report-overdue-treatments .sidebar-overlay,
-  #view-report-overdue-treatments .topbar,
-  #view-report-overdue-treatments .hamburger,
-  #view-report-overdue-treatments .controls-bar,
-  #view-report-overdue-treatments #toast-container,
-  #view-report-overdue-treatments .btn-print,
-  #view-report-overdue-treatments .btn-secondary,
-  #view-report-overdue-treatments .page-content > *:not(#report-area){display:none!important}
-
-  #view-report-overdue-treatments,
-  #view-report-overdue-treatments #app-shell,
-  #view-report-overdue-treatments .main-wrapper,
-  #view-report-overdue-treatments .page-content{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    margin:0!important;padding:0!important;flex:none!important;background:white!important;
-  }
-  #view-report-overdue-treatments .page-content{padding:0!important}
-  #view-report-overdue-treatments #report-area{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
-  }
-  #view-report-overdue-treatments table{width:100%!important;table-layout:auto!important}
-  #view-report-overdue-treatments .report-section{page-break-inside:avoid}
-  #view-report-overdue-treatments .sig-block{page-break-inside:avoid}
-  #view-report-overdue-treatments .report-table th,
-  #view-report-overdue-treatments .report-table tbody tr:nth-child(even){-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .payment-summary,
-  #view-report-overdue-treatments .info-box,
-  #view-report-overdue-treatments .status-dot{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-}
-
-
 /* ── Overdue Treatments Report-specific additions ── */
 #view-report-overdue-treatments .page-content{padding:24px;display:block;overflow-y:auto}
 #view-report-overdue-treatments .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
@@ -601,48 +148,79 @@
 @media(max-width:900px){#view-report-overdue-treatments .summary-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:768px){#view-report-overdue-treatments .page-content{padding:16px}#view-report-overdue-treatments .controls-bar{flex-direction:column;align-items:stretch}#view-report-overdue-treatments .summary-grid{grid-template-columns:1fr 1fr}}
 
+/* ── Print controls (orientation + color mode toggles) ── */
+#view-report-overdue-treatments .print-toggle-group{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+#view-report-overdue-treatments .print-toggle-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;background:white;border:none;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s}
+#view-report-overdue-treatments .print-toggle-btn+.print-toggle-btn{border-left:1px solid var(--border)}
+#view-report-overdue-treatments .print-toggle-btn svg{width:14px;height:14px}
+#view-report-overdue-treatments .print-toggle-btn:hover{background:var(--bg-secondary)}
+#view-report-overdue-treatments .print-toggle-btn.active{background:var(--primary);color:white}
+
 /* ══════════════════════════════════════════
-   PRINT CSS — scoped under #view-report-overdue-treatments, same
-   reasoning as the other report modules. This one defaults to
-   landscape (the table has more columns than the portrait reports).
+   PRINT CSS — scoped under #view-report-overdue-treatments AND
+   gated behind .active everywhere. Every report module stays
+   permanently mounted in the DOM (just hidden via the base
+   [data-view]:not(.active){display:none} rule) — without the
+   .active check on every rule below, printing from THIS page would
+   also force any OTHER previously-visited report module visible at
+   the same time, since each one's print CSS was unconditionally
+   forcing itself on. Gating on .active means only the report
+   actually being looked at ever ends up on the printed page.
+
+   Orientation and color mode are person-controlled via the toggle
+   buttons above the report: .print-portrait switches the named
+   @page (Chromium supports per-element @page selection via the
+   `page:` property), and .print-bw applies a grayscale filter to
+   the report content only — the on-screen severity colors stay
+   exactly as-is, this only affects what gets printed.
 ══════════════════════════════════════════ */
+@page reportoverdue-landscape{margin:10mm 12mm;size:A4 landscape}
+@page reportoverdue-portrait{margin:12mm 10mm;size:A4 portrait}
+
 @media print{
-  @page{margin:12mm 10mm;size:A4 landscape}
+  #view-report-overdue-treatments:not(.active){display:none!important}
 
-  #view-report-overdue-treatments .sidebar,
-  #view-report-overdue-treatments .sidebar-overlay,
-  #view-report-overdue-treatments .topbar,
-  #view-report-overdue-treatments .hamburger,
-  #view-report-overdue-treatments .controls-bar,
-  #view-report-overdue-treatments .summary-grid,
-  #view-report-overdue-treatments #toast-container,
-  #view-report-overdue-treatments .btn-print,
-  #view-report-overdue-treatments .btn-secondary,
-  #view-report-overdue-treatments .page-content > *:not(#report-area){display:none!important}
+  #view-report-overdue-treatments.active #report-area{page:reportoverdue-landscape}
+  #view-report-overdue-treatments.active.print-portrait #report-area{page:reportoverdue-portrait}
 
-  #view-report-overdue-treatments,
-  #view-report-overdue-treatments #app-shell,
-  #view-report-overdue-treatments .main-wrapper,
-  #view-report-overdue-treatments .page-content{
+  #view-report-overdue-treatments.active .sidebar,
+  #view-report-overdue-treatments.active .sidebar-overlay,
+  #view-report-overdue-treatments.active .topbar,
+  #view-report-overdue-treatments.active .hamburger,
+  #view-report-overdue-treatments.active .controls-bar,
+  #view-report-overdue-treatments.active .summary-grid,
+  #view-report-overdue-treatments.active #toast-container,
+  #view-report-overdue-treatments.active .btn-print,
+  #view-report-overdue-treatments.active .btn-secondary,
+  #view-report-overdue-treatments.active .page-content > *:not(#report-area){display:none!important}
+
+  #view-report-overdue-treatments.active,
+  #view-report-overdue-treatments.active #app-shell,
+  #view-report-overdue-treatments.active .main-wrapper,
+  #view-report-overdue-treatments.active .page-content{
     display:block!important;width:100%!important;max-width:100%!important;
     height:auto!important;min-height:0!important;overflow:visible!important;
     margin:0!important;padding:0!important;flex:none!important;background:white!important;
   }
-  #view-report-overdue-treatments .page-content{padding:0!important}
-  #view-report-overdue-treatments #report-area{
+  #view-report-overdue-treatments.active .page-content{padding:0!important}
+  #view-report-overdue-treatments.active #report-area{
     display:block!important;width:100%!important;max-width:100%!important;
     height:auto!important;min-height:0!important;overflow:visible!important;
     border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
   }
-  #view-report-overdue-treatments table{width:100%!important;table-layout:auto!important}
-  #view-report-overdue-treatments .report-table th{background:#1f2937!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .report-table tbody tr.sev-critical,
-  #view-report-overdue-treatments .report-table tbody tr.sev-warning,
-  #view-report-overdue-treatments .report-table tbody tr.sev-attention{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-overdue-treatments .sev-badge,
-  #view-report-overdue-treatments .days-pill,
-  #view-report-overdue-treatments .legend-swatch,
-  #view-report-overdue-treatments .report-summary{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-overdue-treatments.active table{width:100%!important;table-layout:auto!important}
+  #view-report-overdue-treatments.active .report-table th{background:#1f2937!important;color:white!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-overdue-treatments.active .report-table tbody tr.sev-critical,
+  #view-report-overdue-treatments.active .report-table tbody tr.sev-warning,
+  #view-report-overdue-treatments.active .report-table tbody tr.sev-attention{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  #view-report-overdue-treatments.active .sev-badge,
+  #view-report-overdue-treatments.active .days-pill,
+  #view-report-overdue-treatments.active .legend-swatch,
+  #view-report-overdue-treatments.active .report-summary{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+
+  /* Black & white mode — grayscale the report content only, leaving
+     the on-screen colors (and the other print rules above) untouched. */
+  #view-report-overdue-treatments.active.print-bw #report-area{-webkit-filter:grayscale(1);filter:grayscale(1)}
 }
 
 </style>
@@ -673,10 +251,13 @@
       <div class="nav-section-label">Reports</div>
       <a class="nav-item" href="#report-daily-schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Daily Schedule</a>
       <a class="nav-item" href="#report-service"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Report</a>
+      <a class="nav-item" href="#report-client-soa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Client SOA</a>
       <a class="nav-item" href="#report-monthly-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Monthly Collection</a>
       <a class="nav-item active" href="#report-overdue-treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue Report</a>
+      <div class="nav-section-label" id="report-overdue-treatments-operations-nav-label" style="display:none">Operations</div>
+      <a class="nav-item" href="#audit-log" id="report-overdue-treatments-nav-audit-log" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Audit Log</a>
       <div class="nav-section-label" id="report-overdue-treatments-admin-nav-label" style="display:none">Admin</div>
-      <a class="nav-item" href="#admin" id="report-overdue-treatments-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Review Requests</a>
+      <a class="nav-item" href="#admin" id="report-overdue-treatments-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>User Management</a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
@@ -717,6 +298,22 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh
         </button>
         <div class="controls-spacer"></div>
+        <div class="print-toggle-group" id="orientation-toggle">
+          <button type="button" class="print-toggle-btn active" data-orientation="landscape" title="Print landscape">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="1.5"/></svg>Landscape
+          </button>
+          <button type="button" class="print-toggle-btn" data-orientation="portrait" title="Print portrait">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="1.5"/></svg>Portrait
+          </button>
+        </div>
+        <div class="print-toggle-group" id="color-mode-toggle">
+          <button type="button" class="print-toggle-btn active" data-color-mode="color" title="Print in color">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>Color
+          </button>
+          <button type="button" class="print-toggle-btn" data-color-mode="bw" title="Print black &amp; white">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/></svg>B&amp;W
+          </button>
+        </div>
         <button class="btn btn-primary btn-print" id="btn-print">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Print Report
@@ -932,6 +529,22 @@ async function generateReport() {
 }
 
 $('btn-print').addEventListener('click', () => window.print());
+
+/* ── Print orientation + color mode toggles ── */
+VIEW_ROOT.querySelectorAll('#orientation-toggle .print-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    VIEW_ROOT.querySelectorAll('#orientation-toggle .print-toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    VIEW_ROOT.classList.toggle('print-portrait', btn.dataset.orientation === 'portrait');
+  });
+});
+VIEW_ROOT.querySelectorAll('#color-mode-toggle .print-toggle-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    VIEW_ROOT.querySelectorAll('#color-mode-toggle .print-toggle-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    VIEW_ROOT.classList.toggle('print-bw', btn.dataset.colorMode === 'bw');
+  });
+});
 $('btn-refresh').addEventListener('click', () => {
   invalidate('clients', 'contracts', 'teams', 'config:settings', 'treatments');
   generateReport();
