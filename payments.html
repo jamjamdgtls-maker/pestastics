@@ -1067,6 +1067,11 @@ async function applyProfile(p) {
   $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   const isSuperAdmin = p.role === 'superadmin';
+  // Operations (Audit Log) and Admin (User Management) sections are both
+  // superadmin-only — mirrors index.html's dashboard shell, which toggles
+  // both nav-section groups the same way for the same role check.
+  $('payments-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('payments-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
   $('payments-admin-nav-label').style.display = isSuperAdmin ? '' : 'none';
   $('payments-nav-admin').style.display = isSuperAdmin ? '' : 'none';
 
