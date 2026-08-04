@@ -194,7 +194,152 @@
     @media(max-width:1024px){#view-complaints .main-wrapper {margin-left:0;width:100%;max-width:100%}}
     @media(max-width:768px){#view-complaints .page-content {padding:14px 14px 12px}}
   
-  </style>
+  
+
+/* ════════════════════════════════════════════════════════════════
+   LAYOUT REFINEMENT + FOXPRO-STYLE PRINT  (view-complaints)
+   Screen: tighter document-grade chrome, unified buttons, maximised
+   table area.  Print: line-printer output — no fills, hairline rules,
+   7.5pt type, repeating headers, minimum ink and paper.
+   ════════════════════════════════════════════════════════════════ */
+
+/* ── page frame: give the table every pixel we can spare ── */
+#view-complaints .page-content{padding:16px 20px 0;gap:0;overflow:hidden}
+#view-complaints .page-header{padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--border);align-items:flex-end}
+#view-complaints .page-header-left h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
+#view-complaints .page-header-left p{font-size:12px;margin-top:2px}
+#view-complaints .page-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* ── unified button system: one height, one radius, one weight ── */
+#view-complaints .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  height:34px;padding:0 12px;border-radius:6px;border:1px solid transparent;
+  font-size:13px;font-weight:600;line-height:1;white-space:nowrap;
+  transition:background .15s,border-color .15s,box-shadow .15s,color .15s}
+#view-complaints .btn svg{width:15px;height:15px;flex-shrink:0}
+#view-complaints .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+#view-complaints .btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+#view-complaints .btn-secondary{background:#fff;border-color:var(--border);color:var(--text-secondary);box-shadow:0 1px 2px rgba(0,0,0,.04)}
+#view-complaints .btn-secondary:hover{background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}
+#view-complaints .btn-ghost{background:transparent;border-color:transparent;color:var(--text-secondary)}
+#view-complaints .btn-ghost:hover{background:var(--bg-tertiary);color:var(--text)}
+#view-complaints .btn-danger{background:var(--red);border-color:var(--red);color:#fff}
+#view-complaints .btn-sm{height:27px;padding:0 9px;font-size:11.5px;gap:4px;border-radius:5px}
+#view-complaints .btn-sm svg{width:13px;height:13px}
+#view-complaints .btn:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
+#view-complaints .actions-cell{gap:4px;justify-content:flex-end}
+
+/* ── compact metric strip ── */
+#view-complaints .stats-row{gap:8px;margin-bottom:12px}
+#view-complaints .stat-pill{padding:8px 12px;gap:9px;min-width:112px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+#view-complaints .stat-pill-val{font-size:17px;font-weight:800;line-height:1.1}
+#view-complaints .stat-pill-lbl{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)}
+#view-complaints .summary-grid{gap:10px;margin-bottom:12px}
+#view-complaints .sum-card{padding:12px 14px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
+#view-complaints .sum-card-value{font-size:22px;line-height:1.1}
+#view-complaints .sum-card-label{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}
+#view-complaints .sum-card-sub{font-size:11px}
+
+/* ── filters as a single tidy control bar ── */
+#view-complaints .filters-bar{margin-bottom:10px;padding:8px 10px;background:#fff;
+  border:1px solid var(--border);border-radius:6px;gap:8px;
+  box-shadow:0 1px 2px rgba(0,0,0,.03);flex-wrap:wrap;align-items:center}
+#view-complaints .filters-bar .search-wrap{flex:1 1 240px;min-width:200px}
+#view-complaints .search-input{padding:7px 12px 7px 32px;font-size:13px;border-radius:6px}
+#view-complaints .form-select,#view-complaints .filters-bar select{height:32px;border-radius:6px;font-size:13px}
+#view-complaints .days-filter{gap:4px}
+#view-complaints .days-btn{height:32px;padding:0 10px;font-size:12.5px;border-radius:6px}
+
+/* ── maximised table surface ── */
+#view-complaints .table-card{flex:1 1 auto;min-height:0;border-radius:6px;margin-bottom:0;
+  border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+#view-complaints .table-wrapper{flex:1 1 auto;min-height:0;overflow:auto}
+#view-complaints table{width:100%;table-layout:auto}
+#view-complaints thead th{padding:7px 10px;font-size:10.5px;letter-spacing:.05em;
+  background:#fff;color:var(--text-muted);border-bottom:1px solid var(--border-hover);
+  box-shadow:inset 0 -1px 0 var(--border-hover)}
+#view-complaints tbody td{padding:6px 10px;font-size:12.5px;line-height:1.35;vertical-align:middle;
+  border-bottom:1px solid #f1f3f5}
+#view-complaints tbody tr:nth-child(even){background:#fcfcfd}
+#view-complaints tbody tr:hover{background:var(--primary-light)}
+#view-complaints .col-menu-btn{opacity:.55}
+#view-complaints .col-header:hover .col-menu-btn{opacity:1}
+#view-complaints .badge,#view-complaints .days-pill,#view-complaints .age-pill,#view-complaints .pest-chip{font-size:10.5px;padding:1px 7px;border-radius:10px;font-weight:700}
+#view-complaints .pagination{padding:8px 12px;font-size:12px}
+#view-complaints .page-btn{min-width:28px;height:28px;font-size:12px;border-radius:5px}
+
+/* letterhead is print-only */
+#view-complaints .print-letterhead{display:none}
+
+@media print{
+  @page{size:A4 landscape;margin:9mm 8mm}
+
+  /* ── hide every piece of app chrome: only the listing reaches paper ── */
+  #view-complaints .sidebar,#view-complaints .sidebar-overlay,#view-complaints .topbar,#view-complaints .hamburger,
+  #view-complaints .stats-row,#view-complaints .summary-grid,#view-complaints .filters-bar,#view-complaints .days-filter,
+  #view-complaints .pagination,#view-complaints .page-header-right,#view-complaints .modal-overlay,#view-complaints .modal,
+  #view-complaints .col-menu-btn,#view-complaints .sort-icon,#view-complaints .col-dropdown,#view-complaints .status-dropdown,
+  #view-complaints .actions-cell,#view-complaints .spinner,#view-complaints .create-contract-banner,
+  #view-complaints .save-client-banner,#view-complaints .book-treatment-banner,
+  #view-complaints .connect-contract-banner{display:none!important}
+  #view-complaints thead th:last-child,#view-complaints tbody td:last-child{display:none!important}
+
+  #view-complaints,#view-complaints .main-wrapper,#view-complaints .page-content,
+  #view-complaints .table-card,#view-complaints .table-wrapper{
+    margin:0!important;padding:0!important;border:0!important;border-radius:0!important;
+    box-shadow:none!important;overflow:visible!important;height:auto!important;
+    max-height:none!important;flex:none!important;display:block!important;background:#fff!important}
+  #view-complaints .main-wrapper{margin-left:0!important;width:100%!important}
+
+  /* ── ink-saving line-printer body: no fills, no pills, hairlines only ── */
+  #view-complaints *{background:transparent!important;box-shadow:none!important;
+    border-radius:0!important;color:#000!important;text-shadow:none!important;
+    font-family:Arial,Helvetica,'Segoe UI',sans-serif!important}
+  #view-complaints #window-label,#view-complaints .pagination-info{font-size:6.8pt!important;
+    text-transform:uppercase;letter-spacing:.05em}
+
+  /* ── letterhead band ── */
+  #view-complaints .print-letterhead{display:flex!important;justify-content:space-between;
+    align-items:flex-end;gap:12pt;border-bottom:1.2pt solid #000!important;
+    padding-bottom:3pt!important;margin-bottom:4pt!important}
+  #view-complaints .print-lh-l,#view-complaints .print-lh-r{display:flex;flex-direction:column}
+  #view-complaints .print-lh-r{text-align:right}
+  #view-complaints .print-letterhead strong{font-size:10.5pt;font-weight:700;letter-spacing:.04em}
+  #view-complaints .print-letterhead span{font-size:6.5pt;letter-spacing:.06em;text-transform:uppercase}
+
+  /* ── page title line ── */
+  #view-complaints .page-header{display:block!important;border:0!important;
+    padding:0 0 3pt!important;margin:0 0 3pt!important}
+  #view-complaints .page-header-left h2{font-size:9pt!important;font-weight:700;
+    letter-spacing:.08em;text-transform:uppercase}
+  #view-complaints .page-header-left p{font-size:6.5pt!important;margin:0!important}
+
+  /* ── the listing itself ── */
+  #view-complaints table{width:100%!important;table-layout:auto!important;border-collapse:collapse!important;
+    font-size:7.5pt!important}
+  #view-complaints thead{display:table-header-group!important}
+  #view-complaints tfoot{display:table-footer-group}
+  #view-complaints thead th{position:static!important;padding:2pt 3pt!important;
+    font-size:6.8pt!important;font-weight:700!important;text-transform:uppercase;
+    letter-spacing:.05em;text-align:left;white-space:nowrap!important;
+    border:0!important;border-top:.6pt solid #000!important;
+    border-bottom:.9pt solid #000!important}
+  #view-complaints tbody td{padding:1.6pt 3pt!important;font-size:7.5pt!important;
+    line-height:1.2!important;vertical-align:top!important;
+    white-space:normal!important;overflow-wrap:break-word;word-break:normal;hyphens:none;
+    border:0!important;border-bottom:.3pt solid #999!important}
+  #view-complaints tbody tr{page-break-inside:avoid;break-inside:avoid}
+
+  /* ── badges / pills → plain uppercase text, zero ink ── */
+  #view-complaints .badge,#view-complaints .days-pill,#view-complaints .age-pill,#view-complaints .pest-chip,#view-complaints .mono{
+    display:inline!important;padding:0!important;margin:0 2pt 0 0!important;
+    border:0!important;font-size:7pt!important;font-weight:700!important;
+    text-transform:uppercase;letter-spacing:.02em}
+  #view-complaints .pest-chips{display:inline!important;gap:0!important}
+  #view-complaints .muted{color:#000!important}
+  #view-complaints svg{display:none!important}
+  #view-complaints .empty-state{font-size:8pt!important;padding:8pt 0!important}
+}
+</style>
 
 <div data-view="complaints" id="view-complaints">
 <div id="app-shell">
@@ -255,12 +400,28 @@
     </header>
 
     <main class="page-content">
+      <!-- print-only letterhead (FoxPro-style line-printer header) -->
+      <div class="print-letterhead" aria-hidden="true">
+        <div class="print-lh-l">
+          <strong>DOCTOR PEST CONTROL SERVICES</strong>
+          <span>Integrated Pest Management &amp; Sanitation</span>
+        </div>
+        <div class="print-lh-r">
+          <strong>COMPLAINTS REGISTER</strong>
+          <span>System-generated listing</span>
+        </div>
+      </div>
+
       <div class="page-header">
         <div class="page-header-left">
           <h2>Complaints</h2>
           <p>Track and resolve client service complaints</p>
         </div>
         <div class="page-header-right">
+          <button class="btn btn-secondary btn-print" onclick="window.print()" title="Print (ink-saving layout)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print
+          </button>
           <button class="btn btn-secondary" id="btn-export-csv">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export CSV
