@@ -958,6 +958,13 @@ $('btn-export-csv').addEventListener('click', () => {
   a.click(); showToast(`Exported ${filteredContracts.length} renewal records.`);
 });
 
+/* ── Profile / role gating — mirrors index.html's initDashboardShell()
+     exactly: Operations (Audit Log) is superadmin-only; Admin (User
+     Management) is available to both admin and superadmin. Renewals
+     was previously missing the Operations/Audit Log toggle entirely
+     (those elements were never referenced, so they stayed hidden for
+     every role, including superadmin) and the Admin link was gated to
+     superadmin only. ── */
 async function applyProfile(p) {
   currentUser = { uid: p.uid, email: p.email };
   currentRole = p.role;
@@ -968,8 +975,11 @@ async function applyProfile(p) {
   $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   const isSuperAdmin = p.role === 'superadmin';
-  $('renewals-admin-nav-label').style.display = isSuperAdmin ? '' : 'none';
-  $('renewals-nav-admin').style.display = isSuperAdmin ? '' : 'none';
+  const canAccessAdmin = isSuperAdmin || p.role === 'admin';
+  $('renewals-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('renewals-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
+  $('renewals-admin-nav-label').style.display = canAccessAdmin ? '' : 'none';
+  $('renewals-nav-admin').style.display = canAccessAdmin ? '' : 'none';
 
   if (!renewalsInitialized) {
     renewalsInitialized = true;
