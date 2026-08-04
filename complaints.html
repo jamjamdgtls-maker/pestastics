@@ -197,75 +197,10 @@
   
 
 /* ════════════════════════════════════════════════════════════════
-   LAYOUT REFINEMENT + FOXPRO-STYLE PRINT  (view-complaints)
-   Screen: tighter document-grade chrome, unified buttons, maximised
-   table area.  Print: line-printer output — no fills, hairline rules,
+   FOXPRO-STYLE PRINT  (view-complaints)
+   Print: line-printer output — no fills, hairline rules,
    7.5pt type, repeating headers, minimum ink and paper.
    ════════════════════════════════════════════════════════════════ */
-
-/* ── page frame: give the table every pixel we can spare ── */
-#view-complaints .page-content{padding:16px 20px 0;gap:0;overflow:hidden}
-#view-complaints .page-header{padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--border);align-items:flex-end}
-#view-complaints .page-header-left h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
-#view-complaints .page-header-left p{font-size:12px;margin-top:2px}
-#view-complaints .page-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-
-/* ── unified button system: one height, one radius, one weight ── */
-#view-complaints .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  height:34px;padding:0 12px;border-radius:6px;border:1px solid transparent;
-  font-size:13px;font-weight:600;line-height:1;white-space:nowrap;
-  transition:background .15s,border-color .15s,box-shadow .15s,color .15s}
-#view-complaints .btn svg{width:15px;height:15px;flex-shrink:0}
-#view-complaints .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08)}
-#view-complaints .btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
-#view-complaints .btn-secondary{background:#fff;border-color:var(--border);color:var(--text-secondary);box-shadow:0 1px 2px rgba(0,0,0,.04)}
-#view-complaints .btn-secondary:hover{background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}
-#view-complaints .btn-ghost{background:transparent;border-color:transparent;color:var(--text-secondary)}
-#view-complaints .btn-ghost:hover{background:var(--bg-tertiary);color:var(--text)}
-#view-complaints .btn-danger{background:var(--red);border-color:var(--red);color:#fff}
-#view-complaints .btn-sm{height:27px;padding:0 9px;font-size:11.5px;gap:4px;border-radius:5px}
-#view-complaints .btn-sm svg{width:13px;height:13px}
-#view-complaints .btn:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
-#view-complaints .actions-cell{gap:4px;justify-content:flex-end}
-
-/* ── compact metric strip ── */
-#view-complaints .stats-row{gap:8px;margin-bottom:12px}
-#view-complaints .stat-pill{padding:8px 12px;gap:9px;min-width:112px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-#view-complaints .stat-pill-val{font-size:17px;font-weight:800;line-height:1.1}
-#view-complaints .stat-pill-lbl{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)}
-#view-complaints .summary-grid{gap:10px;margin-bottom:12px}
-#view-complaints .sum-card{padding:12px 14px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-#view-complaints .sum-card-value{font-size:22px;line-height:1.1}
-#view-complaints .sum-card-label{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}
-#view-complaints .sum-card-sub{font-size:11px}
-
-/* ── filters as a single tidy control bar ── */
-#view-complaints .filters-bar{margin-bottom:10px;padding:8px 10px;background:#fff;
-  border:1px solid var(--border);border-radius:6px;gap:8px;
-  box-shadow:0 1px 2px rgba(0,0,0,.03);flex-wrap:wrap;align-items:center}
-#view-complaints .filters-bar .search-wrap{flex:1 1 240px;min-width:200px}
-#view-complaints .search-input{padding:7px 12px 7px 32px;font-size:13px;border-radius:6px}
-#view-complaints .form-select,#view-complaints .filters-bar select{height:32px;border-radius:6px;font-size:13px}
-#view-complaints .days-filter{gap:4px}
-#view-complaints .days-btn{height:32px;padding:0 10px;font-size:12.5px;border-radius:6px}
-
-/* ── maximised table surface ── */
-#view-complaints .table-card{flex:1 1 auto;min-height:0;border-radius:6px;margin-bottom:0;
-  border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.05)}
-#view-complaints .table-wrapper{flex:1 1 auto;min-height:0;overflow:auto}
-#view-complaints table{width:100%;table-layout:auto}
-#view-complaints thead th{padding:7px 10px;font-size:10.5px;letter-spacing:.05em;
-  background:#fff;color:var(--text-muted);border-bottom:1px solid var(--border-hover);
-  box-shadow:inset 0 -1px 0 var(--border-hover)}
-#view-complaints tbody td{padding:6px 10px;font-size:12.5px;line-height:1.35;vertical-align:middle;
-  border-bottom:1px solid #f1f3f5}
-#view-complaints tbody tr:nth-child(even){background:#fcfcfd}
-#view-complaints tbody tr:hover{background:var(--primary-light)}
-#view-complaints .col-menu-btn{opacity:.55}
-#view-complaints .col-header:hover .col-menu-btn{opacity:1}
-#view-complaints .badge,#view-complaints .days-pill,#view-complaints .age-pill,#view-complaints .pest-chip{font-size:10.5px;padding:1px 7px;border-radius:10px;font-weight:700}
-#view-complaints .pagination{padding:8px 12px;font-size:12px}
-#view-complaints .page-btn{min-width:28px;height:28px;font-size:12px;border-radius:5px}
 
 /* letterhead is print-only */
 #view-complaints .print-letterhead{display:none}
