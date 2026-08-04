@@ -193,19 +193,37 @@
 #view-admin .preapprove-empty svg{width:32px;height:32px;margin:0 auto 10px;display:block;opacity:.35}
 #view-admin .preapprove-empty p{margin-top:4px;font-size:12px}
 
+#view-admin .matrix-section{margin-top:28px}
+#view-admin .matrix-section-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
+#view-admin .matrix-section-header h3{font-size:16px;font-weight:700;color:var(--text)}
+#view-admin .matrix-section-header p{font-size:13px;color:var(--text-muted);margin-top:3px}
+#view-admin .matrix-card{background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+#view-admin .matrix-table{width:100%;border-collapse:collapse}
+#view-admin .matrix-table th{padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);text-align:left;white-space:nowrap}
+#view-admin .matrix-table th.matrix-col-check{text-align:center;width:110px}
+#view-admin .matrix-table td{padding:9px 14px;font-size:13.5px;color:var(--text);border-bottom:1px solid var(--bg-tertiary);vertical-align:middle}
+#view-admin .matrix-table tr:last-child td{border-bottom:none}
+#view-admin .matrix-table td.matrix-col-check{text-align:center}
+#view-admin .matrix-group-row td{background:var(--bg-secondary);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);padding:7px 14px}
+#view-admin .matrix-checkbox{width:17px;height:17px;accent-color:var(--primary);cursor:pointer}
+#view-admin .matrix-checkbox:disabled{cursor:not-allowed;opacity:.55}
+#view-admin .matrix-module-label{font-weight:500}
+#view-admin .matrix-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-top:1px solid var(--border);background:var(--bg-secondary);flex-wrap:wrap}
+#view-admin .matrix-footer-note{font-size:12px;color:var(--text-muted)}
+#view-admin .matrix-readonly-note{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d;border-radius:var(--radius);font-size:13px;margin-bottom:14px}
+
 @media(max-width:900px){#view-admin .stats-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){#view-admin .stats-grid{grid-template-columns:1fr 1fr}#view-admin .preapprove-add-row{flex-direction:column}}
+@media(max-width:768px){#view-admin .stats-grid{grid-template-columns:1fr 1fr}#view-admin .preapprove-add-row{flex-direction:column}#view-admin .matrix-table{font-size:12.5px}#view-admin .matrix-table th,#view-admin .matrix-table td{padding:8px 10px}}
 @media(max-width:480px){#view-admin .stats-grid{grid-template-columns:1fr}}
 
-</style>
+.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}/* -- Layout polish (topbar removed) -- */#view-admin .page-content{padding:22px 26px 20px}#view-admin .page-header{padding-bottom:14px;border-bottom:1px solid var(--border)}#view-admin .page-header-left h2{font-size:20px;font-weight:700;letter-spacing:-.2px}</style>
 
 <div data-view="admin" id="view-admin">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -248,16 +266,9 @@
   </aside>
 
   <div class="main-wrapper">
-    <header class="topbar">
-      <button class="hamburger" id="hamburger">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <span class="topbar-title">User Management</span>
-      <div class="topbar-spacer"></div>
-      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-    </header>
-
     <main class="page-content">
+      <button class="hamburger" id="hamburger" aria-label="Menu" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+
       <div id="access-denied">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         <h2>Access Denied</h2>
@@ -370,6 +381,40 @@
             </div>
           </div>
         </div>
+
+        <div class="matrix-section" id="matrix-section" style="display:none">
+          <div class="matrix-section-header">
+            <div>
+              <h3>Permission Matrix</h3>
+              <p>Choose exactly which pages Admin and User roles can open. Super Admin always has full, unrestricted access.</p>
+            </div>
+            <button class="btn btn-primary" id="btn-save-matrix">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              Save Changes
+            </button>
+          </div>
+
+          <div class="matrix-card">
+            <div class="table-wrapper">
+              <table class="matrix-table">
+                <thead>
+                  <tr>
+                    <th>Module</th>
+                    <th class="matrix-col-check">Super Admin</th>
+                    <th class="matrix-col-check">Admin</th>
+                    <th class="matrix-col-check">User</th>
+                  </tr>
+                </thead>
+                <tbody id="matrix-tbody">
+                  <tr><td colspan="4" class="muted" style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="matrix-footer">
+              <span class="matrix-footer-note">Unsaved changes are lost if you navigate away without saving.</span>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -384,6 +429,7 @@ import { auth, db } from './firebase-config.js';
 import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { collection, doc, getDoc, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { cachedGetDocs, smartUpdateDoc, smartSetDoc, invalidate } from './js/firestore-cache.js';
+import { PERMISSIONS_DOC_ID, PERMISSION_MODULES, loadPermissions } from './js/permissions.js';
 
 const VIEW_ROOT = document.getElementById('view-admin');
 const $ = id => VIEW_ROOT.querySelector('#' + id);
@@ -683,6 +729,70 @@ async function loadPreapprovedEmails() {
   }
 }
 
+/* ── Permission matrix (item 6) — super admin only, both to view and
+   to edit; a plain admin never sees this section at all, since it's
+   the access-control system itself. See js/permissions.js for the
+   shared module list, defaults, and the canAccess() check the route
+   guard/sidebar filter actually use. ── */
+const PERMISSIONS_DOC = doc(db, 'config', PERMISSIONS_DOC_ID);
+let matrixDirty = false;
+
+async function loadPermissionMatrix() {
+  const tbody = $('matrix-tbody');
+  try {
+    const perms = await loadPermissions(true); // always fresh here — this is the editing surface itself
+    let lastGroup = null;
+    tbody.innerHTML = PERMISSION_MODULES.map(m => {
+      const groupRow = m.group !== lastGroup
+        ? `<tr class="matrix-group-row"><td colspan="4">${esc(m.group)}</td></tr>`
+        : '';
+      lastGroup = m.group;
+      const adminChecked = perms.admin[m.key] !== false;
+      const userChecked = perms.user[m.key] !== false;
+      return `${groupRow}<tr>
+          <td class="matrix-module-label">${esc(m.label)}</td>
+          <td class="matrix-col-check"><input type="checkbox" class="matrix-checkbox" checked disabled title="Super Admin always has full access" /></td>
+          <td class="matrix-col-check"><input type="checkbox" class="matrix-checkbox" data-role="admin" data-key="${esc(m.key)}" ${adminChecked ? 'checked' : ''} /></td>
+          <td class="matrix-col-check"><input type="checkbox" class="matrix-checkbox" data-role="user" data-key="${esc(m.key)}" ${userChecked ? 'checked' : ''} /></td>
+        </tr>`;
+    }).join('');
+
+    tbody.querySelectorAll('.matrix-checkbox[data-role]').forEach(cb => {
+      cb.addEventListener('change', () => { matrixDirty = true; });
+    });
+  } catch (e) {
+    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--red-text);padding:12px;font-size:13px">Failed to load permission matrix.</td></tr>';
+    console.error('[matrix]', e);
+  }
+}
+
+$('btn-save-matrix').addEventListener('click', async () => {
+  const btn = $('btn-save-matrix');
+  const original = btn.innerHTML;
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    const matrix = { admin: {}, user: {} };
+    $('matrix-tbody').querySelectorAll('.matrix-checkbox[data-role]').forEach(cb => {
+      matrix[cb.dataset.role][cb.dataset.key] = cb.checked;
+    });
+    await smartSetDoc(PERMISSIONS_DOC, matrix, { merge: false }, ['config:permissions']);
+    await logAction('updated', 'permission_matrix', 'config/permissions', 'Updated the page-level permission matrix for Admin/User roles');
+    matrixDirty = false;
+    // Lets index.html's route guard + every sidebar re-filter for this
+    // session immediately, instead of only taking effect on next reload.
+    window.dispatchEvent(new CustomEvent('pc:permissions-updated'));
+    showToast('Permission matrix saved.');
+  } catch (err) {
+    showToast('Failed to save: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false; btn.innerHTML = original;
+  }
+});
+
+window.addEventListener('beforeunload', e => {
+  if (matrixDirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
 $('btn-add-preapprove').addEventListener('click', async () => {
   const input = $('preapprove-email-input');
   const email = (input.value || '').trim().toLowerCase();
@@ -728,10 +838,6 @@ $('btn-add-preapprove').addEventListener('click', async () => {
 });
 $('preapprove-email-input').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-add-preapprove').click(); });
 
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('users');
-  loadUsers();
-});
 
 /* ══════════════════════════════════
    Auth wiring
@@ -749,6 +855,9 @@ async function applyProfile(p) {
   const canAccessAdmin = isSuperAdmin || p.role === 'admin';
   $('admin-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
   $('admin-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
+  // The permission matrix is the access-control system itself — only a
+  // super admin can see or edit it, same reasoning as Audit Log.
+  $('matrix-section').style.display = isSuperAdmin ? '' : 'none';
 
   if (canAccessAdmin) {
     $('access-denied').style.display = 'none';
@@ -757,6 +866,7 @@ async function applyProfile(p) {
       adminInitialized = true;
       await loadUsers();
       await loadPreapprovedEmails();
+      if (isSuperAdmin) await loadPermissionMatrix();
     }
   } else {
     $('access-denied').style.display = 'block';

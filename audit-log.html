@@ -186,15 +186,14 @@
 #view-audit-log .user-mini{display:flex;align-items:center;gap:7px}
 #view-audit-log .user-mini-avatar{width:24px;height:24px;border-radius:50%;background:var(--primary);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 
-</style>
+.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}/* -- Layout polish (topbar removed) -- */#view-audit-log .page-content{padding:22px 26px 20px}#view-audit-log .page-header{padding-bottom:14px;border-bottom:1px solid var(--border)}#view-audit-log .page-header-left h2{font-size:20px;font-weight:700;letter-spacing:-.2px}</style>
 
 <div data-view="audit-log" id="view-audit-log">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -237,16 +236,9 @@
   </aside>
 
   <div class="main-wrapper">
-    <header class="topbar">
-      <button class="hamburger" id="hamburger">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <span class="topbar-title">Audit Log</span>
-      <div class="topbar-spacer"></div>
-      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-    </header>
-
     <main class="page-content">
+      <button class="hamburger" id="hamburger" aria-label="Menu" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+
       <div id="al-access-denied" style="display:none;text-align:center;padding:80px 24px">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:56px;height:56px;color:var(--red);margin-bottom:20px;opacity:.6"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         <h2 style="font-size:22px;font-weight:700;margin-bottom:10px">Access Denied</h2>
@@ -587,10 +579,6 @@ $('btn-clear-filters').addEventListener('click', () => {
   columnFilters = {};
   VIEW_ROOT.querySelectorAll('thead th').forEach(th => th.style.background = '');
   applyFilters();
-});
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('audit_log:recent500');
-  loadLogs();
 });
 
 /* ── Render table ── */

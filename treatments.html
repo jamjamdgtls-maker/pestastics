@@ -115,15 +115,14 @@
     #view-treatments .pagination {position:sticky;bottom:0;background:white;border-top:1px solid var(--border);flex-shrink:0}
     @media(max-width:1024px){#view-treatments .main-wrapper {margin-left:0;width:100%;max-width:100%}}
     @media(max-width:768px){#view-treatments .page-content {padding:14px 14px 12px}}
-  </style>
+  .sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
 
 <div data-view="treatments" id="view-treatments">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -175,7 +174,6 @@
           <p>Track and manage all scheduled pest control treatments</p>
         </div>
         <div class="page-header-right">
-          <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
           <div class="search-wrap" style="min-width:260px">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" class="search-input" id="search-input" placeholder="Search treatment, client, team…" />
@@ -2561,6 +2559,18 @@ async function applyProfile(p) {
 
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+/* Refresh on every re-visit — a contract created/edited elsewhere (e.g.
+   Contracts, Renewals) or a payment/complaint update from another
+   module patches the shared cache from wherever it happened, but this
+   module's own in-memory contractMap/allTreatments only reflects that
+   once it re-reads the cache. Same reasoning as Renewals/Overdue. */
+window.addEventListener('router:view-shown', e => {
+  if (e.detail?.name === 'treatments' && treatmentsInitialized) {
+    invalidate('clients', 'contracts', 'treatments', 'payments', 'complaints', 'inspections', 'renewals');
+    loadAll();
+  }
+});
 
 // Set only when the Add Extra Treatment modal was opened via the
 // pc:book-treatment-from-complaint bridge — carries the originating

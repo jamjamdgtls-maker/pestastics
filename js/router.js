@@ -15,6 +15,8 @@
    to LAZY_VIEWS below.
    ════════════════════════════════════════════════════════════════ */
 
+import { PERMISSION_MODULE_KEYS } from './permissions.js';
+
 const LAZY_VIEWS = {
   clients: 'clients.html',
   contracts: 'contracts.html',
@@ -35,6 +37,93 @@ const LAZY_VIEWS = {
 };
 
 const mountedLazyViews = new Set();
+
+/* Every route's tab title, "Pestastic - <Page>" — includes both lazy
+   views and the built-in ones that already live in index.html's DOM
+   (login/register/pending/admin/dashboard/forbidden aren't in
+   LAZY_VIEWS, so they need their own entries here too). Anything not
+   listed falls back to plain "Pestastic" rather than a route slug. */
+const VIEW_TITLES = {
+  login: 'Sign In',
+  register: 'Register',
+  pending: 'Pending Approval',
+  forbidden: 'Access Denied',
+  notfound: 'Not Found',
+  dashboard: 'Dashboard',
+  admin: 'User Management',
+  clients: 'Clients',
+  contracts: 'Contracts',
+  treatments: 'Treatments',
+  payments: 'Payments',
+  renewals: 'Renewals',
+  complaints: 'Complaints',
+  inspections: 'Inspections',
+  overdue: 'Overdue',
+  calendar: 'Calendar',
+  'audit-log': 'Audit Log',
+  'report-daily-schedule': 'Daily Schedule Report',
+  'report-monthly-collection': 'Monthly Collection Report',
+  'report-service': 'Service Report',
+  'report-overdue-treatments': 'Overdue Treatments Report',
+  'report-client-soa': 'Client SOA'
+};
+
+function setPageTitle(name) {
+  const label = VIEW_TITLES[name];
+  document.title = label ? `Pestastic - ${label}` : 'Pestastic';
+}
+
+/* ── Sidebar permission filtering (item 6) ──
+   Every module file ships its own full copy of the sidebar markup
+   (see router.js's file doc), but every copy uses the same href="#x"
+   convention for its nav-item links. Rather than touch all 21 files
+   individually, this walks every sidebar currently in the DOM — mounted
+   modules stay in the DOM even while hidden — and shows/hides each
+   nav-item by matching its target route against the permission matrix.
+   Re-run whenever the profile/permissions change and after every new
+   lazy view mounts its own sidebar copy for the first time. */
+let navRole = null;
+let navPermissions = null;
+
+function refreshNavVisibility() {
+  if (!navRole) return;
+  document.querySelectorAll('.sidebar .sidebar-nav').forEach(nav => {
+    let currentLabel = null;
+    let labelHasVisibleItem = false;
+    const closeLabel = () => {
+      if (currentLabel) currentLabel.style.display = labelHasVisibleItem ? '' : 'none';
+    };
+    Array.from(nav.children).forEach(child => {
+      if (child.classList.contains('nav-section-label')) {
+        closeLabel();
+        currentLabel = child;
+        labelHasVisibleItem = false;
+        return;
+      }
+      if (!child.classList.contains('nav-item') || !child.getAttribute('href')?.startsWith('#')) return;
+      const route = child.getAttribute('href').slice(1);
+      let visible = true;
+      if (route === 'audit-log') {
+        visible = navRole === 'superadmin';
+      } else if (PERMISSION_MODULE_KEYS.has(route)) {
+        visible = navRole === 'superadmin' || (navPermissions?.[navRole]?.[route] !== false);
+      }
+      child.style.display = visible ? '' : 'none';
+      if (visible) labelHasVisibleItem = true;
+    });
+    closeLabel();
+  });
+}
+
+/** Called by index.html once the signed-in user's role + permission
+ *  matrix are known (and again whenever a super admin saves changes to
+ *  the matrix), so every sidebar copy — mounted now or later — reflects
+ *  what this user is actually allowed to open. */
+export function applyNavPermissions(role, permissions) {
+  navRole = role;
+  navPermissions = permissions;
+  refreshNavVisibility();
+}
 
 export function isLazyView(name) {
   return Object.prototype.hasOwnProperty.call(LAZY_VIEWS, name);
@@ -116,6 +205,7 @@ async function fetchAndMount(name) {
     });
 
     mountedLazyViews.add(name);
+    refreshNavVisibility(); // this module just added its own sidebar copy to the DOM
   } catch (err) {
     console.error(`[router] failed to load view "${name}" (${path}):`, err);
     renderLoadError(name, path, err.message);
@@ -136,11 +226,13 @@ export async function showView(name) {
   const el = document.querySelector(`[data-view="${name}"]`);
   if (el) {
     el.classList.add('active');
+    setPageTitle(name);
     window.dispatchEvent(new CustomEvent('router:view-shown', { detail: { name } }));
     return el;
   }
   const nf = document.querySelector('[data-view="notfound"]');
   if (nf) nf.classList.add('active');
+  setPageTitle('notfound');
   window.dispatchEvent(new CustomEvent('router:view-shown', { detail: { name: 'notfound' } }));
   return null;
 }

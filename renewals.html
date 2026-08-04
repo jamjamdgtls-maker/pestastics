@@ -290,15 +290,14 @@
   #view-renewals svg{display:none!important}
   #view-renewals .empty-state{font-size:8pt!important;padding:8pt 0!important}
 }
-</style>
+.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
 
 <div data-view="renewals" id="view-renewals">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -368,7 +367,6 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
             Print
           </button>
-          <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
           <button class="btn btn-secondary" id="btn-export-csv">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export CSV
@@ -805,11 +803,6 @@ $('btn-clear-filters').addEventListener('click', () => {
   columnFilters = {};
   document.querySelectorAll('#view-renewals thead th').forEach(th => th.style.background = '');
   applyFilters();
-});
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('clients', 'contracts', 'renewals');
-  loadAll();
-  showToast('Data refreshed.');
 });
 
 function renderTable() {

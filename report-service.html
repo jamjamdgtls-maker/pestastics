@@ -91,8 +91,8 @@
 
 #view-report-service .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:10px;margin-bottom:14px;gap:20px}
 #view-report-service .letterhead-logo{display:flex;align-items:center;gap:14px}
-#view-report-service .letterhead-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#view-report-service .letterhead-logo-icon svg{width:28px;height:28px;color:white}
+#view-report-service .letterhead-logo-icon{height:44px;width:auto;max-width:180px;object-fit:contain;flex-shrink:0}
+#view-report-service 
 #view-report-service .letterhead-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
 #view-report-service .letterhead-company p{font-size:12px;color:#555;margin-top:2px}
 #view-report-service .letterhead-right{text-align:right}
@@ -283,15 +283,14 @@
     box-shadow:none!important;margin:0!important;
   }
 }
-</style>
+.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
 
 <div data-view="report-service" id="view-report-service">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -340,7 +339,6 @@
         <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
         <h2>Service Report</h2>
         <div class="page-title-spacer"></div>
-        <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
       </div>
       <div class="controls-bar">
         <label>Contract</label>
@@ -514,7 +512,7 @@ async function generateReport(contractId) {
   let html = `
     <div class="letterhead">
       <div class="letterhead-logo">
-        <div class="letterhead-logo-icon"><img src="logo.jpg" alt="Pestastic" style="width:28px;height:28px;object-fit:contain;filter:brightness(0) invert(1)" /></div>
+        <img src="logo.jpg" alt="Pestastic" class="letterhead-logo-icon" />
         <div class="letterhead-company">
           <h1>${esc(companyName)}</h1>
           <p>${esc([companyAddr, companyPhone].filter(Boolean).join(' · '))}</p>
@@ -664,13 +662,6 @@ VIEW_ROOT.querySelectorAll('#color-mode-toggle .print-toggle-btn').forEach(btn =
     btn.classList.add('active');
     VIEW_ROOT.classList.toggle('print-bw', btn.dataset.colorMode === 'bw');
   });
-});
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('clients', 'contracts', 'config:settings');
-  if (selectedContractId) {
-    invalidate(`treatments:contract:${selectedContractId}`, `payments:contract:${selectedContractId}`);
-    generateReport(selectedContractId);
-  }
 });
 
 /* ══════════════════════════════════

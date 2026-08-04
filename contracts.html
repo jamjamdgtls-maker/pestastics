@@ -106,14 +106,13 @@
     #view-contracts .pagination {position:sticky;bottom:0;background:white;border-top:1px solid var(--border);flex-shrink:0}
     @media(max-width:1024px){#view-contracts .main-wrapper {margin-left:0;width:100%;max-width:100%}}
     @media(max-width:768px){#view-contracts .page-content {padding:14px 14px 12px}}
-  </style>
+  .sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
 
 <div data-view="contracts" id="view-contracts">
 <div id="app-shell">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -159,7 +158,6 @@
           <p>Manage all pest control service contracts</p>
         </div>
         <div class="page-header-right">
-          <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
           <button class="btn btn-secondary" id="btn-export-csv">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             Export CSV
@@ -814,11 +812,6 @@ $('btn-clear-filters').addEventListener('click', () => {
   $('search-input').value = ''; columnFilters = {};
   document.querySelectorAll('#view-contracts thead th').forEach(th => th.style.background = '');
   applyFilters();
-});
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('clients', 'contracts', 'config:settings');
-  loadAll();
-  showToast('Data refreshed.');
 });
 
 /* ── Delete contract (superadmin only) — cascades to its treatments &
@@ -1593,6 +1586,19 @@ async function applyProfile(p) {
 
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
+
+/* Refresh on every re-visit — a contract created/edited/deleted from
+   Treatments, Payments, Renewals, etc. patches the shared 'contracts'
+   cache key from wherever it happened, but this module's own in-memory
+   allContracts/render only reflects that once it re-reads the cache.
+   Re-invalidating here too covers any module that isn't disciplined
+   about which keys it invalidates, same reasoning as Renewals/Overdue. */
+window.addEventListener('router:view-shown', e => {
+  if (e.detail?.name === 'contracts' && contractsInitialized) {
+    invalidate('clients', 'contracts', 'treatments', 'payments', 'renewals');
+    loadAll();
+  }
+});
 
 /* Lets other modules (e.g. Treatments' "View in Contracts" link) jump
    straight to a specific contract's detail modal instead of just

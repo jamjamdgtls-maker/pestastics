@@ -116,6 +116,29 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
+    // The pre-approved-email allowlist has to be readable at the exact
+    // moment a brand-new account is being registered, before that user
+    // has any status at all — isApproved() fails at that point (their
+    // users/{uid} doc either doesn't exist yet or is still "pending"),
+    // which was silently forcing every registration down the manual-
+    // approval path regardless of the allowlist. Just being signed in
+    // is enough to read this one doc; only an approved user can still
+    // manage the allowlist itself.
+    match /config/preapproved {
+      allow read: if isSignedIn();
+      allow write: if isApproved();
+    }
+
+    // Page-level permission matrix (item 6) — every approved user needs
+    // to read it to know their own role's access, but only a super
+    // admin can change it; it's the access-control system itself, same
+    // reasoning as user-management.html only showing this section to
+    // superadmin.
+    match /config/permissions {
+      allow read: if isApproved();
+      allow write: if isSuperAdmin();
+    }
+
     // Shared counters (customer/contract/treatment numbers) and settings
     // (sales agents, contract types, treatment types, booking statuses,
     // cancel/reschedule reasons, etc.)

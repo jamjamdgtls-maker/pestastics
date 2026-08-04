@@ -274,15 +274,14 @@
   #view-complaints svg{display:none!important}
   #view-complaints .empty-state{font-size:8pt!important;padding:8pt 0!important}
 }
-</style>
+.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
 
 <div data-view="complaints" id="view-complaints">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -341,7 +340,6 @@
       <div class="page-header">
         <div class="page-header-left">
           <button class="hamburger" id="hamburger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-          <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
           <h2>Complaints</h2>
           <p>Track and resolve client service complaints</p>
         </div>
@@ -964,11 +962,6 @@ $('btn-clear-filters').addEventListener('click', () => {
   columnFilters = {};
   document.querySelectorAll('#view-complaints thead th').forEach(th => th.style.background = '');
   updateStatusFilterLabel(); applyFilters();
-});
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('clients', 'contracts', 'teams', 'config:settings', 'users', 'complaints');
-  loadAll();
-  showToast('Data refreshed.');
 });
 
 /* ── Table ── */

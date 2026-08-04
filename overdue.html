@@ -134,15 +134,14 @@
     #view-overdue .page-content {display:block;overflow-y:auto;overflow-x:hidden}
     #view-overdue .table-card {flex:none;max-height:min(50vh,460px)}
     #view-overdue .table-card .table-wrapper {max-height:100%}
-  </style>
+  .sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
 
 <div data-view="overdue" id="view-overdue">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -193,8 +192,7 @@
           <h2>Overdue</h2>
           <p>Immediate attention required — overdue treatments and payments</p>
         </div>
-        <div class="page-header-right"><button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-          </div>
+        <div class="page-header-right">          </div>
         <div id="last-updated" style="font-size:12px;color:var(--text-muted);align-self:center"></div>
       </div>
 
@@ -629,10 +627,6 @@ $('p-filter-linked-treatments').checked = localStorage.getItem(LINKED_FILTER_KEY
 $('p-filter-linked-treatments').addEventListener('change', () => {
   localStorage.setItem(LINKED_FILTER_KEY, $('p-filter-linked-treatments').checked ? 'true' : 'false');
   renderPayments();
-});
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('clients', 'contracts', 'teams', 'config:settings', 'treatments', 'payments');
-  loadAll();
 });
 
 /* ══════════════════════════════════

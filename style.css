@@ -73,6 +73,17 @@ h1, h2, h3 {
   gap: 10px;
 }
 
+.brand-logo-img {
+  display: block;
+  height: 30px;
+  width: auto;
+  background: #fff;
+  border-radius: 7px;
+  padding: 4px 8px;
+  margin-bottom: 22px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.18);
+}
+
 .brand-mark .dot {
   width: 8px;
   height: 8px;

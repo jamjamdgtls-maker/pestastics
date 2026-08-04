@@ -96,8 +96,8 @@
 #view-report-overdue-treatments #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px}
 #view-report-overdue-treatments .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:14px;margin-bottom:20px;gap:20px}
 #view-report-overdue-treatments .lh-logo{display:flex;align-items:center;gap:14px}
-#view-report-overdue-treatments .lh-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#view-report-overdue-treatments .lh-logo-icon svg{width:28px;height:28px;color:white}
+#view-report-overdue-treatments .lh-logo-icon{height:44px;width:auto;max-width:180px;object-fit:contain;flex-shrink:0}
+#view-report-overdue-treatments 
 #view-report-overdue-treatments .lh-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
 #view-report-overdue-treatments .lh-company p{font-size:12px;color:#555;margin-top:2px}
 #view-report-overdue-treatments .lh-right{text-align:right}
@@ -282,15 +282,14 @@
     box-shadow:none!important;margin:0!important;
   }
 }
-</style>
+.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
 
 <div data-view="report-overdue-treatments" id="view-report-overdue-treatments">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -351,9 +350,6 @@
           <option value="14">Warning+ (15+ days)</option>
           <option value="30">Critical only (30+ days)</option>
         </select>
-        <button class="btn btn-secondary" id="btn-refresh">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh
-        </button>
         <div class="controls-spacer"></div>
         <div class="print-toggle-group" id="orientation-toggle">
           <button type="button" class="print-toggle-btn active" data-orientation="landscape" title="Print landscape">
@@ -505,7 +501,7 @@ async function generateReport() {
     const letterheadHTML = `
       <div class="letterhead">
         <div class="lh-logo">
-          <div class="lh-logo-icon"><img src="logo.jpg" alt="Pestastic" style="width:28px;height:28px;object-fit:contain;filter:brightness(0) invert(1)" /></div>
+          <img src="logo.jpg" alt="Pestastic" class="lh-logo-icon" />
           <div class="lh-company"><h1>${esc(companyName)}</h1><p>${esc([companyAddr, companyPhone].filter(Boolean).join(' · '))}</p></div>
         </div>
         <div class="lh-right">
@@ -601,10 +597,6 @@ VIEW_ROOT.querySelectorAll('#color-mode-toggle .print-toggle-btn').forEach(btn =
     btn.classList.add('active');
     VIEW_ROOT.classList.toggle('print-bw', btn.dataset.colorMode === 'bw');
   });
-});
-$('btn-refresh').addEventListener('click', () => {
-  invalidate('clients', 'contracts', 'teams', 'config:settings', 'treatments');
-  generateReport();
 });
 $('filter-team').addEventListener('change', generateReport);
 $('filter-type').addEventListener('change', generateReport);
