@@ -566,8 +566,11 @@ async function applyProfile(p) {
   $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
   const isSuperAdmin = p.role === 'superadmin';
-  $('report-overdue-treatments-admin-nav-label').style.display = isSuperAdmin ? '' : 'none';
-  $('report-overdue-treatments-nav-admin').style.display = isSuperAdmin ? '' : 'none';
+  const canAccessAdmin = isSuperAdmin || p.role === 'admin';
+  $('report-overdue-treatments-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
+  $('report-overdue-treatments-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
+  $('report-overdue-treatments-admin-nav-label').style.display = canAccessAdmin ? '' : 'none';
+  $('report-overdue-treatments-nav-admin').style.display = canAccessAdmin ? '' : 'none';
 
   if (!reportInitialized) {
     reportInitialized = true;
