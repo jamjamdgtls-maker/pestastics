@@ -241,6 +241,59 @@
   #view-report-client-soa.active.print-bw #report-area{-webkit-filter:grayscale(1);filter:grayscale(1)}
 }
 
+
+/* ══════════════════════════════════════════
+   PRINT ISOLATION — only the active module's
+   #report-area reaches paper. Every other
+   mounted module and all app chrome (sidebar,
+   controls, modals, toasts) is excluded.
+   ══════════════════════════════════════════ */
+@media print{
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
+  /* other mounted (hidden) report modules must never print */
+  [data-view]:not(.active){display:none!important}
+  #view-report-client-soa:not(.active){display:none!important}
+  /* app chrome + overlays */
+  #view-report-client-soa.active .sidebar,
+  #view-report-client-soa.active .sidebar-overlay,
+  #view-report-client-soa.active .topbar,
+  #view-report-client-soa.active .hamburger,
+  #view-report-client-soa.active .page-title-row,
+  #view-report-client-soa.active .controls-bar,
+  #view-report-client-soa.active .modal,
+  #view-report-client-soa.active .modal-overlay,
+  #view-report-client-soa.active [role="dialog"],
+  #view-report-client-soa.active #toast-container,
+  #view-report-client-soa.active .toast,
+  #view-report-client-soa.active .btn-print,
+  #view-report-client-soa.active .btn-secondary,
+  #view-report-client-soa.active .btn-ghost,
+  #view-report-client-soa.active .no-print,
+  #view-report-client-soa.active .page-content > *:not(#report-area){display:none!important}
+  /* unmount-proof: chrome rendered outside the module root */
+  body > .modal,
+  body > .modal-overlay,
+  body > [role="dialog"],
+  body > #toast-container,
+  body > .toast-container,
+  .no-print{display:none!important}
+  /* collapse the app shell so #report-area is the only flow root */
+  #view-report-client-soa.active,
+  #view-report-client-soa.active #app-shell,
+  #view-report-client-soa.active .main-wrapper,
+  #view-report-client-soa.active .page-content{
+    display:block!important;position:static!important;
+    width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    margin:0!important;padding:0!important;flex:none!important;background:#fff!important;
+  }
+  #view-report-client-soa.active #report-area{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    border:none!important;border-radius:0!important;padding:0!important;
+    box-shadow:none!important;margin:0!important;
+  }
+}
 </style>
 
 <div data-view="report-client-soa" id="view-report-client-soa">

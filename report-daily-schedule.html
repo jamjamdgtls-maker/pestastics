@@ -315,8 +315,15 @@
    on these descendant rules — so this can only ever affect what gets
    printed when Daily Schedule Report is itself the active view.
 ══════════════════════════════════════════ */
+@page dailysched-portrait{margin:9mm 8mm;size:A4 portrait}
+@page dailysched-landscape{margin:9mm 8mm;size:A4 landscape}
+
 @media print{
-  @page{margin:9mm 8mm;size:A4}
+  /* Named pages keep the paper format scoped to this module's report
+     area instead of leaking a global @page into every other page. */
+  #view-report-daily-schedule.active #report-area{page:dailysched-portrait}
+  #view-report-daily-schedule.active.print-landscape #report-area{page:dailysched-landscape}
+
 
   /* Chrome hidden — only #report-area reaches paper */
   #view-report-daily-schedule .sidebar,
@@ -462,6 +469,65 @@
   #view-report-daily-schedule .summary-row{display:none!important}
 }
 
+
+/* Page header row (replaces the removed top navigation bar) */
+#view-report-daily-schedule .page-title-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-shrink:0}
+#view-report-daily-schedule .page-title-row h2{font-size:18px;font-weight:700;color:var(--text)}
+#view-report-daily-schedule .page-title-spacer{flex:1}
+#view-report-daily-schedule .page-title-row .topbar-btn{flex-shrink:0}
+
+/* ══════════════════════════════════════════
+   PRINT ISOLATION — only the active module's
+   #report-area reaches paper. Every other
+   mounted module and all app chrome (sidebar,
+   controls, modals, toasts) is excluded.
+   ══════════════════════════════════════════ */
+@media print{
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
+  /* other mounted (hidden) report modules must never print */
+  [data-view]:not(.active){display:none!important}
+  #view-report-daily-schedule:not(.active){display:none!important}
+  /* app chrome + overlays */
+  #view-report-daily-schedule.active .sidebar,
+  #view-report-daily-schedule.active .sidebar-overlay,
+  #view-report-daily-schedule.active .topbar,
+  #view-report-daily-schedule.active .hamburger,
+  #view-report-daily-schedule.active .page-title-row,
+  #view-report-daily-schedule.active .controls-bar,
+  #view-report-daily-schedule.active .modal,
+  #view-report-daily-schedule.active .modal-overlay,
+  #view-report-daily-schedule.active [role="dialog"],
+  #view-report-daily-schedule.active #toast-container,
+  #view-report-daily-schedule.active .toast,
+  #view-report-daily-schedule.active .btn-print,
+  #view-report-daily-schedule.active .btn-secondary,
+  #view-report-daily-schedule.active .btn-ghost,
+  #view-report-daily-schedule.active .no-print,
+  #view-report-daily-schedule.active .page-content > *:not(#report-area){display:none!important}
+  /* unmount-proof: chrome rendered outside the module root */
+  body > .modal,
+  body > .modal-overlay,
+  body > [role="dialog"],
+  body > #toast-container,
+  body > .toast-container,
+  .no-print{display:none!important}
+  /* collapse the app shell so #report-area is the only flow root */
+  #view-report-daily-schedule.active,
+  #view-report-daily-schedule.active #app-shell,
+  #view-report-daily-schedule.active .main-wrapper,
+  #view-report-daily-schedule.active .page-content{
+    display:block!important;position:static!important;
+    width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    margin:0!important;padding:0!important;flex:none!important;background:#fff!important;
+  }
+  #view-report-daily-schedule.active #report-area{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    border:none!important;border-radius:0!important;padding:0!important;
+    box-shadow:none!important;margin:0!important;
+  }
+}
 </style>
 
 <div data-view="report-daily-schedule" id="view-report-daily-schedule">
@@ -513,16 +579,14 @@
   </aside>
 
   <div class="main-wrapper">
-    <header class="topbar">
-      <button class="hamburger" id="hamburger">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <span class="topbar-title">Daily Schedule Report</span>
-      <div class="topbar-spacer"></div>
-      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-    </header>
 
     <main class="page-content">
+      <div class="page-title-row">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <h2>Daily Schedule Report</h2>
+        <div class="page-title-spacer"></div>
+        <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+      </div>
       <div class="controls-bar">
         <label for="date-picker">Schedule Date</label>
         <div class="date-nav-group">
@@ -1030,23 +1094,13 @@ async function generateReport() {
   $('report-area').innerHTML = html;
 }
 
-/* ── Print orientation — @page rules can't be scoped to an element the
-   normal way, so a small <style> tag gets swapped whenever the person
-   picks portrait/landscape. This stays global (not scoped under
-   #view-report-daily-schedule) since @page controls the whole printed
-   document's format, not a DOM subtree — and only one view is ever
-   "the thing being printed" at a time regardless. ── */
-let printOrientation = 'portrait';
-function updatePrintOrientationStyle() {
-  let styleEl = document.getElementById('print-orientation-style');
-  if (!styleEl) { styleEl = document.createElement('style'); styleEl.id = 'print-orientation-style'; document.head.appendChild(styleEl); }
-  styleEl.textContent = `@media print { @page { size: A4 ${printOrientation}; margin: 9mm 8mm; } }`;
-}
+/* ── Print orientation — toggles a class on this module's root, which
+   swaps between the two named @page rules declared in the print CSS.
+   Nothing global is injected, so no other page's printing is affected. ── */
 function setPrintOrientation(o) {
-  printOrientation = o;
+  VIEW_ROOT.classList.toggle('print-landscape', o === 'landscape');
   $('btn-orient-portrait').classList.toggle('active', o === 'portrait');
   $('btn-orient-landscape').classList.toggle('active', o === 'landscape');
-  updatePrintOrientationStyle();
 }
 $('btn-orient-portrait').addEventListener('click', () => setPrintOrientation('portrait'));
 $('btn-orient-landscape').addEventListener('click', () => setPrintOrientation('landscape'));
@@ -1107,7 +1161,8 @@ async function applyProfile(p) {
 
   if (!reportInitialized) {
     reportInitialized = true;
-    updatePrintOrientationStyle();
+    setPrintOrientation('portrait');
+
     $('date-picker').value = todayISO();
     await loadRefData();
     await generateReport();

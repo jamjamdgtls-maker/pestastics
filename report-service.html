@@ -224,6 +224,65 @@
   #view-report-service.active.print-bw #report-area{-webkit-filter:grayscale(1);filter:grayscale(1)}
 }
 
+
+/* Page header row (replaces the removed top navigation bar) */
+#view-report-service .page-title-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-shrink:0}
+#view-report-service .page-title-row h2{font-size:18px;font-weight:700;color:var(--text)}
+#view-report-service .page-title-spacer{flex:1}
+#view-report-service .page-title-row .topbar-btn{flex-shrink:0}
+
+/* ══════════════════════════════════════════
+   PRINT ISOLATION — only the active module's
+   #report-area reaches paper. Every other
+   mounted module and all app chrome (sidebar,
+   controls, modals, toasts) is excluded.
+   ══════════════════════════════════════════ */
+@media print{
+  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
+  /* other mounted (hidden) report modules must never print */
+  [data-view]:not(.active){display:none!important}
+  #view-report-service:not(.active){display:none!important}
+  /* app chrome + overlays */
+  #view-report-service.active .sidebar,
+  #view-report-service.active .sidebar-overlay,
+  #view-report-service.active .topbar,
+  #view-report-service.active .hamburger,
+  #view-report-service.active .page-title-row,
+  #view-report-service.active .controls-bar,
+  #view-report-service.active .modal,
+  #view-report-service.active .modal-overlay,
+  #view-report-service.active [role="dialog"],
+  #view-report-service.active #toast-container,
+  #view-report-service.active .toast,
+  #view-report-service.active .btn-print,
+  #view-report-service.active .btn-secondary,
+  #view-report-service.active .btn-ghost,
+  #view-report-service.active .no-print,
+  #view-report-service.active .page-content > *:not(#report-area){display:none!important}
+  /* unmount-proof: chrome rendered outside the module root */
+  body > .modal,
+  body > .modal-overlay,
+  body > [role="dialog"],
+  body > #toast-container,
+  body > .toast-container,
+  .no-print{display:none!important}
+  /* collapse the app shell so #report-area is the only flow root */
+  #view-report-service.active,
+  #view-report-service.active #app-shell,
+  #view-report-service.active .main-wrapper,
+  #view-report-service.active .page-content{
+    display:block!important;position:static!important;
+    width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    margin:0!important;padding:0!important;flex:none!important;background:#fff!important;
+  }
+  #view-report-service.active #report-area{
+    display:block!important;width:100%!important;max-width:100%!important;
+    height:auto!important;min-height:0!important;overflow:visible!important;
+    border:none!important;border-radius:0!important;padding:0!important;
+    box-shadow:none!important;margin:0!important;
+  }
+}
 </style>
 
 <div data-view="report-service" id="view-report-service">
@@ -275,16 +334,14 @@
   </aside>
 
   <div class="main-wrapper">
-    <header class="topbar">
-      <button class="hamburger" id="hamburger">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <span class="topbar-title">Service Report</span>
-      <div class="topbar-spacer"></div>
-      <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
-    </header>
 
     <main class="page-content">
+      <div class="page-title-row">
+        <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+        <h2>Service Report</h2>
+        <div class="page-title-spacer"></div>
+        <button id="btn-refresh" class="topbar-btn" title="Refresh data" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></button>
+      </div>
       <div class="controls-bar">
         <label>Contract</label>
         <div class="combobox-wrap" id="combobox-wrap">
