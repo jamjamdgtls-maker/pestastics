@@ -216,75 +216,10 @@
   
 
 /* ════════════════════════════════════════════════════════════════
-   LAYOUT REFINEMENT + FOXPRO-STYLE PRINT  (view-inspections)
-   Screen: tighter document-grade chrome, unified buttons, maximised
-   table area.  Print: line-printer output — no fills, hairline rules,
+   FOXPRO-STYLE PRINT  (view-inspections)
+   Print: line-printer output — no fills, hairline rules,
    7.5pt type, repeating headers, minimum ink and paper.
    ════════════════════════════════════════════════════════════════ */
-
-/* ── page frame: give the table every pixel we can spare ── */
-#view-inspections .page-content{padding:16px 20px 0;gap:0;overflow:hidden}
-#view-inspections .page-header{padding-bottom:10px;margin-bottom:12px;border-bottom:1px solid var(--border);align-items:flex-end}
-#view-inspections .page-header-left h2{font-size:18px;font-weight:700;letter-spacing:-.2px}
-#view-inspections .page-header-left p{font-size:12px;margin-top:2px}
-#view-inspections .page-header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-
-/* ── unified button system: one height, one radius, one weight ── */
-#view-inspections .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  height:34px;padding:0 12px;border-radius:6px;border:1px solid transparent;
-  font-size:13px;font-weight:600;line-height:1;white-space:nowrap;
-  transition:background .15s,border-color .15s,box-shadow .15s,color .15s}
-#view-inspections .btn svg{width:15px;height:15px;flex-shrink:0}
-#view-inspections .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff;box-shadow:0 1px 2px rgba(0,0,0,.08)}
-#view-inspections .btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
-#view-inspections .btn-secondary{background:#fff;border-color:var(--border);color:var(--text-secondary);box-shadow:0 1px 2px rgba(0,0,0,.04)}
-#view-inspections .btn-secondary:hover{background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}
-#view-inspections .btn-ghost{background:transparent;border-color:transparent;color:var(--text-secondary)}
-#view-inspections .btn-ghost:hover{background:var(--bg-tertiary);color:var(--text)}
-#view-inspections .btn-danger{background:var(--red);border-color:var(--red);color:#fff}
-#view-inspections .btn-sm{height:27px;padding:0 9px;font-size:11.5px;gap:4px;border-radius:5px}
-#view-inspections .btn-sm svg{width:13px;height:13px}
-#view-inspections .btn:focus-visible{outline:2px solid var(--primary);outline-offset:1px}
-#view-inspections .actions-cell{gap:4px;justify-content:flex-end}
-
-/* ── compact metric strip ── */
-#view-inspections .stats-row{gap:8px;margin-bottom:12px}
-#view-inspections .stat-pill{padding:8px 12px;gap:9px;min-width:112px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-#view-inspections .stat-pill-val{font-size:17px;font-weight:800;line-height:1.1}
-#view-inspections .stat-pill-lbl{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)}
-#view-inspections .summary-grid{gap:10px;margin-bottom:12px}
-#view-inspections .sum-card{padding:12px 14px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-#view-inspections .sum-card-value{font-size:22px;line-height:1.1}
-#view-inspections .sum-card-label{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}
-#view-inspections .sum-card-sub{font-size:11px}
-
-/* ── filters as a single tidy control bar ── */
-#view-inspections .filters-bar{margin-bottom:10px;padding:8px 10px;background:#fff;
-  border:1px solid var(--border);border-radius:6px;gap:8px;
-  box-shadow:0 1px 2px rgba(0,0,0,.03);flex-wrap:wrap;align-items:center}
-#view-inspections .filters-bar .search-wrap{flex:1 1 240px;min-width:200px}
-#view-inspections .search-input{padding:7px 12px 7px 32px;font-size:13px;border-radius:6px}
-#view-inspections .form-select,#view-inspections .filters-bar select{height:32px;border-radius:6px;font-size:13px}
-#view-inspections .days-filter{gap:4px}
-#view-inspections .days-btn{height:32px;padding:0 10px;font-size:12.5px;border-radius:6px}
-
-/* ── maximised table surface ── */
-#view-inspections .table-card{flex:1 1 auto;min-height:0;border-radius:6px;margin-bottom:0;
-  border:1px solid var(--border);box-shadow:0 1px 3px rgba(0,0,0,.05)}
-#view-inspections .table-wrapper{flex:1 1 auto;min-height:0;overflow:auto}
-#view-inspections table{width:100%;table-layout:auto}
-#view-inspections thead th{padding:7px 10px;font-size:10.5px;letter-spacing:.05em;
-  background:#fff;color:var(--text-muted);border-bottom:1px solid var(--border-hover);
-  box-shadow:inset 0 -1px 0 var(--border-hover)}
-#view-inspections tbody td{padding:6px 10px;font-size:12.5px;line-height:1.35;vertical-align:middle;
-  border-bottom:1px solid #f1f3f5}
-#view-inspections tbody tr:nth-child(even){background:#fcfcfd}
-#view-inspections tbody tr:hover{background:var(--primary-light)}
-#view-inspections .col-menu-btn{opacity:.55}
-#view-inspections .col-header:hover .col-menu-btn{opacity:1}
-#view-inspections .badge,#view-inspections .days-pill,#view-inspections .age-pill,#view-inspections .pest-chip{font-size:10.5px;padding:1px 7px;border-radius:10px;font-weight:700}
-#view-inspections .pagination{padding:8px 12px;font-size:12px}
-#view-inspections .page-btn{min-width:28px;height:28px;font-size:12px;border-radius:5px}
 
 /* letterhead is print-only */
 #view-inspections .print-letterhead{display:none}
