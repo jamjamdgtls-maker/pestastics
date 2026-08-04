@@ -183,11 +183,12 @@
 #view-renewals .stat-pill{padding:8px 12px;gap:9px;min-width:112px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
 #view-renewals .stat-pill-val{font-size:17px;font-weight:800;line-height:1.1}
 #view-renewals .stat-pill-lbl{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)}
-#view-renewals .summary-grid{gap:10px;margin-bottom:12px}
-#view-renewals .sum-card{padding:12px 14px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03)}
-#view-renewals .sum-card-value{font-size:22px;line-height:1.1}
-#view-renewals .sum-card-label{font-size:10.5px;letter-spacing:.05em;text-transform:uppercase}
-#view-renewals .sum-card-sub{font-size:11px}
+#view-renewals .summary-grid{gap:12px;margin-bottom:14px}
+#view-renewals .sum-card{padding:10px 14px;border-radius:6px;box-shadow:0 1px 2px rgba(0,0,0,.03);min-height:0}
+#view-renewals .sum-card-value{font-size:20px;line-height:1.15;font-weight:800}
+#view-renewals .sum-card-label{font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--text-muted)}
+#view-renewals .sum-card-sub{font-size:10.5px;color:var(--text-muted)}
+#view-renewals .sum-card-icon svg{width:34px;height:34px}
 
 /* ── filters as a single tidy control bar ── */
 #view-renewals .filters-bar{margin-bottom:10px;padding:8px 10px;background:#fff;
@@ -605,10 +606,6 @@ function jumpAndOpen(routeName, eventName, detail) {
 function goToContractDetail(contractId) { jumpAndOpen('contracts', 'pc:open-contract', { contractId }); }
 function goToClientDetail(customerNo) { jumpAndOpen('clients', 'pc:open-client', { customerNo }); }
 
-/* Hands off to Contracts' own New Contract form, pre-filled from the
-   expiring contract. Contracts does all the actual schedule generation —
-   Renewals never builds a schedule itself, avoiding a second copy of
-   that logic to keep in sync. */
 function goToContractRenew(contract) {
   const client = clientMap[contract.customerNo];
   jumpAndOpen('contracts', 'pc:renew-contract', {
@@ -627,9 +624,6 @@ function goToContractRenew(contract) {
   });
 }
 
-/* ══════════════════════════════════
-   LOAD
-══════════════════════════════════ */
 async function loadAll() {
   const clients = await cachedGetDocs(collection(db, 'clients'), 'clients');
   clientMap = {};
@@ -648,12 +642,6 @@ async function loadAll() {
   applyFilters();
 }
 
-/* Mirrors contracts.html's own computeStatus() exactly, so "All Expired"
-   shows precisely what Contracts itself calls Expired in its own Status
-   column — a contract counts as expired either because it's literally
-   stored that way, or because it's still marked active but its end date
-   (now always schedule-based, never inflated by an unrelated warranty
-   period — see computeEndDate() in contracts.html) has passed. */
 function computeContractStatus(c) {
   if (c.status === 'active') {
     const end = toLocalDate(c.contractEndDate);
@@ -662,11 +650,6 @@ function computeContractStatus(c) {
   return c.status || 'active';
 }
 
-/* Shared by computeSummary() and applyFilters() so the two windows can
-   never drift apart. daysWindow is either a forward-looking day count
-   (30/60/90/120 — includes already-expired contracts too, there's no
-   lower bound) or the sentinel 'expired', which switches to matching
-   Contracts' own Status column directly instead of a date window. */
 function matchesDateWindow(c) {
   if (daysWindow === 'expired') return computeContractStatus(c) === 'expired';
   const end = toLocalDate(c.contractEndDate);
@@ -705,9 +688,6 @@ VIEW_ROOT.querySelectorAll('.days-btn').forEach(btn => {
   });
 });
 
-/* ══════════════════════════════════
-   SORT + COLUMN FILTER ENGINE
-══════════════════════════════════ */
 let sortField = 'daysLeft', sortDir = 'asc';
 let activeColDropdown = null;
 let columnFilters = {};
@@ -804,7 +784,6 @@ function doSort() {
   currentPage = 1; renderTable();
 }
 
-/* ── Filters ── */
 function applyFilters() {
   const q = $('search-input').value.toLowerCase().trim();
   filteredContracts = allContracts.filter(c => {
@@ -833,9 +812,6 @@ $('btn-refresh').addEventListener('click', () => {
   showToast('Data refreshed.');
 });
 
-/* ══════════════════════════════════
-   TABLE
-══════════════════════════════════ */
 function renderTable() {
   const total = filteredContracts.length, totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
   currentPage = Math.min(currentPage, totalPages);
@@ -911,9 +887,6 @@ $('renewals-tbody').addEventListener('click', e => {
   if (viewClient && viewClient.dataset.customerNo) { e.preventDefault(); goToClientDetail(viewClient.dataset.customerNo); return; }
 });
 
-/* ══════════════════════════════════
-   UPDATE STATUS MODAL
-══════════════════════════════════ */
 function openStatusModal(contractId) {
   const c = allContracts.find(x => x.id === contractId); if (!c) return;
   const renewal = renewalMap[contractId];
@@ -939,8 +912,6 @@ $('btn-save-status').addEventListener('click', async () => {
   const proposalAmount = parseFloat($('status-proposal-amount').value) || null;
   const notes = $('status-notes').value.trim();
 
-  // "Renewed" can only ever be true because an actual new contract exists —
-  // never just a label flip. Route to the real creation flow instead.
   if (status === 'renewed') {
     const c = allContracts.find(x => x.id === contractId);
     if (c) { closeModal('status-modal'); goToContractRenew(c); }
@@ -969,9 +940,6 @@ $('btn-save-status').addEventListener('click', async () => {
   btn.disabled = false; $('status-btn-text').textContent = 'Save Status';
 });
 
-/* ══════════════════════════════════
-   CSV export
-══════════════════════════════════ */
 $('btn-export-csv').addEventListener('click', () => {
   const headers = ['customerNo', 'clientName', 'contractType', 'contractEndDate', 'daysLeft', 'totalAmount', 'salesAgent', 'renewalStatus', 'renewalNotes'];
   const rows = filteredContracts.map(c => {
@@ -990,9 +958,6 @@ $('btn-export-csv').addEventListener('click', () => {
   a.click(); showToast(`Exported ${filteredContracts.length} renewal records.`);
 });
 
-/* ══════════════════════════════════
-   Auth wiring — same pattern as every other module
-══════════════════════════════════ */
 async function applyProfile(p) {
   currentUser = { uid: p.uid, email: p.email };
   currentRole = p.role;
@@ -1016,14 +981,6 @@ async function applyProfile(p) {
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
 
-/* pc:profile only ever fires once per sign-in — it's not what re-fires
-   on a later re-visit to an already-mounted module. Renewals exists
-   specifically to reflect the current state of contracts that are
-   changing elsewhere (Contracts editing dates/status, a renewal being
-   created), so unlike a module where a bit of staleness is harmless,
-   showing an out-of-date expiring/expired list defeats the point of
-   this page. Re-fetch every time it's actually navigated to, not just
-   the first. */
 window.addEventListener('router:view-shown', e => {
   if (e.detail?.name === 'renewals' && renewalsInitialized) {
     invalidate('clients', 'contracts', 'renewals');
@@ -1035,7 +992,6 @@ $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
 });
 
-/* ── Mobile sidebar ── */
 const sidebar = $('sidebar'), overlay = $('sidebar-overlay'), hamburger = $('hamburger');
 const openSB = () => { sidebar.classList.add('open'); overlay.classList.add('open'); };
 const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
