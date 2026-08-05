@@ -1,343 +1,342 @@
-<!-- ════════════════════════════════════════════════════════════════
-     Monthly Collection Report module — fetched + mounted once by
-     js/router.js on first visit to #report-monthly-collection, then
-     left in the DOM (hidden) for every visit after. Read-only,
-     printable, print CSS scoped under #view-report-monthly-collection
-     — same reasoning as Daily Schedule Report.
-════════════════════════════════════════════════════════════════ -->
-<style>
-
-
-
-
-#view-report-monthly-collection *, #view-report-monthly-collection *::before, #view-report-monthly-collection *::after {box-sizing:border-box;margin:0;padding:0}#view-report-monthly-collection {
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pestastic — Monthly Collection Report</title>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
       --primary:hsl(142,76%,36%);--primary-hover:hsl(142,76%,30%);--primary-light:hsl(142,76%,95%);--primary-border:hsl(142,76%,80%);
       --bg:#fff;--bg-secondary:#f8f9fa;--bg-tertiary:#f1f3f5;
       --sidebar-bg:#0f1b12;--sidebar-text:#c8d6ca;--sidebar-muted:#6b7f6e;
       --text:#111827;--text-secondary:#4b5563;--text-muted:#9ca3af;
-      --border:#e5e7eb;--border-hover:#d1d5db;
+      --border:#e5e7eb;
       --radius:8px;--radius-sm:4px;--radius-lg:12px;
       --shadow:0 2px 8px rgba(0,0,0,.10);--shadow-lg:0 8px 24px rgba(0,0,0,.12);
       --green:hsl(142,76%,36%);--green-bg:hsl(142,76%,95%);--green-text:hsl(142,76%,28%);
       --blue:hsl(213,94%,47%);--blue-bg:hsl(213,94%,95%);--blue-text:hsl(213,94%,35%);
       --amber:hsl(38,92%,50%);--amber-bg:hsl(38,92%,95%);--amber-text:hsl(38,92%,32%);
       --red:hsl(0,84%,50%);--red-bg:hsl(0,84%,96%);--red-text:hsl(0,84%,38%);
-      --purple:hsl(262,83%,58%);--purple-bg:hsl(262,83%,96%);--purple-text:hsl(262,83%,42%);
       --gray:hsl(220,9%,46%);--gray-bg:hsl(220,9%,95%);--gray-text:hsl(220,9%,35%);
       --sidebar-width:260px;--topbar-height:60px;
       --font:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif
-    }#view-report-monthly-collection html, #view-report-monthly-collection body {height:100%;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg-secondary);line-height:1.5;-webkit-font-smoothing:antialiased}#view-report-monthly-collection a {color:inherit;text-decoration:none}#view-report-monthly-collection button {font-family:var(--font);cursor:pointer}#view-report-monthly-collection input, #view-report-monthly-collection select, #view-report-monthly-collection textarea {font-family:var(--font);font-size:14px}#view-report-monthly-collection /* AUTH */
-    #auth-screen {display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f1b12 0%,#1a2e1d 50%,#0d1f0f 100%)}#view-report-monthly-collection .auth-card {background:white;border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);text-align:center}#view-report-monthly-collection .auth-logo {width:64px;height:64px;background:var(--primary-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-report-monthly-collection .auth-logo svg {width:36px;height:36px}#view-report-monthly-collection .auth-card h1 {font-size:24px;font-weight:700;margin-bottom:4px}#view-report-monthly-collection .auth-card>p {color:var(--text-muted);font-size:14px;margin-bottom:32px}#view-report-monthly-collection .btn-google {width:100%;padding:12px 20px;border:1.5px solid var(--border);background:white;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:500;color:var(--text);transition:all .15s;cursor:pointer}#view-report-monthly-collection .btn-google:hover {background:var(--bg-secondary)}#view-report-monthly-collection .btn-google svg {width:20px;height:20px}#view-report-monthly-collection .auth-error {margin-top:16px;padding:10px 14px;background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);font-size:13px;border:1px solid #fca5a5;display:none}#view-report-monthly-collection .pending-icon {width:72px;height:72px;background:var(--amber-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}#view-report-monthly-collection .pending-icon svg {width:36px;height:36px;color:var(--amber)}#view-report-monthly-collection .btn-pending-check {width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;margin-bottom:12px;cursor:pointer}#view-report-monthly-collection .btn-signout-pending {width:100%;padding:12px;background:transparent;color:var(--text-secondary);border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;cursor:pointer}#view-report-monthly-collection /* APP SHELL */
-    #app-shell {display:none;height:100vh;overflow:hidden}#view-report-monthly-collection /* SIDEBAR */
-    .sidebar {position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);display:flex;flex-direction:column;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);overflow:hidden}#view-report-monthly-collection .sidebar-logo {display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.06)}#view-report-monthly-collection .sidebar-logo-icon {width:36px;height:36px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}#view-report-monthly-collection .sidebar-logo-icon svg {width:20px;height:20px;color:white}#view-report-monthly-collection .sidebar-logo-text span {display:block;font-size:15px;font-weight:700;color:white;line-height:1.2}#view-report-monthly-collection .sidebar-logo-text small {font-size:10px;color:var(--sidebar-muted);text-transform:uppercase;letter-spacing:.08em}#view-report-monthly-collection .sidebar-nav {flex:1;overflow-y:auto;padding:12px 10px}#view-report-monthly-collection .sidebar-nav::-webkit-scrollbar {width:4px}#view-report-monthly-collection .sidebar-nav::-webkit-scrollbar-thumb {background:rgba(255,255,255,.1);border-radius:2px}#view-report-monthly-collection .nav-section-label {font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sidebar-muted);padding:12px 10px 6px}#view-report-monthly-collection .nav-item {display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);color:var(--sidebar-text);font-size:13.5px;font-weight:450;cursor:pointer;transition:all .15s;position:relative;user-select:none}#view-report-monthly-collection .nav-item:hover {background:rgba(255,255,255,.07);color:white}#view-report-monthly-collection .nav-item.active {background:rgba(34,197,94,.15);color:hsl(142,76%,65%)}#view-report-monthly-collection .nav-item.active::before {content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--primary);border-radius:0 2px 2px 0}#view-report-monthly-collection .nav-item svg {width:16px;height:16px;flex-shrink:0;opacity:.85}#view-report-monthly-collection .nav-item.active svg {opacity:1}#view-report-monthly-collection .nav-badge {margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}#view-report-monthly-collection .nav-badge.amber {background:var(--amber)}#view-report-monthly-collection .sidebar-footer {padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)}#view-report-monthly-collection .sidebar-user {display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}#view-report-monthly-collection .sidebar-user:hover {background:rgba(255,255,255,.07)}#view-report-monthly-collection .user-avatar {width:34px;height:34px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0;overflow:hidden}#view-report-monthly-collection .user-avatar img {width:100%;height:100%;object-fit:cover}#view-report-monthly-collection .user-info {flex:1;min-width:0}#view-report-monthly-collection .user-name {font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}#view-report-monthly-collection .user-role {font-size:11px;color:var(--sidebar-muted);text-transform:capitalize}#view-report-monthly-collection .btn-signout {background:none;border:none;padding:6px;color:var(--sidebar-muted);border-radius:var(--radius-sm);transition:all .15s;display:flex;align-items:center;cursor:pointer}#view-report-monthly-collection .btn-signout:hover {color:var(--red);background:rgba(239,68,68,.1)}#view-report-monthly-collection .btn-signout svg {width:16px;height:16px}#view-report-monthly-collection .sidebar-overlay {display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}#view-report-monthly-collection /* MAIN */
-    .main-wrapper {margin-left:var(--sidebar-width);width:calc(100vw - var(--sidebar-width));height:100vh;display:flex;flex-direction:column;overflow:hidden}#view-report-monthly-collection .topbar {height:var(--topbar-height);background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}#view-report-monthly-collection .hamburger {display:none;background:none;border:none;padding:6px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer}#view-report-monthly-collection .hamburger svg {width:20px;height:20px}#view-report-monthly-collection .topbar-title {font-size:16px;font-weight:700;color:var(--text)}#view-report-monthly-collection .topbar-spacer {flex:1}#view-report-monthly-collection .topbar-btn {width:34px;height:34px;background:none;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer;position:relative}#view-report-monthly-collection .topbar-btn svg {width:16px;height:16px}#view-report-monthly-collection .topbar-notif-dot {position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--red);border-radius:50%;border:1.5px solid white}#view-report-monthly-collection .page-content {flex:1;overflow:hidden;padding:24px;display:flex;flex-direction:column}#view-report-monthly-collection /* BUTTONS */
-    .btn {display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}#view-report-monthly-collection .btn svg {width:15px;height:15px}#view-report-monthly-collection .btn-primary {background:var(--primary);color:white}#view-report-monthly-collection .btn-primary:hover {background:var(--primary-hover)}#view-report-monthly-collection .btn-primary:active {transform:scale(.98)}#view-report-monthly-collection .btn-primary:disabled {opacity:.6;cursor:not-allowed;transform:none}#view-report-monthly-collection .btn-secondary {background:white;color:var(--text);border:1px solid var(--border)}#view-report-monthly-collection .btn-secondary:hover {background:var(--bg-secondary)}#view-report-monthly-collection .btn-danger {background:var(--red-bg);color:var(--red-text);border:1px solid #fca5a5}#view-report-monthly-collection .btn-danger:hover {background:#fee2e2}#view-report-monthly-collection .btn-amber {background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d}#view-report-monthly-collection .btn-amber:hover {background:#fef3c7}#view-report-monthly-collection .btn-ghost {background:none;color:var(--text-secondary);border:none;padding:6px 10px}#view-report-monthly-collection .btn-ghost:hover {background:var(--bg-secondary);color:var(--text)}#view-report-monthly-collection .btn-sm {padding:5px 10px;font-size:12px}#view-report-monthly-collection .btn-sm svg {width:13px;height:13px}#view-report-monthly-collection /* BADGES */
-    .badge {display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600;white-space:nowrap}#view-report-monthly-collection .badge::before {content:'';width:5px;height:5px;border-radius:50%;background:currentColor}#view-report-monthly-collection .badge-green {background:var(--green-bg);color:var(--green-text)}#view-report-monthly-collection .badge-blue {background:var(--blue-bg);color:var(--blue-text)}#view-report-monthly-collection .badge-amber {background:var(--amber-bg);color:var(--amber-text)}#view-report-monthly-collection .badge-red {background:var(--red-bg);color:var(--red-text)}#view-report-monthly-collection .badge-purple {background:var(--purple-bg);color:var(--purple-text)}#view-report-monthly-collection .badge-gray {background:var(--gray-bg);color:var(--gray-text)}#view-report-monthly-collection /* PAGE */
-    .page-header {display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:16px;flex-wrap:wrap;flex-shrink:0}#view-report-monthly-collection .page-header-left h2 {font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.3px}#view-report-monthly-collection .page-header-left p {font-size:13px;color:var(--text-muted);margin-top:3px}#view-report-monthly-collection .page-header-right {display:flex;gap:8px;flex-wrap:wrap}#view-report-monthly-collection /* SUMMARY CARDS */
-    #view-report-monthly-collection .summary-grid {display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;flex-shrink:0}#view-report-monthly-collection .sum-card {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:box-shadow .15s,transform .15s,border-color .15s;position:relative;overflow:hidden;min-width:0}#view-report-monthly-collection .sum-card:hover {box-shadow:var(--shadow);transform:translateY(-1px)}#view-report-monthly-collection .sum-card.active {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-report-monthly-collection .sum-card::before {content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--radius) var(--radius) 0 0}#view-report-monthly-collection .sum-card.total::before {background:var(--blue)}#view-report-monthly-collection .sum-card.completed::before {background:var(--green)}#view-report-monthly-collection .sum-card.scheduled::before {background:var(--blue)}#view-report-monthly-collection .sum-card.overdue::before {background:var(--red)}#view-report-monthly-collection .sum-card.cancelled::before {background:var(--gray)}#view-report-monthly-collection .sum-card-value {font-size:28px;font-weight:800;color:var(--text);line-height:1;margin-bottom:4px;letter-spacing:-.5px}#view-report-monthly-collection .sum-card-label {font-size:12px;color:var(--text-muted);font-weight:500}#view-report-monthly-collection .sum-card-sub {font-size:11.5px;color:var(--text-muted);margin-top:6px}#view-report-monthly-collection .sum-card-icon {position:absolute;right:14px;top:50%;transform:translateY(-50%);opacity:.08}#view-report-monthly-collection .sum-card-icon svg {width:48px;height:48px}#view-report-monthly-collection /* FILTERS */
-    #view-report-monthly-collection .filters-bar {display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;flex-shrink:0}#view-report-monthly-collection .search-wrap {position:relative;flex:1;min-width:220px}#view-report-monthly-collection .search-wrap svg {position:absolute;left:10px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-muted);pointer-events:none}#view-report-monthly-collection .search-input {width:100%;padding:8px 12px 8px 34px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white;outline:none;transition:border-color .15s,box-shadow .15s}#view-report-monthly-collection .search-input:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-report-monthly-collection .date-filter-group {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:3px 6px 3px 10px;height:36px;transition:border-color .15s,box-shadow .15s}#view-report-monthly-collection .date-filter-group:focus-within {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-report-monthly-collection .date-filter-field {display:flex;align-items:center;gap:6px}#view-report-monthly-collection .date-filter-field + .date-filter-field {padding-left:8px;border-left:1px solid var(--border)}#view-report-monthly-collection .date-filter-field label {font-size:12px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;cursor:pointer}#view-report-monthly-collection .date-filter-input {border:none;outline:none;background:transparent;font-size:13px;color:var(--text);padding:4px 2px;font-family:var(--font);min-width:120px;cursor:pointer}#view-report-monthly-collection .date-filter-input::-webkit-calendar-picker-indicator {cursor:pointer;opacity:.5;transition:opacity .15s}#view-report-monthly-collection .date-filter-input::-webkit-calendar-picker-indicator:hover {opacity:1}#view-report-monthly-collection .date-filter-clear {background:none;border:none;padding:5px;color:var(--text-muted);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}#view-report-monthly-collection .date-filter-clear svg {width:13px;height:13px}#view-report-monthly-collection .date-filter-clear:hover {background:var(--bg-secondary);color:var(--red)}#view-report-monthly-collection .date-filter-clear.hidden {display:none}#view-report-monthly-collection .date-quick-filters {display:flex;align-items:center;gap:4px;height:36px}#view-report-monthly-collection .date-quick-btn {height:36px;padding:0 12px;border:1px solid var(--border);background:white;border-radius:var(--radius);font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s;white-space:nowrap}#view-report-monthly-collection .date-quick-btn:hover {background:var(--bg-secondary);border-color:var(--border-hover);color:var(--text)}#view-report-monthly-collection .date-quick-btn.active {background:var(--primary-light);border-color:var(--primary-border);color:var(--primary);font-weight:600}#view-report-monthly-collection .filter-select {padding:8px 32px 8px 10px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;background:white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E") no-repeat right 8px center/16px;appearance:none;outline:none;cursor:pointer;color:var(--text)}#view-report-monthly-collection .filter-select:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.10)}#view-report-monthly-collection .date-range {display:flex;align-items:center;gap:6px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:5px 10px}#view-report-monthly-collection .date-range input[type="date"] {border:none;font-size:13px;color:var(--text);outline:none;background:transparent;cursor:pointer}#view-report-monthly-collection .date-range span {font-size:12px;color:var(--text-muted)}#view-report-monthly-collection /* TABLE */
-    #view-report-monthly-collection .table-card {background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}#view-report-monthly-collection .table-wrapper {overflow-x:auto}#view-report-monthly-collection table {width:100%;border-collapse:collapse}#view-report-monthly-collection thead th {padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);white-space:nowrap;text-align:left;position:sticky;top:0;z-index:1}#view-report-monthly-collection tbody tr {border-bottom:1px solid var(--bg-tertiary);transition:background .1s}#view-report-monthly-collection tbody tr:last-child {border-bottom:none}#view-report-monthly-collection tbody tr:hover {background:var(--bg-secondary)}#view-report-monthly-collection tbody td {padding:10px 14px;font-size:13.5px;color:var(--text);vertical-align:middle;white-space:nowrap}#view-report-monthly-collection td.muted {color:var(--text-muted);font-size:12.5px}#view-report-monthly-collection td.mono {font-family:monospace;font-size:12.5px;color:var(--text-secondary)}#view-report-monthly-collection .actions-cell {display:flex;align-items:center;gap:5px;flex-wrap:nowrap}#view-report-monthly-collection tbody tr.overdue-row {background:hsl(0,84%,99%)}#view-report-monthly-collection tbody tr.overdue-row:hover {background:hsl(0,84%,97%)}#view-report-monthly-collection /* PAGINATION */
-    .pagination {display:flex;align-items:center;justify-content:space-between;padding:11px 16px;border-top:1px solid var(--border);background:white;flex-wrap:wrap;gap:10px}#view-report-monthly-collection .pagination-info {font-size:13px;color:var(--text-muted)}#view-report-monthly-collection .pagination-controls {display:flex;align-items:center;gap:4px}#view-report-monthly-collection .page-btn {min-width:32px;height:32px;padding:0 10px;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:var(--font)}#view-report-monthly-collection .page-btn:hover:not(:disabled) {background:var(--bg-secondary);color:var(--text)}#view-report-monthly-collection .page-btn.active {background:var(--primary);color:white;border-color:var(--primary);font-weight:600}#view-report-monthly-collection .page-btn:disabled {opacity:.4;cursor:not-allowed}#view-report-monthly-collection .date-nav-btn {min-width:32px;height:32px;padding:0;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}#view-report-monthly-collection .date-nav-btn:hover {background:var(--bg-secondary);color:var(--text)}#view-report-monthly-collection .date-nav-btn svg {width:16px;height:16px}#view-report-monthly-collection /* FORMS */
-    .form-group {margin-bottom:16px}#view-report-monthly-collection .form-label {display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}#view-report-monthly-collection .form-label .req {color:var(--red);margin-left:2px}#view-report-monthly-collection .form-input, #view-report-monthly-collection .form-select, #view-report-monthly-collection .form-textarea {width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius);font-size:13.5px;color:var(--text);background:white;transition:border-color .15s,box-shadow .15s;outline:none}#view-report-monthly-collection .form-select {appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:16px;padding-right:32px;cursor:pointer}#view-report-monthly-collection .form-input:focus, #view-report-monthly-collection .form-select:focus, #view-report-monthly-collection .form-textarea:focus {border-color:var(--primary);box-shadow:0 0 0 3px rgba(34,197,94,.12)}#view-report-monthly-collection .form-input::placeholder, #view-report-monthly-collection .form-textarea::placeholder {color:var(--text-muted)}#view-report-monthly-collection .form-textarea {resize:vertical;min-height:80px}#view-report-monthly-collection .form-hint {font-size:11.5px;color:var(--text-muted);margin-top:4px}#view-report-monthly-collection .form-row {display:grid;grid-template-columns:1fr 1fr;gap:14px}#view-report-monthly-collection .form-input[readonly] {background:var(--bg-secondary);color:var(--text-secondary)}#view-report-monthly-collection /* MODAL */
-    .modal-overlay {position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}#view-report-monthly-collection .modal-overlay.open {opacity:1;pointer-events:all}#view-report-monthly-collection .modal {background:white;border-radius:var(--radius-lg);width:100%;max-width:520px;max-height:90vh;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}#view-report-monthly-collection .modal-overlay.open .modal {transform:translateY(0) scale(1)}#view-report-monthly-collection .modal-header {display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1px solid var(--border);flex-shrink:0}#view-report-monthly-collection .modal-title {font-size:16px;font-weight:700;color:var(--text)}#view-report-monthly-collection .modal-subtitle {font-size:12px;color:var(--text-muted);margin-top:2px}#view-report-monthly-collection .modal-close {width:30px;height:30px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;color:var(--text-muted);cursor:pointer;transition:all .15s}#view-report-monthly-collection .modal-close:hover {background:var(--bg-secondary);color:var(--text)}#view-report-monthly-collection .modal-close svg {width:15px;height:15px}#view-report-monthly-collection .modal-body {padding:22px;overflow-y:auto;flex:1}#view-report-monthly-collection .modal-footer {display:flex;align-items:center;justify-content:flex-end;gap:10px;padding:14px 22px;border-top:1px solid var(--border);flex-shrink:0}#view-report-monthly-collection /* CSV UPLOAD */
-    .upload-zone {border:2px dashed var(--border);border-radius:var(--radius);padding:28px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg-secondary)}#view-report-monthly-collection .upload-zone:hover, #view-report-monthly-collection .upload-zone.drag {border-color:var(--primary);background:var(--primary-light)}#view-report-monthly-collection .upload-zone svg {width:32px;height:32px;color:var(--text-muted);margin-bottom:10px}#view-report-monthly-collection .upload-zone p {font-size:13.5px;color:var(--text-secondary);margin-bottom:4px}#view-report-monthly-collection .upload-zone small {font-size:12px;color:var(--text-muted)}#view-report-monthly-collection .upload-preview {margin-top:14px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px;font-size:12.5px}#view-report-monthly-collection /* CONTEXT BANNER */
-    .context-banner {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:18px;font-size:13px;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px}#view-report-monthly-collection .context-banner .cb-label {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}#view-report-monthly-collection .context-banner .cb-val {font-size:13px;font-weight:600;color:var(--text)}#view-report-monthly-collection /* EMPTY STATE */
-    .empty-state {text-align:center;padding:52px 20px}#view-report-monthly-collection .empty-state svg {width:40px;height:40px;color:var(--text-muted);margin-bottom:14px;opacity:.5}#view-report-monthly-collection .empty-state h3 {font-size:15px;font-weight:600;margin-bottom:6px}#view-report-monthly-collection .empty-state p {font-size:13px;color:var(--text-muted);max-width:340px;margin:0 auto}#view-report-monthly-collection /* SPINNER / TOAST */
-    .spinner {width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
-    @keyframes spin{to{transform:rotate(360deg)}}#view-report-monthly-collection #toast-container {position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none}#view-report-monthly-collection .toast {background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;min-width:280px;max-width:380px;box-shadow:var(--shadow-lg);display:flex;align-items:flex-start;gap:10px;pointer-events:all;animation:toastIn .2s ease;border-left:4px solid var(--primary)}#view-report-monthly-collection .toast.error {border-left-color:var(--red)}#view-report-monthly-collection .toast.warning {border-left-color:var(--amber)}#view-report-monthly-collection .toast-icon svg {width:16px;height:16px}#view-report-monthly-collection .toast-body {flex:1}#view-report-monthly-collection .toast-title {font-size:13.5px;font-weight:600}#view-report-monthly-collection .toast-msg {font-size:12.5px;color:var(--text-secondary);margin-top:2px}#view-report-monthly-collection .toast-close {background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0}#view-report-monthly-collection .toast-close svg {width:14px;height:14px}
-    @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}#view-report-monthly-collection /* TREATMENT TYPE RECONFIGURE */
-    .inline-type-select {border:1px solid transparent;background:var(--green-bg);color:var(--green-text);font-size:11.5px;font-weight:600;cursor:pointer;border-radius:14px;padding:3px 22px 3px 8px;outline:none;font-family:var(--font);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2316a34a'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 4px center;background-size:12px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:border-color .15s,box-shadow .15s}#view-report-monthly-collection .inline-type-select:hover {border-color:var(--primary)}#view-report-monthly-collection .inline-type-select:focus {border-color:var(--primary);box-shadow:0 0 0 2px rgba(34,197,94,.15)}#view-report-monthly-collection /* RESCHEDULE HISTORY */
-    .reschedule-history {background:var(--bg-secondary);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:12.5px}#view-report-monthly-collection .reschedule-history-title {font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:8px}#view-report-monthly-collection .reschedule-history-item {display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border)}#view-report-monthly-collection .reschedule-history-item:last-child {border-bottom:none}#view-report-monthly-collection .reschedule-history-item .rh-dot {width:7px;height:7px;background:var(--amber);border-radius:50%;flex-shrink:0;margin-top:5px}#view-report-monthly-collection .reschedule-history-item .rh-text {font-size:12px;color:var(--text-secondary)}#view-report-monthly-collection /* DRIVE LINK SECTION */
-    .drive-link-section {background:var(--blue-bg);border:1px solid #93c5fd;border-radius:var(--radius);padding:12px 14px;margin-top:4px}#view-report-monthly-collection .drive-link-section label {font-size:12px;font-weight:700;color:var(--blue-text);display:block;margin-bottom:6px}#view-report-monthly-collection /* PAGE LOAD SCREEN */
-    #loading-screen {position:fixed;inset:0;background:#0f1b12;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .25s}#view-report-monthly-collection #loading-screen.fade-out {opacity:0;pointer-events:none}#view-report-monthly-collection .ls-logo {display:flex;align-items:center;justify-content:center;background:white;border-radius:12px;padding:10px 20px}#view-report-monthly-collection .ls-logo svg {width:34px;height:34px;color:white}#view-report-monthly-collection .ls-spinner {width:28px;height:28px;border:3px solid rgba(255,255,255,.15);border-top-color:hsl(142,76%,60%);border-radius:50%;animation:spin .7s linear infinite}#view-report-monthly-collection .ls-text {font-size:13px;color:rgba(255,255,255,.45);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.02em}
+    }
+    html,body{height:100%;font-family:var(--font);font-size:14px;color:var(--text);background:var(--bg-secondary);line-height:1.5;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button{font-family:var(--font);cursor:pointer}
+    input,select{font-family:var(--font);font-size:14px}
+
+    /* AUTH */
+    #auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#0f1b12 0%,#1a2e1d 50%,#0d1f0f 100%)}
+    .auth-card{background:white;border-radius:var(--radius-lg);padding:48px 40px;width:100%;max-width:420px;box-shadow:var(--shadow-lg);text-align:center}
+    .auth-logo{width:64px;height:64px;background:var(--primary-light);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+    .auth-logo svg{width:36px;height:36px}
+    .auth-card h1{font-size:24px;font-weight:700;margin-bottom:4px}
+    .auth-card>p{color:var(--text-muted);font-size:14px;margin-bottom:32px}
+    .btn-google{width:100%;padding:12px 20px;border:1.5px solid var(--border);background:white;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;gap:12px;font-size:15px;font-weight:500;color:var(--text);cursor:pointer;transition:all .15s}
+    .btn-google:hover{background:var(--bg-secondary)}
+    .btn-google svg{width:20px;height:20px}
+    .auth-error{margin-top:16px;padding:10px 14px;background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);font-size:13px;border:1px solid #fca5a5;display:none}
+    .pending-icon{width:72px;height:72px;background:var(--amber-bg);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+    .pending-icon svg{width:36px;height:36px;color:var(--amber)}
+    .btn-pending-check{width:100%;padding:12px;background:var(--primary);color:white;border:none;border-radius:var(--radius);font-size:15px;font-weight:500;margin-bottom:12px;cursor:pointer}
+    .btn-signout-pending{width:100%;padding:12px;background:transparent;color:var(--text-secondary);border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;cursor:pointer}
+
+    /* APP SHELL */
+    #app-shell{display:none;height:100vh;overflow:hidden}
+
+    /* SIDEBAR */
+    .sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--sidebar-bg);display:flex;flex-direction:column;z-index:200;transition:transform .25s cubic-bezier(.4,0,.2,1);overflow:hidden}
+    .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.06)}
+    .sidebar-logo-icon{width:36px;height:36px;background:var(--primary);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sidebar-logo-icon svg{width:20px;height:20px;color:white}
+    .sidebar-logo-text span{display:block;font-size:15px;font-weight:700;color:white;line-height:1.2}
+    .sidebar-logo-text small{font-size:10px;color:var(--sidebar-muted);text-transform:uppercase;letter-spacing:.08em}
+    .sidebar-nav{flex:1;overflow-y:auto;padding:12px 10px}
+    .sidebar-nav::-webkit-scrollbar{width:4px}
+    .sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+    .nav-section-label{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--sidebar-muted);padding:12px 10px 6px}
+    .nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:var(--radius-sm);color:var(--sidebar-text);font-size:13.5px;font-weight:450;cursor:pointer;transition:all .15s;position:relative;user-select:none}
+    .nav-item:hover{background:rgba(255,255,255,.07);color:white}
+    .nav-item.active{background:rgba(34,197,94,.15);color:hsl(142,76%,65%)}
+    .nav-badge{margin-left:auto;background:var(--red);color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}
+    .nav-badge.amber{background:var(--amber)}
+    .nav-item.active::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);width:3px;height:60%;background:var(--primary);border-radius:0 2px 2px 0}
+    .nav-item svg{width:16px;height:16px;flex-shrink:0;opacity:.85}
+    .nav-item.active svg{opacity:1}
+    .sidebar-footer{padding:12px 14px;border-top:1px solid rgba(255,255,255,.06)}
+    .sidebar-user{display:flex;align-items:center;gap:10px;padding:8px 6px;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
+    .sidebar-user:hover{background:rgba(255,255,255,.07)}
+    .user-avatar{width:34px;height:34px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;color:white;font-size:13px;font-weight:600;flex-shrink:0;overflow:hidden}
+    .user-avatar img{width:100%;height:100%;object-fit:cover}
+    .user-info{flex:1;min-width:0}
+    .user-name{font-size:13px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .user-role{font-size:11px;color:var(--sidebar-muted);text-transform:capitalize}
+    .btn-signout{background:none;border:none;padding:6px;color:var(--sidebar-muted);border-radius:var(--radius-sm);transition:all .15s;display:flex;align-items:center;cursor:pointer}
+    .btn-signout:hover{color:var(--red);background:rgba(239,68,68,.1)}
+    .btn-signout svg{width:16px;height:16px}
+    .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199}
+
+    /* MAIN */
+    .main-wrapper{margin-left:var(--sidebar-width);width:calc(100vw - var(--sidebar-width));;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+    .topbar{height:var(--topbar-height);background:white;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0}
+    .hamburger{display:none;background:none;border:none;padding:6px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer}
+    .hamburger svg{width:20px;height:20px}
+    .topbar-title{font-size:16px;font-weight:700}
+    .topbar-spacer{flex:1}
+    .topbar-btn{width:34px;height:34px;background:none;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);cursor:pointer}
+    .topbar-btn svg{width:16px;height:16px}
+    .page-content{flex:1;overflow-y:auto;padding:24px}
+    .page-content::-webkit-scrollbar{width:6px}
+    .page-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+    /* CONTROLS */
+    .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
+    .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
+    .month-nav{display:flex;align-items:center;gap:8px}
+    .nav-btn{width:34px;height:34px;background:white;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s}
+    .nav-btn:hover{background:var(--bg-secondary);color:var(--text)}
+    .nav-btn svg{width:16px;height:16px}
+    .month-label{font-size:15px;font-weight:800;color:var(--text);min-width:160px;text-align:center}
+    .controls-spacer{flex:1}
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-size:13.5px;font-weight:500;border:none;cursor:pointer;transition:all .15s;white-space:nowrap}
+    .btn svg{width:15px;height:15px}
+    .btn-primary{background:var(--primary);color:white}
+    .btn-primary:hover{background:var(--primary-hover)}
+    .btn-secondary{background:white;color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{background:var(--bg-secondary)}
+
+    /* SCREEN SUMMARY PILLS */
+    .summary-pills{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
+    .sum-pill{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;flex:1;min-width:120px}
+    .sum-pill-val{font-size:21px;font-weight:900;line-height:1;margin-bottom:3px}
+    .sum-pill-lbl{font-size:11.5px;color:var(--text-muted)}
+
+    /* SPINNER */
+    .spinner{width:18px;height:18px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ══ REPORT STYLES ══ */
+    #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px}
+
+    /* LETTERHEAD */
+    .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:14px;margin-bottom:20px;gap:20px}
+    .lh-logo{display:flex;align-items:center;gap:14px}
+    .lh-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .lh-logo-icon svg{width:28px;height:28px;color:white}
+    .lh-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
+    .lh-company p{font-size:12px;color:#555;margin-top:2px}
+    .lh-right{text-align:right}
+    .lh-doc-title{font-size:16px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.04em}
+    .lh-doc-sub{font-size:13px;color:#333;margin-top:5px;font-weight:700}
+    .lh-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
+
+    /* GRAND TOTAL BANNER */
+    .grand-banner{display:flex;align-items:center;justify-content:space-between;background:#111;color:white;border-radius:8px;padding:14px 20px;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+    .grand-banner-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.8}
+    .grand-banner-amount{font-size:26px;font-weight:900;letter-spacing:-.5px}
+    .grand-banner-meta{font-size:12px;opacity:.7}
+    .grand-stats{display:flex;gap:20px}
+    .grand-stat{text-align:center}
+    .grand-stat-val{font-size:18px;font-weight:900}
+    .grand-stat-lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
+
+    /* COLLECTOR SECTION */
+    .collector-section{margin-bottom:24px;break-inside:avoid;page-break-inside:avoid}
+    .collector-header{display:flex;align-items:center;justify-content:space-between;background:#1f2937;color:white;padding:10px 16px;border-radius:6px 6px 0 0;gap:12px}
+    .collector-name{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px}
+    .collector-name svg{width:15px;height:15px;opacity:.8}
+    .collector-count{font-size:12px;opacity:.75}
+    .collector-subtotal{font-size:14px;font-weight:900;color:#4ade80}
+
+    /* COLLECTION TABLE */
+    .coll-table{width:100%;border-collapse:collapse;font-size:12px}
+    .coll-table th{padding:8px 10px;background:#f1f3f5;border:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
+    .coll-table th.right{text-align:right}
+    .coll-table td{padding:8px 10px;border:1px solid #e5e7eb;vertical-align:middle;color:#111}
+    .coll-table td.num{text-align:center;color:#9ca3af;font-size:11px;width:28px}
+    .coll-table td.mono{font-family:monospace;font-size:11px;color:#6b7280}
+    .coll-table td.nowrap{white-space:nowrap}
+    .coll-table td.right{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+    .coll-table td.remarks-cell{font-size:11.5px;color:#6b7280;max-width:140px}
+    .coll-table tbody tr:nth-child(even){background:#fafafa}
+    .coll-table tfoot td{padding:9px 10px;background:#e5e7eb;font-weight:800;font-size:12.5px;border:1px solid #d1d5db}
+    .coll-table tfoot td.right{text-align:right;font-variant-numeric:tabular-nums;color:#15803d}
+
+    /* MODE TAG */
+    .mode-tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700;text-transform:capitalize;background:#f3f4f6;color:#374151}
+
+    /* NO COLLECTIONS */
+    .no-collections{text-align:center;padding:52px 20px;color:#9ca3af}
+    .no-collections svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
+    .no-collections h3{font-size:15px;font-weight:600;color:#374151;margin-bottom:6px}
+
+    /* REPORT FOOTER */
+    .report-footer{margin-top:20px;padding-top:12px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:#9ca3af}
+    .confidential-note{font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em}
+
+    /* PLACEHOLDER */
+    .report-placeholder{text-align:center;padding:56px 20px;color:var(--text-muted)}
+    .report-placeholder svg{width:44px;height:44px;margin-bottom:14px;opacity:.4}
+    .report-placeholder h3{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
+    .report-placeholder p{font-size:13px;max-width:360px;margin:0 auto}
 
     /* RESPONSIVE */
-    @media(max-width:900px){#view-report-monthly-collection .summary-grid {grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:1024px){#view-report-monthly-collection .sidebar {transform:translateX(-100%)}#view-report-monthly-collection .sidebar.open {transform:translateX(0)}#view-report-monthly-collection .sidebar-overlay.open {display:block}#view-report-monthly-collection .main-wrapper {margin-left:0}#view-report-monthly-collection .hamburger {display:flex}#view-report-monthly-collection .form-row {grid-template-columns:1fr}
+    @media(max-width:1024px){
+      .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+      .sidebar-overlay.open{display:block}.main-wrapper{margin-left:0}.hamburger{display:flex}
     }
-    @media(max-width:768px){#view-report-monthly-collection .page-content {padding:16px}#view-report-monthly-collection .summary-grid {grid-template-columns:1fr 1fr}#view-report-monthly-collection .filters-bar {flex-direction:column;align-items:stretch}#view-report-monthly-collection .date-filter-group {flex-wrap:wrap;height:auto;width:100%}#view-report-monthly-collection .date-filter-input {min-width:0;flex:1}#view-report-monthly-collection .date-filter-field {flex:1}#view-report-monthly-collection .date-quick-filters {flex-wrap:wrap;width:100%;height:auto}#view-report-monthly-collection .date-quick-btn {flex:1;min-width:0}}
-    @media(max-width:480px){#view-report-monthly-collection .summary-grid {grid-template-columns:1fr}}#view-report-monthly-collection .sort-icon { font-size:10px; margin-left:3px; color:var(--primary); }#view-report-monthly-collection /* Inline status select */
-    .inline-status-select {
-      border:none; background:transparent; font-size:12px; font-weight:600;
-      cursor:pointer; border-radius:20px; padding:3px 8px; outline:none;
-      font-family:var(--font); appearance:none; -webkit-appearance:none;
-      text-align:center;
-    }#view-report-monthly-collection .inline-status-select.status-scheduled { background:var(--blue-bg);  color:var(--blue-text); }#view-report-monthly-collection .inline-status-select.status-overdue { background:var(--red-bg);   color:var(--red-text);  }#view-report-monthly-collection .inline-status-select.status-completed { background:var(--green-bg); color:var(--green-text);}#view-report-monthly-collection .inline-status-select.status-rescheduled { background:var(--amber-bg); color:var(--amber-text);}#view-report-monthly-collection .inline-status-select.status-cancelled { background:var(--gray-bg);  color:var(--gray-text); }#view-report-monthly-collection /* Column header dropdown menu (Google Sheets style) */
-    .col-header { position:relative; cursor:pointer; user-select:none; white-space:nowrap; }#view-report-monthly-collection .col-header:hover { background:var(--bg-tertiary); }#view-report-monthly-collection .col-header-inner { display:flex; align-items:center; gap:4px; }#view-report-monthly-collection .col-menu-btn { background:none; border:none; color:var(--text-muted); font-size:10px; padding:2px 3px; cursor:pointer; border-radius:2px; line-height:1; opacity:0; transition:opacity .15s; }#view-report-monthly-collection .col-header:hover .col-menu-btn { opacity:1; }#view-report-monthly-collection .col-menu-btn:hover { background:var(--border); color:var(--text); }#view-report-monthly-collection .col-dropdown { position:absolute; top:100%; left:0; z-index:100; background:white; border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow-lg); min-width:200px; padding:6px 0; font-size:13px; font-weight:400; text-transform:none; letter-spacing:0; }#view-report-monthly-collection .col-dropdown-item { display:flex; align-items:center; gap:8px; padding:7px 14px; cursor:pointer; color:var(--text); transition:background .1s; white-space:nowrap; }#view-report-monthly-collection .col-dropdown-item:hover { background:var(--bg-secondary); }#view-report-monthly-collection .col-dropdown-item svg { width:14px; height:14px; color:var(--text-muted); flex-shrink:0; }#view-report-monthly-collection .col-dropdown-sep { height:1px; background:var(--border); margin:4px 0; }#view-report-monthly-collection .col-dropdown-search { padding:6px 10px; }#view-report-monthly-collection .col-dropdown-search input { width:100%; padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius-sm); font-size:12.5px; outline:none; }#view-report-monthly-collection .col-dropdown-search input:focus { border-color:var(--primary); box-shadow:0 0 0 2px rgba(34,197,94,.12); }#view-report-monthly-collection .col-dropdown-values { max-height:180px; overflow-y:auto; }#view-report-monthly-collection .col-dropdown-values label { display:flex; align-items:center; gap:8px; padding:5px 14px; cursor:pointer; font-size:12.5px; color:var(--text); }#view-report-monthly-collection .col-dropdown-values label:hover { background:var(--bg-secondary); }#view-report-monthly-collection .col-dropdown-values input[type="checkbox"] { accent-color:var(--primary); }#view-report-monthly-collection .col-dropdown-actions { display:flex; gap:6px; padding:6px 10px; border-top:1px solid var(--border); margin-top:4px; }#view-report-monthly-collection .col-dropdown-actions button { flex:1; padding:5px 8px; font-size:12px; border-radius:var(--radius-sm); cursor:pointer; }#view-report-monthly-collection /* Fixed table within screen */
-    .table-wrapper::-webkit-scrollbar { width:8px; height:8px; }#view-report-monthly-collection .table-wrapper::-webkit-scrollbar-thumb { background:var(--border-hover); border-radius:4px; }#view-report-monthly-collection .table-wrapper::-webkit-scrollbar-track { background:var(--bg-secondary); }#view-report-monthly-collection .table-wrapper::-webkit-scrollbar-corner { background:var(--bg-secondary); }#view-report-monthly-collection thead th { position:sticky; top:0; z-index:10; background:var(--bg-secondary); }
+    @media(max-width:768px){.page-content{padding:16px}.controls-bar{flex-direction:column;align-items:stretch}.grand-banner{flex-direction:column}}
 
-    #view-report-monthly-collection #app-shell { display: flex; }
-#view-report-monthly-collection .manage-list-link{background:none;border:none;color:hsl(142,76%,36%);font-size:11px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;text-decoration:underline}
-#view-report-monthly-collection .manage-list-link:hover{color:hsl(142,76%,28%)}
+    /* PRINT */
+    @media print{
+      @page{margin:12mm 10mm;size:A4}
 
-/* ── Monthly Collection-specific additions ── */
-#view-report-monthly-collection .page-content{padding:24px;display:block;overflow-y:auto}
-#view-report-monthly-collection .controls-bar{display:flex;align-items:center;gap:12px;background:white;border:1px solid var(--border);border-radius:var(--radius);padding:14px 20px;margin-bottom:20px;flex-wrap:wrap}
-#view-report-monthly-collection .controls-bar label{font-size:13px;font-weight:600;color:var(--text-secondary);white-space:nowrap}
-#view-report-monthly-collection .month-nav{display:flex;align-items:center;gap:8px}
-#view-report-monthly-collection .nav-btn{width:34px;height:34px;background:white;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-secondary);transition:all .15s}
-#view-report-monthly-collection .nav-btn:hover{background:var(--bg-secondary);color:var(--text)}
-#view-report-monthly-collection .nav-btn svg{width:16px;height:16px}
-#view-report-monthly-collection .month-label{font-size:15px;font-weight:800;color:var(--text);min-width:160px;text-align:center}
-#view-report-monthly-collection .controls-spacer{flex:1}
-#view-report-monthly-collection .due-date-fallback-toggle{display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:var(--text-secondary);cursor:pointer;user-select:none;padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius);background:white}
-#view-report-monthly-collection .due-date-fallback-toggle input{width:15px;height:15px;cursor:pointer;accent-color:var(--primary)}
-#view-report-monthly-collection .due-date-fallback-toggle.active{background:var(--amber-bg);border-color:#fcd34d;color:var(--amber-text)}
+      /* ── ISOLATED PRINT CONTAINER ──
+         Only #print-root is printed. Everything else in <body>
+         (sidebar, controls, modals, auth/loading screens, toasts,
+         hidden sections) is removed from the printed output. ── */
+      html,body{
+        display:block!important;
+        width:100%!important;max-width:100%!important;
+        height:auto!important;min-height:0!important;
+        overflow:visible!important;
+        background:#fff!important;
+        margin:0!important;padding:0!important;
+      }
+      body > *{display:none!important}
+      body > #print-root{display:block!important;width:100%!important}
+      #print-root{
+        position:static!important;
+        width:100%!important;max-width:100%!important;
+        height:auto!important;overflow:visible!important;
+        margin:0!important;padding:0!important;background:#fff!important;
+      }
+      #print-root #report-area{
+        display:block!important;
+        width:100%!important;max-width:100%!important;
+        height:auto!important;min-height:0!important;
+        overflow:visible!important;
+        border:none!important;border-radius:0!important;
+        padding:0!important;margin:0!important;box-shadow:none!important;
+      }
 
-#view-report-monthly-collection .summary-pills{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap}
-#view-report-monthly-collection .sum-pill{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:12px 18px;flex:1;min-width:120px}
-#view-report-monthly-collection .sum-pill-val{font-size:21px;font-weight:900;line-height:1;margin-bottom:3px}
-#view-report-monthly-collection .sum-pill-lbl{font-size:11.5px;color:var(--text-muted)}
+      /* Never print interactive chrome, even if nested in the report */
+      .no-print,.sidebar,.sidebar-overlay,.hamburger,.sidebar-trigger,
+      .controls-bar,.filters-bar,.summary-row,.summary-pills,.summary-grid,
+      .page-header,.modal,.modal-overlay,.dropdown,.combobox-list,
+      #toast-container,#loading-screen,#auth-screen,
+      button,.btn,.btn-print,.btn-primary,.btn-secondary,.btn-ghost,
+      input,select,textarea{display:none!important}
 
-#view-report-monthly-collection #report-area{background:white;border:1px solid var(--border);border-radius:var(--radius);padding:36px 40px}
+      *{box-sizing:border-box!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      table{width:100%!important;table-layout:auto!important}
+      tr,td,th{page-break-inside:avoid}
+      thead{display:table-header-group}
 
-#view-report-monthly-collection .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:14px;margin-bottom:20px;gap:20px}
-#view-report-monthly-collection .lh-logo{display:flex;align-items:center;gap:14px}
-#view-report-monthly-collection .lh-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-#view-report-monthly-collection .lh-logo-icon svg{width:28px;height:28px;color:white}
-#view-report-monthly-collection .lh-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
-#view-report-monthly-collection .lh-company p{font-size:12px;color:#555;margin-top:2px}
-#view-report-monthly-collection .lh-right{text-align:right}
-#view-report-monthly-collection .lh-doc-title{font-size:16px;font-weight:900;color:#111;text-transform:uppercase;letter-spacing:.04em}
-#view-report-monthly-collection .lh-doc-sub{font-size:13px;color:#333;margin-top:5px;font-weight:700}
-#view-report-monthly-collection .lh-doc-meta{font-size:11.5px;color:#777;margin-top:2px}
+      .collector-section{page-break-inside:avoid;break-inside:avoid}
+      .grand-banner,.collector-header,.coll-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .coll-table tbody tr:nth-child(even),.coll-table tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    }
 
-#view-report-monthly-collection .grand-banner{display:flex;align-items:center;justify-content:space-between;background:#111;color:white;border-radius:8px;padding:14px 20px;margin-bottom:20px;gap:12px;flex-wrap:wrap}
-#view-report-monthly-collection .grand-banner-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.8}
-#view-report-monthly-collection .grand-banner-amount{font-size:26px;font-weight:900;letter-spacing:-.5px}
-#view-report-monthly-collection .grand-banner-meta{font-size:12px;opacity:.7}
-#view-report-monthly-collection .grand-stats{display:flex;gap:20px;flex-wrap:wrap}
-#view-report-monthly-collection .grand-stat{text-align:center}
-#view-report-monthly-collection .grand-stat-val{font-size:18px;font-weight:900}
-#view-report-monthly-collection .grand-stat-lbl{font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.06em}
-
-#view-report-monthly-collection .collector-section{margin-bottom:24px;break-inside:avoid;page-break-inside:avoid}
-#view-report-monthly-collection .collector-header{display:flex;align-items:center;justify-content:space-between;background:#1f2937;color:white;padding:10px 16px;border-radius:6px 6px 0 0;gap:12px}
-#view-report-monthly-collection .collector-name{font-size:13.5px;font-weight:800;display:flex;align-items:center;gap:8px}
-#view-report-monthly-collection .collector-name svg{width:15px;height:15px;opacity:.8}
-#view-report-monthly-collection .collector-count{font-size:12px;opacity:.75}
-#view-report-monthly-collection .collector-subtotal{font-size:14px;font-weight:900;color:#4ade80}
-
-#view-report-monthly-collection .coll-table{width:100%;border-collapse:collapse;font-size:12px}
-#view-report-monthly-collection .coll-table th{padding:8px 10px;background:#f1f3f5;border:1px solid #d1d5db;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;text-align:left}
-#view-report-monthly-collection .coll-table th.right{text-align:right}
-#view-report-monthly-collection .coll-table td{padding:8px 10px;border:1px solid #e5e7eb;vertical-align:middle;color:#111}
-#view-report-monthly-collection .coll-table td.num{text-align:center;color:#9ca3af;font-size:11px;width:28px}
-#view-report-monthly-collection .coll-table td.mono{font-family:monospace;font-size:11px;color:#6b7280}
-#view-report-monthly-collection .coll-table td.nowrap{white-space:nowrap}
-#view-report-monthly-collection .coll-table td.right{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
-#view-report-monthly-collection .coll-table td.remarks-cell{font-size:11.5px;color:#6b7280;max-width:140px}
-#view-report-monthly-collection .coll-table tbody tr:nth-child(even){background:#fafafa}
-#view-report-monthly-collection .coll-table tfoot td{padding:9px 10px;background:#e5e7eb;font-weight:800;font-size:12.5px;border:1px solid #d1d5db}
-#view-report-monthly-collection .coll-table tfoot td.right{text-align:right;font-variant-numeric:tabular-nums;color:#15803d}
-
-#view-report-monthly-collection .mode-tag{display:inline-block;padding:1px 7px;border-radius:10px;font-size:10.5px;font-weight:700;text-transform:capitalize;background:#f3f4f6;color:#374151}
-#view-report-monthly-collection .due-date-tag{display:inline-block;padding:0 5px;border-radius:8px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;background:var(--amber-bg);color:var(--amber-text);margin-left:5px;vertical-align:middle}
-
-#view-report-monthly-collection .no-collections{text-align:center;padding:52px 20px;color:#9ca3af}
-#view-report-monthly-collection .no-collections svg{width:40px;height:40px;margin-bottom:12px;opacity:.4}
-#view-report-monthly-collection .no-collections h3{font-size:15px;font-weight:600;color:#374151;margin-bottom:6px}
-
-#view-report-monthly-collection .report-footer{margin-top:20px;padding-top:12px;border-top:1px solid #e5e7eb;display:flex;align-items:center;justify-content:space-between;font-size:10.5px;color:#9ca3af;flex-wrap:wrap;gap:6px}
-#view-report-monthly-collection .confidential-note{font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.06em}
-
-#view-report-monthly-collection .report-placeholder{text-align:center;padding:56px 20px;color:var(--text-muted)}
-#view-report-monthly-collection .report-placeholder svg{width:44px;height:44px;margin-bottom:14px;opacity:.4}
-#view-report-monthly-collection .report-placeholder h3{font-size:15px;font-weight:600;color:var(--text-secondary);margin-bottom:6px}
-#view-report-monthly-collection .report-placeholder p{font-size:13px;max-width:360px;margin:0 auto}
-
-@media(max-width:768px){#view-report-monthly-collection .controls-bar{flex-direction:column;align-items:stretch}#view-report-monthly-collection .grand-banner{flex-direction:column}}
-
-/* ── Print controls (orientation + color mode toggles) ── */
-#view-report-monthly-collection .print-toggle-group{display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-#view-report-monthly-collection .print-toggle-btn{display:flex;align-items:center;gap:6px;padding:8px 12px;background:white;border:none;font-size:13px;font-weight:500;color:var(--text-secondary);cursor:pointer;transition:all .15s}
-#view-report-monthly-collection .print-toggle-btn+.print-toggle-btn{border-left:1px solid var(--border)}
-#view-report-monthly-collection .print-toggle-btn svg{width:14px;height:14px}
-#view-report-monthly-collection .print-toggle-btn:hover{background:var(--bg-secondary)}
-#view-report-monthly-collection .print-toggle-btn.active{background:var(--primary);color:white}
-
-/* ══════════════════════════════════════════
-   PRINT CSS — scoped under #view-report-monthly-collection AND
-   gated behind .active everywhere. Every report module stays
-   permanently mounted in the DOM (just hidden via the base
-   [data-view]:not(.active){display:none} rule) — without the
-   .active check on every rule below, printing from THIS page would
-   also force any OTHER previously-visited report module visible at
-   the same time, since each one's print CSS was unconditionally
-   forcing itself on. Gating on .active means only the report
-   actually being looked at ever ends up on the printed page.
-
-   Orientation and color mode are person-controlled via the toggle
-   buttons above the report: .print-landscape switches the named
-   @page (Chromium supports per-element @page selection via the
-   `page:` property), and .print-bw applies a grayscale filter to
-   the report content only — the on-screen colors stay exactly
-   as-is, this only affects what gets printed.
-══════════════════════════════════════════ */
-@page reportmc-portrait{margin:12mm 10mm;size:A4 portrait}
-@page reportmc-landscape{margin:10mm 12mm;size:A4 landscape}
-
-@media print{
-  #view-report-monthly-collection:not(.active){display:none!important}
-
-  #view-report-monthly-collection.active #report-area{page:reportmc-portrait}
-  #view-report-monthly-collection.active.print-landscape #report-area{page:reportmc-landscape}
-
-  #view-report-monthly-collection.active .sidebar,
-  #view-report-monthly-collection.active .sidebar-overlay,
-  #view-report-monthly-collection.active .topbar,
-  #view-report-monthly-collection.active .hamburger,
-  #view-report-monthly-collection.active .controls-bar,
-  #view-report-monthly-collection.active .summary-pills,
-  #view-report-monthly-collection.active #toast-container,
-  #view-report-monthly-collection.active .btn-print,
-  #view-report-monthly-collection.active .btn-secondary,
-  #view-report-monthly-collection.active .page-content > *:not(#report-area){display:none!important}
-
-  #view-report-monthly-collection.active,
-  #view-report-monthly-collection.active #app-shell,
-  #view-report-monthly-collection.active .main-wrapper,
-  #view-report-monthly-collection.active .page-content{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    margin:0!important;padding:0!important;flex:none!important;background:white!important;
-  }
-  #view-report-monthly-collection.active .page-content{padding:0!important}
-  #view-report-monthly-collection.active #report-area{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    border:none!important;border-radius:0!important;padding:0!important;box-shadow:none!important;
-  }
-  #view-report-monthly-collection.active table{width:100%!important;table-layout:auto!important}
-  #view-report-monthly-collection.active .collector-section{page-break-inside:avoid;break-inside:avoid}
-  #view-report-monthly-collection.active .grand-banner,
-  #view-report-monthly-collection.active .collector-header,
-  #view-report-monthly-collection.active .coll-table th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  #view-report-monthly-collection.active .coll-table tbody tr:nth-child(even),
-  #view-report-monthly-collection.active .coll-table tfoot td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-
-  /* Black & white mode — grayscale the report content only, leaving
-     the on-screen colors (and the other print rules above) untouched. */
-  #view-report-monthly-collection.active.print-bw #report-area{-webkit-filter:grayscale(1);filter:grayscale(1)}
-}
+  
+    /* ── PAGE LOAD SCREEN ── */
+    #loading-screen{position:fixed;inset:0;background:#0f1b12;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;transition:opacity .25s}
+    #loading-screen.fade-out{opacity:0;pointer-events:none}
+    .ls-logo{width:60px;height:60px;background:hsl(142,76%,36%);border-radius:14px;display:flex;align-items:center;justify-content:center}
+    .ls-logo svg{width:34px;height:34px;color:white}
+    .ls-spinner{width:28px;height:28px;border:3px solid rgba(255,255,255,.15);border-top-color:hsl(142,76%,60%);border-radius:50%;animation:spin .7s linear infinite}
+    .ls-text{font-size:13px;color:rgba(255,255,255,.45);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;letter-spacing:.02em}
+  
+    /* ── Floating sidebar trigger (replaces the removed top bar) ── */
+    .sidebar-trigger{position:fixed;top:12px;left:12px;z-index:80;width:38px;height:38px;background:#fff;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:none;align-items:center;justify-content:center;color:var(--text-secondary)}
+    .sidebar-trigger svg{width:18px;height:18px}
+    @media (max-width:900px){.sidebar-trigger{display:flex}.page-content{padding-top:62px!important}}
+  </style>
+</head>
+<body>
 
 
-/* Page header row (replaces the removed top navigation bar) */
-#view-report-monthly-collection .page-title-row{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-shrink:0}
-#view-report-monthly-collection .page-title-row h2{font-size:18px;font-weight:700;color:var(--text)}
-#view-report-monthly-collection .page-title-spacer{flex:1}
-#view-report-monthly-collection .page-title-row .topbar-btn{flex-shrink:0}
+<!-- PAGE LOAD SCREEN — hides once Firebase auth resolves -->
+<div id="loading-screen">
+  <div class="ls-logo">
+    <img src="logo.jpg" alt="Pestastic" style="width:34px;height:34px;object-fit:contain" />
+  </div>
+  <div class="ls-spinner"></div>
+  <div class="ls-text">Pestastic</div>
+</div>
 
-/* ══════════════════════════════════════════
-   PRINT ISOLATION — only the active module's
-   #report-area reaches paper. Every other
-   mounted module and all app chrome (sidebar,
-   controls, modals, toasts) is excluded.
-   ══════════════════════════════════════════ */
-@media print{
-  html,body{background:#fff!important;height:auto!important;overflow:visible!important}
-  /* other mounted (hidden) report modules must never print */
-  [data-view]:not(.active){display:none!important}
-  #view-report-monthly-collection:not(.active){display:none!important}
-  /* app chrome + overlays */
-  #view-report-monthly-collection.active .sidebar,
-  #view-report-monthly-collection.active .sidebar-overlay,
-  #view-report-monthly-collection.active .topbar,
-  #view-report-monthly-collection.active .hamburger,
-  #view-report-monthly-collection.active .page-title-row,
-  #view-report-monthly-collection.active .controls-bar,
-  #view-report-monthly-collection.active .modal,
-  #view-report-monthly-collection.active .modal-overlay,
-  #view-report-monthly-collection.active [role="dialog"],
-  #view-report-monthly-collection.active #toast-container,
-  #view-report-monthly-collection.active .toast,
-  #view-report-monthly-collection.active .btn-print,
-  #view-report-monthly-collection.active .btn-secondary,
-  #view-report-monthly-collection.active .btn-ghost,
-  #view-report-monthly-collection.active .no-print,
-  #view-report-monthly-collection.active .page-content > *:not(#report-area){display:none!important}
-  /* unmount-proof: chrome rendered outside the module root */
-  body > .modal,
-  body > .modal-overlay,
-  body > [role="dialog"],
-  body > #toast-container,
-  body > .toast-container,
-  .no-print{display:none!important}
-  /* collapse the app shell so #report-area is the only flow root */
-  #view-report-monthly-collection.active,
-  #view-report-monthly-collection.active #app-shell,
-  #view-report-monthly-collection.active .main-wrapper,
-  #view-report-monthly-collection.active .page-content{
-    display:block!important;position:static!important;
-    width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    margin:0!important;padding:0!important;flex:none!important;background:#fff!important;
-  }
-  #view-report-monthly-collection.active #report-area{
-    display:block!important;width:100%!important;max-width:100%!important;
-    height:auto!important;min-height:0!important;overflow:visible!important;
-    border:none!important;border-radius:0!important;padding:0!important;
-    box-shadow:none!important;margin:0!important;
-  }
-}
-</style>
+<!-- AUTH -->
+<div id="auth-screen" style="display:none">
+  <div id="login-card" class="auth-card">
+    <div class="auth-logo"><img src="logo.jpg" alt="Pestastic" style="width:36px;height:36px;object-fit:contain" /></div>
+    <h1>Pestastic</h1><p>Sign in to continue</p>
+    <button class="btn-google" id="btn-google-signin"><svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Sign in with Google</button>
+    <div class="auth-error" id="login-error"></div>
+  </div>
+  <div id="pending-card" class="auth-card" style="display:none">
+    <div class="pending-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+    <h1 style="font-size:20px">Pending Approval</h1><p style="margin-bottom:24px">Your account awaits admin approval.</p>
+    <button class="btn-pending-check" id="btn-check-status">Check Status</button>
+    <button class="btn-signout-pending" id="btn-signout-pending">Sign Out</button>
+  </div>
+</div>
 
-<div data-view="report-monthly-collection" id="view-report-monthly-collection">
+<!-- APP SHELL -->
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
-    <div class="sidebar-logo">
-      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
+    <div class="sidebar-logo" style="justify-content:center;padding:14px 16px">
+      <div style="background:white;border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:center;width:100%">
+        <img src="logo.jpg" alt="Pestastic" style="width:100%;max-width:188px;height:40px;object-fit:contain" />
+      </div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
-      <a class="nav-item" href="#dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
-      <a class="nav-item" href="#clients"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Clients</a>
-      <a class="nav-item" href="#contracts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Contracts</a>
-      <a class="nav-item" href="#treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
+      <a class="nav-item" href="dashboard.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+      <a class="nav-item" href="clients.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Clients</a>
+      <a class="nav-item" href="contracts.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Contracts</a>
+      <a class="nav-item" href="treatments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Treatments</a>
       <div class="nav-section-label">Financial</div>
-      <a class="nav-item" href="#payments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
-      <a class="nav-item" href="#renewals"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
+      <a class="nav-item" href="payments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Payments</a>
+      <a class="nav-item" href="renewals.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Renewals</a>
       <div class="nav-section-label">Service</div>
-      <a class="nav-item" href="#complaints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Complaints</a>
-      <a class="nav-item" href="#inspections"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Inspections</a>
+      <a class="nav-item" href="complaints.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Complaints<span class="nav-badge" id="badge-complaints" style="display:none"></span></a>
+      <a class="nav-item" href="inspections.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>Inspections<span class="nav-badge amber" id="badge-inspections" style="display:none"></span></a>
       <div class="nav-section-label">Monitoring</div>
-      <a class="nav-item" href="#overdue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue</a>
-      <a class="nav-item" href="#calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Calendar</a>
+      <a class="nav-item" href="overdue.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue<span class="nav-badge" id="badge-overdue" style="display:none"></span></a>
+      <a class="nav-item" href="notification-calendar.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications<span class="nav-badge" id="notif-count-badge" style="display:none"></span></a>
       <div class="nav-section-label">Reports</div>
-      <a class="nav-item" href="#report-daily-schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Daily Schedule</a>
-      <a class="nav-item" href="#report-service"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Report</a>
-      <a class="nav-item" href="#report-client-soa"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Client SOA</a>
-      <a class="nav-item active" href="#report-monthly-collection"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Monthly Collection</a>
-      <a class="nav-item" href="#report-overdue-treatments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue Report</a>
-      <div class="nav-section-label" id="report-monthly-collection-operations-nav-label" style="display:none">Operations</div>
-      <a class="nav-item" href="#audit-log" id="report-monthly-collection-nav-audit-log" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Audit Log</a>
-      <div class="nav-section-label" id="report-monthly-collection-admin-nav-label" style="display:none">Admin</div>
-      <a class="nav-item" href="#admin" id="report-monthly-collection-nav-admin" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>User Management</a>
+      <a class="nav-item" href="report-daily-schedule.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Daily Schedule</a>
+      <a class="nav-item" href="report-service.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Service Report</a>
+      <a class="nav-item" href="report-client-soa.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Client SOA</a>
+      <a class="nav-item active" href="report-monthly-collection.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Monthly Collection</a>
+      <a class="nav-item" href="report-overdue-treatments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Overdue Report</a>
+      <div class="nav-section-label">Operations</div>
+      <a class="nav-item" href="teams.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Teams</a>
+      <a class="nav-item" href="audit-log.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Audit Log</a>
+      <div class="nav-section-label" id="admin-nav-label" style="display:none">Admin</div>
+      <a class="nav-item" href="user-management.html" id="nav-users" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>User Management</a>
+      <a class="nav-item" href="settings.html" id="nav-settings" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings</a>
     </nav>
     <div class="sidebar-footer">
       <div class="sidebar-user">
         <div class="user-avatar" id="user-avatar"><span id="user-initials">?</span></div>
-        <div class="user-info">
-          <div class="user-name" id="user-display-name">Loading…</div>
-          <div class="user-role" id="user-role-label">—</div>
-        </div>
-        <button class="btn-signout" id="btn-signout" title="Sign out">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        </button>
+        <div class="user-info"><div class="user-name" id="user-display-name">Loading…</div><div class="user-role" id="user-role-label">—</div></div>
+        <button class="btn-signout" id="btn-signout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
       </div>
     </div>
   </aside>
 
   <div class="main-wrapper">
+    <!-- Top navigation bar removed — standardized sidebar layout only -->
+    <button class="sidebar-trigger no-print" id="hamburger" aria-label="Toggle menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <span id="last-updated" hidden></span><button id="btn-refresh" hidden></button><span id="notif-dot" hidden></span>
 
     <main class="page-content">
-      <div class="page-title-row">
-        <button class="hamburger" id="hamburger" aria-label="Toggle navigation"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-        <h2>Monthly Collection Report</h2>
-        <div class="page-title-spacer"></div>
-      </div>
+
+      <!-- Controls -->
       <div class="controls-bar">
         <label>Month</label>
         <div class="month-nav">
@@ -346,33 +345,14 @@
           <button class="nav-btn" id="btn-next-month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
         </div>
         <button class="btn btn-secondary" id="btn-this-month" style="font-size:12.5px;padding:6px 12px">This Month</button>
-        <label class="due-date-fallback-toggle" id="due-date-fallback-label">
-          <input type="checkbox" id="chk-due-date-fallback" />
-          Include entries with no Payment Date (uses Due Date)
-        </label>
         <div class="controls-spacer"></div>
-        <div class="print-toggle-group" id="orientation-toggle">
-          <button type="button" class="print-toggle-btn active" data-orientation="portrait" title="Print portrait">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="1.5"/></svg>Portrait
-          </button>
-          <button type="button" class="print-toggle-btn" data-orientation="landscape" title="Print landscape">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="1.5"/></svg>Landscape
-          </button>
-        </div>
-        <div class="print-toggle-group" id="color-mode-toggle">
-          <button type="button" class="print-toggle-btn active" data-color-mode="color" title="Print in color">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>Color
-          </button>
-          <button type="button" class="print-toggle-btn" data-color-mode="bw" title="Print black &amp; white">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/></svg>B&amp;W
-          </button>
-        </div>
-        <button class="btn btn-primary btn-print" id="btn-print">
+        <button class="btn btn-primary btn-print" onclick="window.printReport()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Print Report
         </button>
       </div>
 
+      <!-- Screen summary pills -->
       <div class="summary-pills">
         <div class="sum-pill">
           <div class="sum-pill-val" id="sp-total" style="color:var(--primary)">₱0.00</div>
@@ -392,6 +372,7 @@
         </div>
       </div>
 
+      <!-- Report -->
       <div id="report-area">
         <div class="report-placeholder">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
@@ -399,320 +380,328 @@
           <p>Fetching payment data for the selected month.</p>
         </div>
       </div>
+
     </main>
   </div>
 </div>
 
-<div id="toast-container"></div>
-</div>
-
-
 <script type="module">
-import { auth, db } from './firebase-config.js';
-import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { collection, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-import { cachedGetDocs, cachedGetDoc, invalidate } from './js/firestore-cache.js';
 
-const VIEW_ROOT = document.getElementById('view-report-monthly-collection');
-const $ = id => VIEW_ROOT.querySelector('#' + id);
+function dismissLoadingScreen(){
+  const ls=document.getElementById('loading-screen');
+  if(!ls)return;
+  ls.classList.add('fade-out');
+  setTimeout(()=>{if(ls.parentNode)ls.parentNode.removeChild(ls);},280);
+}
+// Failsafe: force-dismiss after 6 seconds no matter what
+setTimeout(()=>dismissLoadingScreen(), 6000);
 
-const COLLECTED = ['Received', 'Deposited', 'Remitted', 'Collected'];
-const DUE_DATE_FALLBACK_KEY = 'pestastic:report-monthly-collection:includeDueDateFallback';
+import { initializeApp }   from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { firebaseConfig } from './firebase-config.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import {
+  getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc,
+  query, where, orderBy, serverTimestamp
+} from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+import { app as _pcApp, auth as _pcAuth, db as _pcDb } from './js/firebase-init.js';
+import {
+  cachedGetDocs, cachedGetDoc, smartAddDoc, smartUpdateDoc, smartDeleteDoc,
+  smartSetDoc, invalidateAfterWrite, updateLastLoginNoInvalidate
+} from './js/firestoreShim.js';
+import { mountSidebarBadges } from './js/sidebarBadges.js';
+import { mountLastUpdated, wireRefreshButton } from './js/pageInit.js';
 
-/* ── State ── */
+
+/* Firebase init now centralized in js/firebase-init.js */
+const app = _pcApp; const auth = _pcAuth; const db = _pcDb;
+
 let currentUser = null, currentRole = null;
 let viewYear = new Date().getFullYear(), viewMonth = new Date().getMonth();
 let clientMap = {}, companySettings = {};
-let reportInitialized = false;
 
-function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+const $ = id => document.getElementById(id);
+const COLLECTED = ['Received','Deposited','Remitted','Collected'];
 
-/* ── Helpers ── */
 function toLocalDate(v) {
-  if (!v) return null;
-  if (v.toDate) { const d = v.toDate(); return new Date(d.getFullYear(), d.getMonth(), d.getDate()); }
-  if (v instanceof Date) return new Date(v.getFullYear(), v.getMonth(), v.getDate());
-  const s = String(v).trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); }
-  const d = new Date(v);
-  return isNaN(d) ? null : new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if(!v) return null;
+  if(v.toDate) { const d=v.toDate(); return new Date(d.getFullYear(),d.getMonth(),d.getDate()); }
+  if(v instanceof Date) return new Date(v.getFullYear(),v.getMonth(),v.getDate());
+  const d=new Date(v); return isNaN(d)?null:new Date(d.getFullYear(),d.getMonth(),d.getDate());
 }
-function fmtDate(v) { const d = toLocalDate(v); if (!d) return '—'; return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: 'numeric' }); }
-function fmtCur(n) { return '₱' + Number(n || 0).toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
-function cleanName(n) { return (n || '').replace(/\s*\(.*?\)\s*/g, '').trim() || '—'; }
-
-// Payments don't have a flat "remarks" field — notes live in the same
-// `notes` array/thread every other module uses, so this pulls the most
-// recent entry the exact same way Payments' own table does.
-function getRecentNote(p) {
-  const notes = p.notes || [];
-  if (!notes.length) return null;
-  return [...notes].sort((a, b) => {
-    const ta = a.timestamp?.seconds || (a.timestamp ? new Date(a.timestamp).getTime() / 1000 : 0);
-    const tb = b.timestamp?.seconds || (b.timestamp ? new Date(b.timestamp).getTime() / 1000 : 0);
-    return tb - ta;
-  })[0];
-}
+function fmtDate(v) { if(!v)return '—'; const d=toLocalDate(v); if(!d)return '—'; return d.toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}); }
+function fmtCur(n) { return '₱'+Number(n||0).toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function cleanName(n){return(n||'').replace(/\s*\(.*?\)\s*/g,'').trim()||'—';}
 
 async function loadRefData() {
   try {
-    const clients = await cachedGetDocs(collection(db, 'clients'), 'clients');
-    clientMap = {}; clients.forEach(c => { if (c.customerNo) clientMap[c.customerNo] = c; });
-  } catch (e) { console.warn('[loadRefData] clients failed:', e.message); clientMap = {}; }
-  try {
-    const s = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings');
-    companySettings = s || {};
-  } catch { companySettings = {}; }
+    const snap=await cachedGetDocs(collection(db,'clients'));
+    clientMap={}; snap.forEach(d=>{const c=d.data();if(c.customerNo)clientMap[c.customerNo]=c;});
+  } catch(e) { console.warn('[loadRefData] clients failed:', e.message); clientMap={}; }
+  try{const s=await cachedGetDoc(doc(db,'config','settings'));companySettings=s.exists()?s.data():{};}catch{}
 }
 
 function updateMonthLabel() {
-  const d = new Date(viewYear, viewMonth, 1);
-  $('month-label').textContent = d.toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
+  const d=new Date(viewYear,viewMonth,1);
+  $('month-label').textContent=d.toLocaleDateString('en-PH',{month:'long',year:'numeric'});
 }
 
 async function generateReport() {
   updateMonthLabel();
-  const includeFallback = $('chk-due-date-fallback').checked;
-  const monthLabel = new Date(viewYear, viewMonth, 1).toLocaleDateString('en-PH', { month: 'long', year: 'numeric' });
-  $('report-area').innerHTML = `<div style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto 12px"></div><p style="color:var(--text-muted)">Loading collections for ${esc(monthLabel)}…</p></div>`;
+  const monthLabel=new Date(viewYear,viewMonth,1).toLocaleDateString('en-PH',{month:'long',year:'numeric'});
+  $('report-area').innerHTML=`<div style="text-align:center;padding:48px"><div class="spinner" style="margin:0 auto 12px"></div><p style="color:var(--text-muted)">Loading collections for ${monthLabel}…</p></div>`;
 
   try {
-    const monthStart = new Date(viewYear, viewMonth, 1);
-    const monthEnd = new Date(viewYear, viewMonth + 1, 0, 23, 59, 59, 999);
+    // Month boundaries (local)
+    const monthStart = new Date(viewYear,viewMonth,1);
+    const monthEnd   = new Date(viewYear,viewMonth+1,0,23,59,59,999);
 
-    const allPayments = await cachedGetDocs(collection(db, 'payments'), 'payments');
-    let payments = [];
-    allPayments.forEach(p => {
-      if (!COLLECTED.includes(p.status)) return;
-      // Default: only a payment with an actual recorded Payment Date
-      // counts toward a given month — Payments' own edit form doesn't
-      // require Payment Date to be filled in when status is set to
-      // Received/Collected/etc., only Status itself is validated, so
-      // falling back to Due Date would silently misattribute a
-      // collection to a month nobody actually confirmed. The checkbox
-      // opts back into that fallback explicitly, and rows using it get
-      // a visible "Due Date" tag so the report doesn't read as more
-      // precise than it actually is.
-      const hasPaymentDate = !!toLocalDate(p.paymentDate);
-      if (!hasPaymentDate && !includeFallback) return;
-      const effectiveDate = hasPaymentDate ? p.paymentDate : p.dueDate;
-      const pd = toLocalDate(effectiveDate);
-      if (!pd || pd < monthStart || pd > monthEnd) return;
-      payments.push({ id: p.id, ...p, _date: pd, _usedFallback: !hasPaymentDate });
+    // Fetch ALL payments without orderBy so documents missing paymentDate are not excluded.
+    // Sort client-side instead.
+    const snap=await cachedGetDocs(collection(db,'payments'));
+    let payments=[];
+    snap.forEach(d=>{
+      const p=d.data();
+      if(!COLLECTED.includes(p.status)) return;
+      const pd=toLocalDate(p.paymentDate||p.dueDate);
+      if(!pd||pd<monthStart||pd>monthEnd) return;
+      payments.push({id:d.id,...p,_date:pd});
     });
-    payments.sort((a, b) => a._date - b._date);
+    payments.sort((a,b)=>a._date-b._date);
 
-    const grandTotal = payments.reduce((s, p) => s + Number(p.amount || 0), 0);
-    const collectorSet = new Set(payments.map(p => p.receivedBy || 'Unassigned'));
-    const modes = new Set(payments.map(p => p.paymentMode || '—'));
-    $('sp-total').textContent = fmtCur(grandTotal);
-    $('sp-entries').textContent = payments.length;
-    $('sp-collectors').textContent = collectorSet.size;
-    $('sp-modes').textContent = [...modes].filter(m => m && m !== '—').join(', ') || '—';
+    // Build screen pills
+    const grandTotal=payments.reduce((s,p)=>s+Number(p.amount||0),0);
+    const collectorSet=new Set(payments.map(p=>p.receivedBy||'Unassigned'));
+    const modes=new Set(payments.map(p=>p.paymentMode||'—'));
+    $('sp-total').textContent=fmtCur(grandTotal);
+    $('sp-entries').textContent=payments.length;
+    $('sp-collectors').textContent=collectorSet.size;
+    $('sp-modes').textContent=[...modes].filter(m=>m&&m!=='—').join(', ')||'—';
 
-    const companyName = companySettings.companyName || 'Pestastic Pest Control Services';
-    const companyAddr = companySettings.companyAddress || '';
-    const companyPhone = companySettings.companyPhone || '';
-    const genTime = new Date().toLocaleString('en-PH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const companyName=companySettings.companyName||'Pestastic Pest Control Services';
+    const companyAddr=companySettings.companyAddress||'';
+    const companyPhone=companySettings.companyPhone||'';
+    const genTime=new Date().toLocaleString('en-PH',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
 
-    const grouped = {};
-    payments.forEach(p => { const key = p.receivedBy || 'Unassigned'; (grouped[key] ||= []).push(p); });
-    const sortedCollectors = Object.keys(grouped).sort();
+    // Group by collector — defined before the empty-state check so both branches can use them
+    const grouped={};
+    payments.forEach(p=>{
+      const key=p.receivedBy||'Unassigned';
+      if(!grouped[key])grouped[key]=[];
+      grouped[key].push(p);
+    });
+    const sortedCollectors=Object.keys(grouped).sort();
 
-    const letterheadHTML = `
+    // Shared letterhead HTML
+    const letterheadHTML=`
     <div class="letterhead">
       <div class="lh-logo">
         <div class="lh-logo-icon"><img src="logo.jpg" alt="Pestastic" style="width:28px;height:28px;object-fit:contain;filter:brightness(0) invert(1)" /></div>
         <div class="lh-company">
-          <h1>${esc(companyName)}</h1>
-          <p>${esc([companyAddr, companyPhone].filter(Boolean).join(' · '))}</p>
+          <h1>${companyName}</h1>
+          <p>${[companyAddr,companyPhone].filter(Boolean).join(' · ')}</p>
         </div>
       </div>
       <div class="lh-right">
         <div class="lh-doc-title">Monthly Collection Summary</div>
-        <div class="lh-doc-sub">${esc(monthLabel)}</div>
+        <div class="lh-doc-sub">${monthLabel}</div>
         <div class="lh-doc-meta">Generated: ${genTime}</div>
       </div>
     </div>`;
 
-    if (!payments.length) {
-      $('report-area').innerHTML = `
+    // No collections this month
+    if(!payments.length) {
+      $('report-area').innerHTML=`
         ${letterheadHTML}
         <div class="no-collections">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          <h3>No collections recorded for ${esc(monthLabel)}</h3>
-          <p>There are no payments with a collected status (Received, Deposited, Remitted, or Collected) for this month${includeFallback ? '' : ' with a recorded Payment Date — try the checkbox above to also include entries only carrying a Due Date'}.</p>
+          <h3>No collections recorded for ${monthLabel}</h3>
+          <p>There are no payments with a collected status (Received, Deposited, Remitted, or Collected) for this month.</p>
         </div>`;
       return;
     }
 
-    let html = `
+    // Build full report HTML
+    let html=`
       ${letterheadHTML}
       <div class="grand-banner">
         <div>
-          <div class="grand-banner-label">Grand Total Collected — ${esc(monthLabel)}</div>
+          <div class="grand-banner-label">Grand Total Collected — ${monthLabel}</div>
           <div class="grand-banner-amount">${fmtCur(grandTotal)}</div>
-          <div class="grand-banner-meta">${payments.length} transaction${payments.length === 1 ? '' : 's'} · ${sortedCollectors.length} collector${sortedCollectors.length === 1 ? '' : 's'}</div>
+          <div class="grand-banner-meta">${payments.length} transaction${payments.length===1?'':'s'} · ${sortedCollectors.length} collector${sortedCollectors.length===1?'':'s'}</div>
         </div>
         <div class="grand-stats">
-          ${sortedCollectors.map(c => `<div class="grand-stat">
-            <div class="grand-stat-val">${fmtCur(grouped[c].reduce((s, p) => s + Number(p.amount || 0), 0))}</div>
-            <div class="grand-stat-lbl">${esc(c)}</div>
+          ${sortedCollectors.map(c=>`<div class="grand-stat">
+            <div class="grand-stat-val">${fmtCur(grouped[c].reduce((s,p)=>s+Number(p.amount||0),0))}</div>
+            <div class="grand-stat-lbl">${c}</div>
           </div>`).join('')}
         </div>
       </div>`;
 
-    sortedCollectors.forEach(collector => {
-      const rows = grouped[collector].slice().sort((a, b) => a._date - b._date);
-      const subtotal = rows.reduce((s, p) => s + Number(p.amount || 0), 0);
+    /* ── Collector sections ── */
+    sortedCollectors.forEach(collector=>{
+      const rows=grouped[collector].slice().sort((a,b)=>a._date-b._date);
+      const subtotal=rows.reduce((s,p)=>s+Number(p.amount||0),0);
 
-      html += `
+      html+=`
       <div class="collector-section">
         <div class="collector-header">
           <span class="collector-name">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            ${esc(collector)}
+            ${collector}
           </span>
-          <span class="collector-count">${rows.length} collection${rows.length === 1 ? '' : 's'}</span>
+          <span class="collector-count">${rows.length} collection${rows.length===1?'':'s'}</span>
           <span class="collector-subtotal">${fmtCur(subtotal)}</span>
         </div>
         <table class="coll-table">
           <thead><tr>
-            <th>#</th><th>Date</th><th>OR No.</th><th>Client Name</th><th>Customer No</th>
-            <th>Mode</th><th>Status</th><th>Remarks</th><th class="right">Amount (₱)</th>
+            <th>#</th>
+            <th>Date</th>
+            <th>OR No.</th>
+            <th>Client Name</th>
+            <th>Customer No</th>
+            <th>Mode</th>
+            <th>Status</th>
+            <th>Remarks</th>
+            <th class="right">Amount (₱)</th>
           </tr></thead>
           <tbody>`;
 
-      rows.forEach((p, i) => {
-        const clientName = cleanName(clientMap[p.customerNo]?.clientName || p.customerNo || '—');
-        const recentNote = getRecentNote(p);
-        const dateTag = p._usedFallback ? `<span class="due-date-tag">Due Date</span>` : '';
-        html += `<tr>
-          <td class="num">${i + 1}</td>
-          <td class="nowrap">${fmtDate(p._date)}${dateTag}</td>
-          <td class="mono">${esc(p.orNumber || '—')}</td>
-          <td style="font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${esc(clientName)}">${esc(clientName)}</td>
-          <td class="mono">${esc(p.customerNo || '—')}</td>
-          <td><span class="mode-tag">${esc(p.paymentMode || '—')}</span></td>
-          <td style="font-size:11.5px;font-weight:600;color:#15803d">${esc(p.status || '—')}</td>
-          <td class="remarks-cell" title="${recentNote ? esc(recentNote.text) : ''}">${recentNote ? esc(recentNote.text) : '—'}</td>
+      rows.forEach((p,i)=>{
+        const clientName=cleanName(clientMap[p.customerNo]?.clientName||p.customerNo||'—');
+        html+=`<tr>
+          <td class="num">${i+1}</td>
+          <td class="nowrap">${fmtDate(p.paymentDate||p.dueDate)}</td>
+          <td class="mono">${p.orNumber||'—'}</td>
+          <td style="font-weight:600;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${clientName}">${clientName}</td>
+          <td class="mono">${p.customerNo||'—'}</td>
+          <td><span class="mode-tag">${p.paymentMode||'—'}</span></td>
+          <td style="font-size:11.5px;font-weight:600;color:#15803d">${p.status||'—'}</td>
+          <td class="remarks-cell">${p.remarks||'—'}</td>
           <td class="right">${fmtCur(p.amount)}</td>
         </tr>`;
       });
 
-      html += `</tbody><tfoot><tr>
-        <td colspan="8" style="text-align:right;text-transform:uppercase;letter-spacing:.05em;font-size:11px">Subtotal — ${esc(collector)}</td>
+      html+=`</tbody><tfoot><tr>
+        <td colspan="8" style="text-align:right;text-transform:uppercase;letter-spacing:.05em;font-size:11px">Subtotal — ${collector}</td>
         <td class="right">${fmtCur(subtotal)}</td>
       </tr></tfoot></table>
       </div>`;
     });
 
-    html += `
+    /* ── Report Footer ── */
+    html+=`
       <div class="report-footer">
         <span class="confidential-note">Confidential</span>
-        <span>${esc(companyName)} — Monthly Collection Summary</span>
+        <span>${companyName} — Monthly Collection Summary</span>
         <span>Page 1 of 1 · Generated: ${genTime}</span>
       </div>`;
 
-    $('report-area').innerHTML = html;
-  } catch (err) {
+    $('report-area').innerHTML=html;
+
+  } catch(err) {
     console.error('[generateReport] Failed:', err);
-    $('report-area').innerHTML = `
+    $('report-area').innerHTML=`
       <div class="report-placeholder">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(0,84%,50%)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         <h3>Failed to load report</h3>
-        <p>${esc(err.message || 'An unexpected error occurred. Check your connection and try again.')}</p>
+        <p>${err.message||'An unexpected error occurred. Check your connection and try again.'}</p>
       </div>`;
   }
 }
 
-/* ── Due-date-fallback checkbox — a display preference, not app data,
-   so it's remembered per-browser via localStorage. ── */
-$('chk-due-date-fallback').checked = localStorage.getItem(DUE_DATE_FALLBACK_KEY) === 'true';
-$('due-date-fallback-label').classList.toggle('active', $('chk-due-date-fallback').checked);
-$('chk-due-date-fallback').addEventListener('change', () => {
-  const checked = $('chk-due-date-fallback').checked;
-  localStorage.setItem(DUE_DATE_FALLBACK_KEY, checked ? 'true' : 'false');
-  $('due-date-fallback-label').classList.toggle('active', checked);
-  generateReport();
-});
-
 /* ── Month nav ── */
-$('btn-prev-month').addEventListener('click', () => { viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } generateReport(); });
-$('btn-next-month').addEventListener('click', () => { viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } generateReport(); });
-$('btn-this-month').addEventListener('click', () => { const n = new Date(); viewYear = n.getFullYear(); viewMonth = n.getMonth(); generateReport(); });
-$('btn-print').addEventListener('click', () => window.print());
+$('btn-prev-month').addEventListener('click',()=>{viewMonth--;if(viewMonth<0){viewMonth=11;viewYear--;}generateReport();});
+$('btn-next-month').addEventListener('click',()=>{viewMonth++;if(viewMonth>11){viewMonth=0;viewYear++;}generateReport();});
+$('btn-this-month').addEventListener('click',()=>{const n=new Date();viewYear=n.getFullYear();viewMonth=n.getMonth();generateReport();});
 
-/* ── Print orientation + color mode toggles ── */
-VIEW_ROOT.querySelectorAll('#orientation-toggle .print-toggle-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    VIEW_ROOT.querySelectorAll('#orientation-toggle .print-toggle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    VIEW_ROOT.classList.toggle('print-landscape', btn.dataset.orientation === 'landscape');
-  });
-});
-VIEW_ROOT.querySelectorAll('#color-mode-toggle .print-toggle-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    VIEW_ROOT.querySelectorAll('#color-mode-toggle .print-toggle-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    VIEW_ROOT.classList.toggle('print-bw', btn.dataset.colorMode === 'bw');
-  });
-});
+/* ── Auth ── */
 
-/* ══════════════════════════════════
-   Auth wiring
-══════════════════════════════════ */
-async function applyProfile(p) {
-  currentUser = { uid: p.uid, email: p.email };
-  currentRole = p.role;
+async function loadSidebarBadges() {
+  /* Replaced by sidebar-badges live listener.
+     Reads SUMMARY/DASHBOARD doc once with onSnapshot; was
+     reading 6 entire collections per call. */
+  try {
+    mountSidebarBadges({ currentRole: (typeof currentRole !== 'undefined' ? currentRole : null) });
+  } catch (e) { console.warn('[badges]', e?.message || e); }
+}
 
-  const name = p.name || p.email || 'there';
-  $('user-display-name').textContent = name;
-  $('user-role-label').textContent = (p.role || 'user').replace('_', ' ');
-  $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-
-  const isSuperAdmin = p.role === 'superadmin';
-  const canAccessAdmin = isSuperAdmin || p.role === 'admin';
-  $('report-monthly-collection-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
-  $('report-monthly-collection-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
-  $('report-monthly-collection-admin-nav-label').style.display = canAccessAdmin ? '' : 'none';
-  $('report-monthly-collection-nav-admin').style.display = canAccessAdmin ? '' : 'none';
-
-  if (!reportInitialized) {
-    reportInitialized = true;
+onAuthStateChanged(auth, async user=>{
+  if(!user){dismissLoadingScreen();window.location.replace('login.html');return;}
+  currentUser=user;
+  try{
+    const snap=await getDoc(doc(db,'users',user.uid));
+    if(!snap.exists()){
+      await smartSetDoc(doc(db,'users',user.uid),{uid:user.uid,email:user.email,displayName:user.displayName||'',photoURL:user.photoURL||'',role:'user',status:'pending',createdAt:serverTimestamp(),lastLogin:serverTimestamp()});
+      dismissLoadingScreen();$('auth-screen').style.display='flex';$('login-card').style.display='none';$('pending-card').style.display='block';return;
+    }
+    const data=snap.data();
+    updateLastLoginNoInvalidate(doc(db,'users',user.uid), {lastLogin: serverTimestamp()}).catch(()=>{});
+    if(data.status!=='approved'){dismissLoadingScreen();$('auth-screen').style.display='flex';$('login-card').style.display='none';$('pending-card').style.display='block';return;}
+    currentRole=data.role;
+    dismissLoadingScreen();$('auth-screen').style.display='none'; $('app-shell').style.cssText='display:flex;height:100vh;overflow:hidden;width:100vw;';
+    loadSidebarBadges();
+    const name=user.displayName||user.email;
+    $('user-display-name').textContent=name;
+    $('user-role-label').textContent=(data.role||'user').replace('_',' ');
+    if(user.photoURL)$('user-avatar').innerHTML=`<img src="${user.photoURL}" alt="${name}"/>`;
+    else $('user-initials').textContent=name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+    if(data.role==='admin'||data.role==='super_admin'){$('admin-nav-label').style.display='';$('nav-users').style.display='';}
+    if(data.role==='super_admin')$('nav-settings').style.display='';
     updateMonthLabel();
     await loadRefData();
     await generateReport();
+  }catch(err){
+    dismissLoadingScreen();
+    console.error('[auth] Startup error:', err);
+    if($('report-area'))$('report-area').innerHTML=`
+      <div class="report-placeholder">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:hsl(0,84%,50%)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <h3>Failed to load report</h3>
+        <p>${err.message||'An unexpected error occurred.'}</p>
+      </div>`;
   }
-}
-if (window.__pcProfile) applyProfile(window.__pcProfile);
-window.addEventListener('pc:profile', e => applyProfile(e.detail));
-
-/* Refresh on every re-visit — same reasoning as Daily Schedule Report:
-   this reflects payment changes made elsewhere. */
-
-$('btn-signout').addEventListener('click', () => {
-  if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
 });
 
-const sidebar = $('sidebar'), overlay = $('sidebar-overlay'), hamburger = $('hamburger');
-const openSB = () => { sidebar.classList.add('open'); overlay.classList.add('open'); };
-const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
-hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
-overlay.addEventListener('click', closeSB);
+$('btn-google-signin').addEventListener('click',async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider());}catch(e){$('login-error').style.display='block';$('login-error').textContent='Sign-in failed.';}});
+$('btn-signout-pending').addEventListener('click',()=>signOut(auth));
+$('btn-check-status').addEventListener('click',async()=>{if(!currentUser)return;const s=await getDoc(doc(db,'users',currentUser.uid));if(s.exists()&&s.data().status==='approved')location.reload();});
+$('btn-signout').addEventListener('click',()=>{if(confirm('Sign out?'))signOut(auth).then(()=>window.location.replace('login.html'));});
 
+const sidebar=$('sidebar'),overlay=$('sidebar-overlay'),hamburger=$('hamburger');
+hamburger.addEventListener('click',()=>sidebar.classList.contains('open')?(sidebar.classList.remove('open'),overlay.classList.remove('open')):(sidebar.classList.add('open'),overlay.classList.add('open')));
+overlay.addEventListener('click',()=>{sidebar.classList.remove('open');overlay.classList.remove('open');});
 
-/* ── Live sync ──────────────────────────────────────────────────
-   Registers this module with the app-wide data bus: any create,
-   edit or delete anywhere in Pestastic invalidates the shared cache,
-   and this module re-reads and re-renders itself automatically — on
-   the spot when visible, on next open when it isn't. This is what
-   replaced the old manual Refresh button. */
-import { registerModuleSync } from './js/data-bus.js';
-registerModuleSync({
-  view: 'report-monthly-collection',
-  keys: ['clients', 'config:settings', 'payments'],
-  isReady: () => reportInitialized,
-  reload: () => generateReport()
-});
+/* ── Print isolation: move ONLY this page's report into #print-root ── */
+(function(){
+  var placeholder=null;
+  function toPrintRoot(){
+    var root=document.getElementById('print-root');
+    var area=document.getElementById('report-area');
+    if(!root||!area||area.parentNode===root)return;
+    placeholder=document.createComment('report-area');
+    area.parentNode.insertBefore(placeholder,area);
+    root.appendChild(area);
+  }
+  function restore(){
+    var area=document.getElementById('report-area');
+    if(area&&placeholder&&placeholder.parentNode){
+      placeholder.parentNode.insertBefore(area,placeholder);
+      placeholder.parentNode.removeChild(placeholder);
+      placeholder=null;
+    }
+  }
+  window.addEventListener('beforeprint',toPrintRoot);
+  window.addEventListener('afterprint',restore);
+  if(window.matchMedia){
+    var mq=window.matchMedia('print');
+    var handler=function(e){e.matches?toPrintRoot():restore();};
+    mq.addEventListener?mq.addEventListener('change',handler):mq.addListener(handler);
+  }
+  window.printReport=function(){toPrintRoot();window.print();setTimeout(restore,1000);};
+})();
 </script>
+<!-- Isolated print container: the report is moved here for printing -->
+<div id="print-root" aria-hidden="true"></div>
+</body>
+</html>
