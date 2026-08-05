@@ -26,6 +26,13 @@ export async function cachedGetDocs(query, cacheKey) {
   if (cache.has(cacheKey)) return cache.get(cacheKey);
   const promise = getDocs(query).then(snap => snap.docs.map(d => ({ id: d.id, ...d.data() })));
   cache.set(cacheKey, promise);
+  // A failed read must not poison the cache for the rest of the session.
+  // `cache` is a shared singleton across every mounted module, so a
+  // rejected promise left in place here would be inherited by every
+  // future caller for this key — app-wide — with no way to recover
+  // short of a full page reload. Evict on failure so the next caller
+  // (a retry, a re-visit, a data-bus reload) gets a fresh attempt.
+  promise.catch(() => { if (cache.get(cacheKey) === promise) cache.delete(cacheKey); });
   return promise;
 }
 
@@ -35,6 +42,8 @@ export async function cachedGetDoc(ref, cacheKey) {
   if (cache.has(cacheKey)) return cache.get(cacheKey);
   const promise = getDoc(ref).then(snap => (snap.exists() ? { id: snap.id, ...snap.data() } : null));
   cache.set(cacheKey, promise);
+  // Same self-eviction on failure as cachedGetDocs above — see comment there.
+  promise.catch(() => { if (cache.get(cacheKey) === promise) cache.delete(cacheKey); });
   return promise;
 }
 
