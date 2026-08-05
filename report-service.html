@@ -345,7 +345,7 @@
       <div class="controls-bar">
         <label>Contract</label>
         <div class="combobox-wrap" id="combobox-wrap">
-          <input type="text" class="combobox-input" id="contract-search" placeholder="Search by contract number, customer number or client name…" autocomplete="off" />
+          <input type="text" class="combobox-input" id="contract-search" placeholder="Loading contracts…" autocomplete="off" disabled />
           <div class="combobox-dropdown" id="contract-dropdown"></div>
         </div>
         <div class="controls-spacer"></div>
@@ -403,6 +403,22 @@ let reportInitialized = false;
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+// Minimal toast, matching the .toast styles already defined for this
+// view — this module never needed one before since it's read-only, but
+// a failed data load needs to surface *somewhere* instead of silently
+// leaving the search box empty with no explanation.
+function showLoadError(msg) {
+  const container = $('toast-container');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'toast error';
+  el.innerHTML = `<div class="toast-body"><div class="toast-title">Couldn't load data</div><div class="toast-msg">${esc(msg)}</div></div>
+    <button class="toast-close" aria-label="Dismiss">✕</button>`;
+  el.querySelector('.toast-close').addEventListener('click', () => el.remove());
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 8000);
+}
+
 /* ── Helpers ── */
 function toLocalDate(v) {
   if (!v) return null;
@@ -435,22 +451,43 @@ function statusDot(s, treatmentDate) {
 
 /* ── Load reference data ── */
 async function loadRefData() {
-  const clients = await cachedGetDocs(collection(db, 'clients'), 'clients');
-  clientMap = {}; clients.forEach(c => { if (c.customerNo) clientMap[c.customerNo] = c; });
+  // Guard the search box for the whole reload, not just first mount —
+  // a data-bus refresh triggered by another module editing a client or
+  // contract shouldn't leave the box searching a half-updated array.
+  searchInput.disabled = true;
 
-  // Plain collection fetch — NOT a query(...orderBy('contractNumber')) —
-  // because Firestore silently excludes any doc missing the orderBy
-  // field, which was making contracts without a contractNumber vanish
-  // from the results entirely. Sort client-side instead, same pattern
-  // used in contracts.html and the other report modules.
-  allContracts = (await cachedGetDocs(collection(db, 'contracts'), 'contracts'))
-    .slice()
-    .sort((a, b) => (a.contractNumber || '').localeCompare(b.contractNumber || '', undefined, { numeric: true }));
+  try {
+    const clients = await cachedGetDocs(collection(db, 'clients'), 'clients');
+    clientMap = {}; clients.forEach(c => { if (c.customerNo) clientMap[c.customerNo] = c; });
+
+    // Plain collection fetch — NOT a query(...orderBy('contractNumber')) —
+    // because Firestore silently excludes any doc missing the orderBy
+    // field, which was making contracts without a contractNumber vanish
+    // from the results entirely. Sort client-side instead, same pattern
+    // used in contracts.html and the other report modules.
+    allContracts = (await cachedGetDocs(collection(db, 'contracts'), 'contracts'))
+      .slice()
+      .sort((a, b) => (a.contractNumber || '').localeCompare(b.contractNumber || '', undefined, { numeric: true }));
+  } catch (err) {
+    // A failed read here used to leave allContracts/clientMap empty
+    // with zero indication why — the combobox just quietly showed "No
+    // contracts found" for every query, forever. Surface it instead.
+    console.error('report-service: failed to load clients/contracts', err);
+    searchInput.placeholder = "Couldn't load data — see console";
+    showLoadError('Failed to load clients or contracts for this report. Check your connection and try again.');
+  }
 
   try {
     const s = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings');
     companySettings = s || {};
   } catch { companySettings = {}; }
+
+  // Re-enable regardless of outcome above — even on failure, leaving the
+  // box permanently disabled with no way to retry is worse than letting
+  // the person search whatever (possibly stale, possibly empty) data is
+  // currently in allContracts.
+  searchInput.disabled = false;
+  if (allContracts.length) searchInput.placeholder = 'Search by contract number, customer number or client name…';
 }
 
 /* ── Combobox ── */
@@ -727,4 +764,16 @@ const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remo
 hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
 overlay.addEventListener('click', closeSB);
 
+/* ── Live sync ──────────────────────────────────────────────────
+   Same app-wide data bus contracts.html uses. Without this, editing
+   a client or contract from another module never reached this report
+   — it only refreshed on its own router visit, so the combobox could
+   keep searching stale/empty data until a manual re-visit. */
+import { registerModuleSync } from './js/data-bus.js';
+registerModuleSync({
+  view: 'report-service',
+  keys: ['clients', 'contracts', 'config:settings'],
+  isReady: () => reportInitialized,
+  reload: () => loadRefData()
+});
 </script>

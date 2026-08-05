@@ -356,7 +356,7 @@
       <div class="controls-bar">
         <label>Client</label>
         <div class="combobox-wrap" id="cb-wrap">
-          <input type="text" class="combobox-input" id="client-search" placeholder="Search by name or customer number…" autocomplete="off" />
+          <input type="text" class="combobox-input" id="client-search" placeholder="Loading clients…" autocomplete="off" disabled />
           <div class="combobox-dropdown" id="client-dropdown"></div>
         </div>
         <label>From</label>
@@ -424,6 +424,22 @@ let reportInitialized = false;
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 
+// Minimal toast, matching the .toast styles already defined for this
+// view — this module never needed one before since it's read-only, but
+// a failed data load needs to surface *somewhere* instead of silently
+// leaving the search box empty with no explanation.
+function showLoadError(msg) {
+  const container = $('toast-container');
+  if (!container) return;
+  const el = document.createElement('div');
+  el.className = 'toast error';
+  el.innerHTML = `<div class="toast-body"><div class="toast-title">Couldn't load data</div><div class="toast-msg">${esc(msg)}</div></div>
+    <button class="toast-close" aria-label="Dismiss">✕</button>`;
+  el.querySelector('.toast-close').addEventListener('click', () => el.remove());
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 8000);
+}
+
 /* ── Helpers ── */
 function toLocalDate(v) {
   if (!v) return null;
@@ -446,14 +462,31 @@ function fullAddress(c) {
 }
 
 async function loadRefData() {
-  // Plain collection fetch — NOT a query(...orderBy('customerNo')) —
-  // because Firestore silently excludes any doc missing the orderBy
-  // field, which was making clients without a customerNo vanish from
-  // the results entirely. Sort client-side instead, same pattern used
-  // in contracts.html and the other report modules.
-  allClients = (await cachedGetDocs(collection(db, 'clients'), 'clients'))
-    .slice()
-    .sort((a, b) => (a.customerNo || '').localeCompare(b.customerNo || '', undefined, { numeric: true }));
+  // Guard the search box for the whole reload, not just first mount —
+  // a data-bus refresh triggered by another module editing a client
+  // shouldn't leave the box searching a half-updated allClients array.
+  searchInput.disabled = true;
+
+  try {
+    // Plain collection fetch — NOT a query(...orderBy('customerNo')) —
+    // because Firestore silently excludes any doc missing the orderBy
+    // field, which was making clients without a customerNo vanish from
+    // the results entirely. Sort client-side instead, same pattern used
+    // in contracts.html and the other report modules.
+    allClients = (await cachedGetDocs(collection(db, 'clients'), 'clients'))
+      .slice()
+      .sort((a, b) => (a.customerNo || '').localeCompare(b.customerNo || '', undefined, { numeric: true }));
+  } catch (err) {
+    // A failed read here used to leave allClients empty with zero
+    // indication why — the combobox just quietly showed "No clients
+    // found" for every query, forever. Surface it instead, and leave
+    // allClients as whatever it last was rather than wiping it out, in
+    // case this is a transient reload of an already-populated view.
+    console.error('report-client-soa: failed to load clients', err);
+    searchInput.placeholder = "Couldn't load clients — see console";
+    showLoadError('Failed to load clients for this report. Check your connection and try again.');
+  }
+
   try {
     const s = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings');
     companySettings = s || {};
@@ -462,6 +495,13 @@ async function loadRefData() {
   const now = new Date();
   $('date-from').value = `${now.getFullYear()}-01-01`;
   $('date-to').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  // Re-enable regardless of outcome above — even on failure, leaving the
+  // box permanently disabled with no way to retry is worse than letting
+  // the person search whatever (possibly stale, possibly empty) data is
+  // in allClients right now.
+  searchInput.disabled = false;
+  if (allClients.length) searchInput.placeholder = 'Search by name or customer number…';
 }
 
 /* ── Combobox ── */
@@ -890,4 +930,17 @@ const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remo
 hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
 overlay.addEventListener('click', closeSB);
 
+/* ── Live sync ──────────────────────────────────────────────────
+   Same app-wide data bus contracts.html uses. Without this, editing
+   a client from another module (or the Clients module itself) never
+   reached this report — it only refreshed on its own router visit,
+   so the combobox could keep searching stale/empty data until a
+   manual re-visit. */
+import { registerModuleSync } from './js/data-bus.js';
+registerModuleSync({
+  view: 'report-client-soa',
+  keys: ['clients', 'config:settings'],
+  isReady: () => reportInitialized,
+  reload: () => loadRefData()
+});
 </script>
