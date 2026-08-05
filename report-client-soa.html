@@ -410,7 +410,7 @@
 <script type="module">
 import { auth, db } from './firebase-config.js';
 import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
-import { collection, doc, query, where, orderBy } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+import { collection, doc, query, where } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { cachedGetDocs, cachedGetDoc, invalidate } from './js/firestore-cache.js';
 
 const VIEW_ROOT = document.getElementById('view-report-client-soa');
@@ -446,7 +446,14 @@ function fullAddress(c) {
 }
 
 async function loadRefData() {
-  allClients = await cachedGetDocs(query(collection(db, 'clients'), orderBy('customerNo', 'asc')), 'clients');
+  // Plain collection fetch — NOT a query(...orderBy('customerNo')) —
+  // because Firestore silently excludes any doc missing the orderBy
+  // field, which was making clients without a customerNo vanish from
+  // the results entirely. Sort client-side instead, same pattern used
+  // in contracts.html and the other report modules.
+  allClients = (await cachedGetDocs(collection(db, 'clients'), 'clients'))
+    .slice()
+    .sort((a, b) => (a.customerNo || '').localeCompare(b.customerNo || '', undefined, { numeric: true }));
   try {
     const s = await cachedGetDoc(doc(db, 'config', 'settings'), 'config:settings');
     companySettings = s || {};
