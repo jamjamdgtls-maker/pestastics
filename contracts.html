@@ -106,13 +106,14 @@
     #view-contracts .pagination {position:sticky;bottom:0;background:white;border-top:1px solid var(--border);flex-shrink:0}
     @media(max-width:1024px){#view-contracts .main-wrapper {margin-left:0;width:100%;max-width:100%}}
     @media(max-width:768px){#view-contracts .page-content {padding:14px 14px 12px}}
-  .sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
+  </style>
 
 <div data-view="contracts" id="view-contracts">
 <div id="app-shell">
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -1587,19 +1588,6 @@ async function applyProfile(p) {
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
 
-/* Refresh on every re-visit — a contract created/edited/deleted from
-   Treatments, Payments, Renewals, etc. patches the shared 'contracts'
-   cache key from wherever it happened, but this module's own in-memory
-   allContracts/render only reflects that once it re-reads the cache.
-   Re-invalidating here too covers any module that isn't disciplined
-   about which keys it invalidates, same reasoning as Renewals/Overdue. */
-window.addEventListener('router:view-shown', e => {
-  if (e.detail?.name === 'contracts' && contractsInitialized) {
-    invalidate('clients', 'contracts', 'treatments', 'payments', 'renewals');
-    loadAll();
-  }
-});
-
 /* Lets other modules (e.g. Treatments' "View in Contracts" link) jump
    straight to a specific contract's detail modal instead of just
    landing on the list. Waits for this module's own data to be ready
@@ -1764,4 +1752,18 @@ $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
 });
 
+
+/* ── Live sync ──────────────────────────────────────────────────
+   Registers this module with the app-wide data bus: any create,
+   edit or delete anywhere in Pestastic invalidates the shared cache,
+   and this module re-reads and re-renders itself automatically — on
+   the spot when visible, on next open when it isn't. This is what
+   replaced the old manual Refresh button. */
+import { registerModuleSync } from './js/data-bus.js';
+registerModuleSync({
+  view: 'contracts',
+  keys: ['clients', 'contracts', 'treatments', 'payments', 'config:settings'],
+  isReady: () => contractsInitialized,
+  reload: () => loadAll()
+});
 </script>

@@ -38,10 +38,59 @@ export async function cachedGetDoc(ref, cacheKey) {
   return promise;
 }
 
-/** Drop one or more cache entries — next read for those keys hits Firestore again. */
-export function invalidate(...cacheKeys) {
-  cacheKeys.forEach(k => cache.delete(k));
+/* ── Change broadcasting ──
+   Every write path in the app already invalidates the keys it touched,
+   so invalidate() is the one choke point that knows "something in this
+   collection just changed". It fans that out as a single debounced
+   `pc:data-changed` event, which js/data-bus.js turns into live reloads
+   of every affected module — that's what removes the need to refresh
+   the browser after a create/edit/delete. */
+const DERIVED_KEYS = {
+  contracts: ['contracts:active'],
+  complaints: ['complaints:open'],
+  audit_log: ['audit_log:recent', 'audit_log:recent500'],
+  users: ['users:approved']
+};
+
+let suppressDepth = 0;
+let pendingKeys = new Set();
+let flushScheduled = false;
+
+function scheduleBroadcast(keys) {
+  keys.forEach(k => pendingKeys.add(k));
+  if (flushScheduled) return;
+  flushScheduled = true;
+  // Debounced to one event per turn, so a write that invalidates six
+  // keys reloads each listening module once, not six times.
+  setTimeout(() => {
+    flushScheduled = false;
+    const detailKeys = Array.from(pendingKeys);
+    pendingKeys = new Set();
+    if (!detailKeys.length || suppressDepth > 0) return;
+    window.dispatchEvent(new CustomEvent('pc:data-changed', { detail: { keys: detailKeys } }));
+  }, 0);
 }
+
+/** Run fn with change broadcasting turned off — used by the data bus
+ *  while it reloads a module, so a reload can't trigger more reloads. */
+export async function withSyncSuppressed(fn) {
+  suppressDepth++;
+  try { return await fn(); }
+  finally { suppressDepth--; }
+}
+
+/** Drop one or more cache entries — next read for those keys hits
+ *  Firestore again — then tell the rest of the app what changed. */
+export function invalidate(...cacheKeys) {
+  const all = [];
+  cacheKeys.forEach(k => {
+    all.push(k);
+    (DERIVED_KEYS[k] || []).forEach(d => all.push(d));
+  });
+  all.forEach(k => cache.delete(k));
+  if (all.length) scheduleBroadcast(all);
+}
+
 
 /** Merge a field patch into an already-cached array doc, no refetch. */
 export function patchCachedDoc(cacheKey, docId, patch) {

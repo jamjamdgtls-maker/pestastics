@@ -168,14 +168,15 @@
 @media(max-width:1024px){#view-calendar .cal-layout{flex-direction:column}#view-calendar .cal-panel{width:100%;max-height:340px}}
 @media(max-width:768px){#view-calendar .cal-day{min-height:64px}#view-calendar .cal-event-pill{font-size:9.5px}}
 
-.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}/* -- Layout polish (topbar removed) -- */#view-calendar .page-content{padding:22px 26px 20px}#view-calendar .page-header{padding-bottom:14px;border-bottom:1px solid var(--border)}#view-calendar .page-header-left h2{font-size:20px;font-weight:700;letter-spacing:-.2px}#view-calendar .page-header .hamburger{margin-bottom:2px}</style>
+</style>
 
 <div data-view="calendar" id="view-calendar">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -218,14 +219,15 @@
   </aside>
 
   <div class="main-wrapper">
-    <div class="page-content">
-      <div class="page-header" style="margin-bottom:14px">
-        <div class="page-header-left">
-          <button class="hamburger" id="hamburger" aria-label="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-          <h2>Treatment Calendar</h2>
-        </div>
-      </div>
+    <header class="topbar">
+      <button class="hamburger" id="hamburger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title">Treatment Calendar</span>
+      <div class="topbar-spacer"></div>
+    </header>
 
+    <div class="page-content">
       <div class="month-stats" id="month-stats">
         <div class="month-stat"><div class="month-stat-val" id="ms-total">—</div><div class="month-stat-lbl">Total</div></div>
         <div class="month-stat"><div class="month-stat-val" id="ms-scheduled" style="color:var(--blue)">—</div><div class="month-stat-lbl">Scheduled</div></div>
@@ -639,12 +641,6 @@ window.addEventListener('pc:profile', e => applyProfile(e.detail));
 /* Refresh on every re-visit — same reasoning as Overdue: this reflects
    scheduling/status changes made elsewhere, so a bit of staleness here
    is actively unhelpful. */
-window.addEventListener('router:view-shown', e => {
-  if (e.detail?.name === 'calendar' && calendarInitialized) {
-    invalidate('clients', 'contracts', 'teams', 'treatments', 'inspections');
-    loadAll();
-  }
-});
 
 $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
@@ -656,4 +652,18 @@ const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remo
 hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
 overlay.addEventListener('click', closeSB);
 
+
+/* ── Live sync ──────────────────────────────────────────────────
+   Registers this module with the app-wide data bus: any create,
+   edit or delete anywhere in Pestastic invalidates the shared cache,
+   and this module re-reads and re-renders itself automatically — on
+   the spot when visible, on next open when it isn't. This is what
+   replaced the old manual Refresh button. */
+import { registerModuleSync } from './js/data-bus.js';
+registerModuleSync({
+  view: 'calendar',
+  keys: ['clients', 'contracts', 'teams', 'treatments', 'inspections'],
+  isReady: () => calendarInitialized,
+  reload: () => loadAll()
+});
 </script>

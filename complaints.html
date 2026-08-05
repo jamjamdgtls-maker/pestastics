@@ -274,14 +274,15 @@
   #view-complaints svg{display:none!important}
   #view-complaints .empty-state{font-size:8pt!important;padding:8pt 0!important}
 }
-.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
+</style>
 
 <div data-view="complaints" id="view-complaints">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -1395,12 +1396,6 @@ window.addEventListener('pc:profile', e => applyProfile(e.detail));
 
 /* Refresh on every re-visit, not just the first — complaints reflects
    status/contract changes made elsewhere just as much as Renewals does. */
-window.addEventListener('router:view-shown', e => {
-  if (e.detail?.name === 'complaints' && complaintsInitialized) {
-    invalidate('clients', 'contracts', 'teams', 'config:settings', 'users', 'complaints');
-    loadAll();
-  }
-});
 
 /* Lets other modules open a specific complaint's detail modal. */
 window.addEventListener('pc:open-complaint', e => {
@@ -1423,4 +1418,18 @@ const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remo
 hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
 overlay.addEventListener('click', closeSB);
 
+
+/* ── Live sync ──────────────────────────────────────────────────
+   Registers this module with the app-wide data bus: any create,
+   edit or delete anywhere in Pestastic invalidates the shared cache,
+   and this module re-reads and re-renders itself automatically — on
+   the spot when visible, on next open when it isn't. This is what
+   replaced the old manual Refresh button. */
+import { registerModuleSync } from './js/data-bus.js';
+registerModuleSync({
+  view: 'complaints',
+  keys: ['clients', 'contracts', 'teams', 'config:settings', 'users', 'complaints'],
+  isReady: () => complaintsInitialized,
+  reload: () => loadAll()
+});
 </script>

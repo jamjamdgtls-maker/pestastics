@@ -73,17 +73,6 @@ h1, h2, h3 {
   gap: 10px;
 }
 
-.brand-logo-img {
-  display: block;
-  height: 30px;
-  width: auto;
-  background: #fff;
-  border-radius: 7px;
-  padding: 4px 8px;
-  margin-bottom: 22px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.18);
-}
-
 .brand-mark .dot {
   width: 8px;
   height: 8px;
@@ -331,3 +320,24 @@ button.primary:focus-visible { outline: 2px solid var(--signal); outline-offset:
   animation: router-spin 0.7s linear infinite;
 }
 @keyframes router-spin { to { transform: rotate(360deg); } }
+
+/* ── Branding ──────────────────────────────────────────────────
+   js/app-shell.js fills every .brand-logo-slot with logo.jpg, so the
+   mark is defined in exactly one place and every screen (auth panels,
+   sidebars, print headers) picks it up automatically. */
+.brand-logo-slot {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+}
+.brand-logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.sidebar-logo-icon img { border-radius: 8px; }

@@ -193,37 +193,29 @@
 #view-admin .preapprove-empty svg{width:32px;height:32px;margin:0 auto 10px;display:block;opacity:.35}
 #view-admin .preapprove-empty p{margin-top:4px;font-size:12px}
 
-#view-admin .matrix-section{margin-top:28px}
-#view-admin .matrix-section-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:14px;flex-wrap:wrap}
-#view-admin .matrix-section-header h3{font-size:16px;font-weight:700;color:var(--text)}
-#view-admin .matrix-section-header p{font-size:13px;color:var(--text-muted);margin-top:3px}
-#view-admin .matrix-card{background:white;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-#view-admin .matrix-table{width:100%;border-collapse:collapse}
-#view-admin .matrix-table th{padding:10px 14px;background:var(--bg-secondary);border-bottom:1px solid var(--border);font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-secondary);text-align:left;white-space:nowrap}
-#view-admin .matrix-table th.matrix-col-check{text-align:center;width:110px}
-#view-admin .matrix-table td{padding:9px 14px;font-size:13.5px;color:var(--text);border-bottom:1px solid var(--bg-tertiary);vertical-align:middle}
-#view-admin .matrix-table tr:last-child td{border-bottom:none}
-#view-admin .matrix-table td.matrix-col-check{text-align:center}
-#view-admin .matrix-group-row td{background:var(--bg-secondary);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);padding:7px 14px}
-#view-admin .matrix-checkbox{width:17px;height:17px;accent-color:var(--primary);cursor:pointer}
-#view-admin .matrix-checkbox:disabled{cursor:not-allowed;opacity:.55}
-#view-admin .matrix-module-label{font-weight:500}
-#view-admin .matrix-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border-top:1px solid var(--border);background:var(--bg-secondary);flex-wrap:wrap}
-#view-admin .matrix-footer-note{font-size:12px;color:var(--text-muted)}
-#view-admin .matrix-readonly-note{display:flex;align-items:center;gap:8px;padding:12px 16px;background:var(--amber-bg);color:var(--amber-text);border:1px solid #fcd34d;border-radius:var(--radius);font-size:13px;margin-bottom:14px}
-
 @media(max-width:900px){#view-admin .stats-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:768px){#view-admin .stats-grid{grid-template-columns:1fr 1fr}#view-admin .preapprove-add-row{flex-direction:column}#view-admin .matrix-table{font-size:12.5px}#view-admin .matrix-table th,#view-admin .matrix-table td{padding:8px 10px}}
+#view-admin .perm-grid-block{margin:4px 0 16px}
+#view-admin .perm-grid-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-secondary);margin-bottom:8px}
+#view-admin .perm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+#view-admin .perm-item{display:flex;align-items:center;gap:9px;padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;color:var(--text);cursor:pointer;transition:border-color .15s,background .15s;background:white}
+#view-admin .perm-item:hover{border-color:var(--border-hover);background:var(--bg-secondary)}
+#view-admin .perm-item input{width:15px;height:15px;accent-color:var(--primary);cursor:pointer;flex-shrink:0}
+#view-admin .perm-item.locked{opacity:.6;cursor:not-allowed}
+#view-admin .perm-hint{margin-top:12px;font-size:12px;color:var(--text-muted);line-height:1.5}
+#view-admin .btn-permissions svg{width:13px;height:13px}
+@media(max-width:768px){#view-admin .perm-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){#view-admin .stats-grid{grid-template-columns:1fr 1fr}#view-admin .preapprove-add-row{flex-direction:column}}
 @media(max-width:480px){#view-admin .stats-grid{grid-template-columns:1fr}}
 
-.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}/* -- Layout polish (topbar removed) -- */#view-admin .page-content{padding:22px 26px 20px}#view-admin .page-header{padding-bottom:14px;border-bottom:1px solid var(--border)}#view-admin .page-header-left h2{font-size:20px;font-weight:700;letter-spacing:-.2px}</style>
+</style>
 
 <div data-view="admin" id="view-admin">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -266,9 +258,15 @@
   </aside>
 
   <div class="main-wrapper">
-    <main class="page-content">
-      <button class="hamburger" id="hamburger" aria-label="Menu" style="margin-bottom:14px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <header class="topbar">
+      <button class="hamburger" id="hamburger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <span class="topbar-title">User Management</span>
+      <div class="topbar-spacer"></div>
+    </header>
 
+    <main class="page-content">
       <div id="access-denied">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
         <h2>Access Denied</h2>
@@ -355,17 +353,27 @@
         <div class="preapprove-section">
           <div class="preapprove-section-header">
             <h3>Pre-registered Emails</h3>
-            <p>Users who sign in with a listed email are automatically approved — no manual review needed.</p>
+            <p>Users who sign up with a listed email are approved automatically and start with exactly the role and page access set here — no manual review, no second trip to this screen.</p>
           </div>
 
           <div class="preapprove-card">
             <div class="preapprove-add-row">
               <input type="email" id="preapprove-email-input" class="form-input" placeholder="Enter email address to pre-register…" />
+              <select class="filter-select" id="preapprove-role-select" title="Role for this account">
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
               <button class="btn btn-primary" id="btn-add-preapprove">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 Add Email
               </button>
             </div>
+
+            <div class="perm-grid-block">
+              <div class="perm-grid-label">Page access for this account</div>
+              <div class="perm-grid" id="preapprove-permissions"></div>
+            </div>
+
 
             <hr class="preapprove-divider" />
 
@@ -381,42 +389,31 @@
             </div>
           </div>
         </div>
-
-        <div class="matrix-section" id="matrix-section" style="display:none">
-          <div class="matrix-section-header">
-            <div>
-              <h3>Permission Matrix</h3>
-              <p>Choose exactly which pages Admin and User roles can open. Super Admin always has full, unrestricted access.</p>
-            </div>
-            <button class="btn btn-primary" id="btn-save-matrix">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-              Save Changes
-            </button>
-          </div>
-
-          <div class="matrix-card">
-            <div class="table-wrapper">
-              <table class="matrix-table">
-                <thead>
-                  <tr>
-                    <th>Module</th>
-                    <th class="matrix-col-check">Super Admin</th>
-                    <th class="matrix-col-check">Admin</th>
-                    <th class="matrix-col-check">User</th>
-                  </tr>
-                </thead>
-                <tbody id="matrix-tbody">
-                  <tr><td colspan="4" class="muted" style="text-align:center;padding:20px"><div class="spinner" style="margin:0 auto"></div></td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="matrix-footer">
-              <span class="matrix-footer-note">Unsaved changes are lost if you navigate away without saving.</span>
-            </div>
-          </div>
-        </div>
       </div>
     </main>
+  </div>
+</div>
+
+<!-- Per-account page access. Same module list the sidebar and the route
+     guard read, so what's ticked here is exactly what the account can
+     reach — by menu or by typed URL. -->
+<div class="modal-overlay" id="perm-modal">
+  <div class="modal" style="max-width:520px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Page Access</div>
+        <div class="modal-subtitle" id="perm-modal-subtitle">—</div>
+      </div>
+      <button class="btn btn-sm btn-secondary" id="perm-modal-close">Close</button>
+    </div>
+    <div class="modal-body">
+      <div class="perm-grid" id="perm-modal-grid"></div>
+      <p class="perm-hint" id="perm-modal-hint">Unticked pages disappear from this account's sidebar and can't be opened directly.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" id="perm-modal-reset">Reset to role default</button>
+      <button class="btn btn-primary" id="perm-modal-save">Save access</button>
+    </div>
   </div>
 </div>
 
@@ -424,20 +421,22 @@
 </div>
 
 
+
 <script type="module">
 import { auth, db } from './firebase-config.js';
 import { signOut } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { collection, doc, getDoc, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 import { cachedGetDocs, smartUpdateDoc, smartSetDoc, invalidate } from './js/firestore-cache.js';
-import { PERMISSIONS_DOC_ID, PERMISSION_MODULES, loadPermissions } from './js/permissions.js';
+import { MODULES, permissionsFor, canAccess, ROLE_DEFAULTS } from './js/permissions.js';
 
 const VIEW_ROOT = document.getElementById('view-admin');
 const $ = id => VIEW_ROOT.querySelector('#' + id);
 
 /* ── State ── */
-let currentUser = null, currentRole = null;
+let currentUser = null, currentRole = null, currentProfile = null;
 let allUsers = [], filteredUsers = [], currentPage = 1;
 let adminInitialized = false;
+
 const PER_PAGE = 20;
 
 function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
@@ -538,11 +537,107 @@ $('users-tbody').addEventListener('click', e => {
   const deny = e.target.closest('.btn-deny');
   const revoke = e.target.closest('.btn-revoke');
   const restore = e.target.closest('.btn-restore');
+  const perms = e.target.closest('.btn-permissions');
   if (approve) { updateUserStatus(approve.dataset.uid, approve.dataset.name, 'approved'); return; }
   if (deny) { updateUserStatus(deny.dataset.uid, deny.dataset.name, 'denied'); return; }
   if (revoke) { if (confirm(`Revoke access for "${revoke.dataset.name}"?`)) updateUserStatus(revoke.dataset.uid, revoke.dataset.name, 'denied'); return; }
   if (restore) { updateUserStatus(restore.dataset.uid, restore.dataset.name, 'approved'); return; }
+  if (perms) { openPermissionModal(perms.dataset.uid, perms.dataset.name); return; }
 });
+
+/* ══════════════════════════════════════
+   PAGE ACCESS (permission matrix)
+
+   One matrix, defined in js/permissions.js, drives three things: the
+   checkboxes below, which links each account sees in the sidebar, and
+   which routes the shell will actually open. Editing an account here
+   is the only way any of that changes.
+══════════════════════════════════════ */
+
+/** Super admins are unrestricted by definition, and nobody edits their
+ *  own access — that's how an admin locks themselves out. */
+function canEditPermissions(u) {
+  if (!u || u.id === currentUser?.uid) return false;
+  if (u.role === 'superadmin') return false;
+  return currentRole === 'superadmin' || currentRole === 'admin';
+}
+
+/** Renders the checkbox grid for a resolved permission map. */
+function renderPermissionGrid(containerId, perms, { lockedKeys = [] } = {}) {
+  const el = $(containerId);
+  if (!el) return;
+  el.innerHTML = MODULES.map(m => {
+    const locked = lockedKeys.includes(m.key);
+    return `<label class="perm-item${locked ? ' locked' : ''}">
+      <input type="checkbox" data-perm="${m.key}" ${perms[m.key] ? 'checked' : ''} ${locked ? 'disabled' : ''} />
+      <span>${esc(m.label)}</span>
+    </label>`;
+  }).join('');
+}
+
+/** Reads a grid back out as a { moduleKey: boolean } map. */
+function readPermissionGrid(containerId) {
+  const el = $(containerId);
+  const out = {};
+  if (!el) return out;
+  el.querySelectorAll('input[data-perm]').forEach(cb => { out[cb.dataset.perm] = cb.checked; });
+  return out;
+}
+
+let permModalUid = null;
+
+function openPermissionModal(uid, name) {
+  const u = allUsers.find(x => x.id === uid);
+  if (!u || !canEditPermissions(u)) return;
+  permModalUid = uid;
+  $('perm-modal-subtitle').textContent = `${name || u.email || ''} — ${u.role === 'admin' ? 'Admin' : 'User'}`;
+  renderPermissionGrid('perm-modal-grid', permissionsFor(u));
+  $('perm-modal').classList.add('open');
+}
+
+function closePermissionModal() {
+  permModalUid = null;
+  $('perm-modal').classList.remove('open');
+}
+
+$('perm-modal-close').addEventListener('click', closePermissionModal);
+$('perm-modal').addEventListener('click', e => { if (e.target === $('perm-modal')) closePermissionModal(); });
+
+$('perm-modal-reset').addEventListener('click', () => {
+  const u = allUsers.find(x => x.id === permModalUid);
+  if (!u) return;
+  renderPermissionGrid('perm-modal-grid', ROLE_DEFAULTS[u.role] || ROLE_DEFAULTS.user);
+});
+
+$('perm-modal-save').addEventListener('click', async () => {
+  const u = allUsers.find(x => x.id === permModalUid);
+  if (!u) return;
+  const perms = readPermissionGrid('perm-modal-grid');
+  const btn = $('perm-modal-save');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    await smartUpdateDoc(doc(db, 'users', u.id), { permissions: perms, updatedAt: serverTimestamp() }, ['users']);
+    u.permissions = perms;
+    const allowed = MODULES.filter(m => perms[m.key]).map(m => m.label).join(', ') || 'nothing';
+    await logAction('updated', 'user', u.id, `Changed page access for "${u.name || u.email}" → ${allowed}`);
+    showToast(`Page access updated for "${u.name || u.email}".`);
+    applyFilters();
+    closePermissionModal();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+  }
+  btn.disabled = false; btn.textContent = 'Save access';
+});
+
+// The pre-registration form starts from the role default and follows
+// the role dropdown until an admin ticks something themselves.
+function resetPreapproveGrid() {
+  const role = $('preapprove-role-select').value === 'admin' ? 'admin' : 'user';
+  renderPermissionGrid('preapprove-permissions', ROLE_DEFAULTS[role]);
+}
+$('preapprove-role-select').addEventListener('change', resetPreapproveGrid);
+resetPreapproveGrid();
+
 
 $('users-tbody').addEventListener('change', async e => {
   const sel = e.target.closest('.role-change');
@@ -637,8 +732,15 @@ function renderTable() {
           ` : isCurrentUser ? `
             <span style="font-size:12px;color:var(--text-muted)">Current session</span>
           ` : ''}
+          ${canEditPermissions(u) ? `
+            <button class="btn btn-sm btn-secondary btn-permissions" data-uid="${u.id}" data-name="${esc(displayName || u.email || '')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Page Access
+            </button>
+          ` : ''}
         </div>
       </td>
+
     </tr>`;
   }).join('');
 
@@ -666,6 +768,23 @@ async function updateUserStatus(uid, name, newStatus) {
 ══════════════════════════════════════ */
 const PREAPPROVE_DOC = doc(db, 'config', 'preapproved');
 
+/* Saves the pre-registration list in two shapes on purpose:
+     entries — the ordered array this screen renders
+     emails  — the same data keyed by lowercase email
+   Security rules can't search an array, but they can look up a map key,
+   so the `emails` map is what lets firestore.rules verify that a brand
+   new account claiming "approved" really is on the list. Both are
+   written together and never drift. */
+async function savePreapproved(entries) {
+  const emails = {};
+  entries.forEach(en => {
+    const key = (en.email || '').toLowerCase();
+    if (key) emails[key] = { role: en.role === 'admin' ? 'admin' : 'user', permissions: en.permissions || {} };
+  });
+  await smartSetDoc(PREAPPROVE_DOC, { entries, emails }, { merge: false }, ['config:preapproved']);
+}
+
+
 async function loadPreapprovedEmails() {
   const list = $('preapprove-list');
   const countBadge = $('preapprove-count');
@@ -692,7 +811,7 @@ async function loadPreapprovedEmails() {
             <div class="preapprove-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
             <div>
               <div class="preapprove-email">${esc(en.email)}</div>
-              <div class="preapprove-meta">Added ${addedDate} by ${esc(en.addedBy || '—')}</div>
+              <div class="preapprove-meta">${en.role === 'admin' ? 'Admin' : 'User'} · Added ${addedDate} by ${esc(en.addedBy || '—')}</div>
             </div>
           </div>
           <div class="preapprove-item-right">
@@ -713,7 +832,7 @@ async function loadPreapprovedEmails() {
           const snap2 = await getDoc(PREAPPROVE_DOC);
           const current = snap2.exists() ? (snap2.data().entries || []) : [];
           const updated = current.filter((_, i) => i !== Number(btn.dataset.idx));
-          await smartSetDoc(PREAPPROVE_DOC, { entries: updated }, { merge: true }, ['config:preapproved']);
+          await savePreapproved(updated);
           await logAction('deleted', 'preapproved_email', btn.dataset.email, `Removed pre-registered email: ${btn.dataset.email}`);
           showToast(`Removed ${btn.dataset.email} from pre-registered list.`);
           loadPreapprovedEmails();
@@ -729,70 +848,6 @@ async function loadPreapprovedEmails() {
   }
 }
 
-/* ── Permission matrix (item 6) — super admin only, both to view and
-   to edit; a plain admin never sees this section at all, since it's
-   the access-control system itself. See js/permissions.js for the
-   shared module list, defaults, and the canAccess() check the route
-   guard/sidebar filter actually use. ── */
-const PERMISSIONS_DOC = doc(db, 'config', PERMISSIONS_DOC_ID);
-let matrixDirty = false;
-
-async function loadPermissionMatrix() {
-  const tbody = $('matrix-tbody');
-  try {
-    const perms = await loadPermissions(true); // always fresh here — this is the editing surface itself
-    let lastGroup = null;
-    tbody.innerHTML = PERMISSION_MODULES.map(m => {
-      const groupRow = m.group !== lastGroup
-        ? `<tr class="matrix-group-row"><td colspan="4">${esc(m.group)}</td></tr>`
-        : '';
-      lastGroup = m.group;
-      const adminChecked = perms.admin[m.key] !== false;
-      const userChecked = perms.user[m.key] !== false;
-      return `${groupRow}<tr>
-          <td class="matrix-module-label">${esc(m.label)}</td>
-          <td class="matrix-col-check"><input type="checkbox" class="matrix-checkbox" checked disabled title="Super Admin always has full access" /></td>
-          <td class="matrix-col-check"><input type="checkbox" class="matrix-checkbox" data-role="admin" data-key="${esc(m.key)}" ${adminChecked ? 'checked' : ''} /></td>
-          <td class="matrix-col-check"><input type="checkbox" class="matrix-checkbox" data-role="user" data-key="${esc(m.key)}" ${userChecked ? 'checked' : ''} /></td>
-        </tr>`;
-    }).join('');
-
-    tbody.querySelectorAll('.matrix-checkbox[data-role]').forEach(cb => {
-      cb.addEventListener('change', () => { matrixDirty = true; });
-    });
-  } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="4" style="color:var(--red-text);padding:12px;font-size:13px">Failed to load permission matrix.</td></tr>';
-    console.error('[matrix]', e);
-  }
-}
-
-$('btn-save-matrix').addEventListener('click', async () => {
-  const btn = $('btn-save-matrix');
-  const original = btn.innerHTML;
-  btn.disabled = true; btn.textContent = 'Saving…';
-  try {
-    const matrix = { admin: {}, user: {} };
-    $('matrix-tbody').querySelectorAll('.matrix-checkbox[data-role]').forEach(cb => {
-      matrix[cb.dataset.role][cb.dataset.key] = cb.checked;
-    });
-    await smartSetDoc(PERMISSIONS_DOC, matrix, { merge: false }, ['config:permissions']);
-    await logAction('updated', 'permission_matrix', 'config/permissions', 'Updated the page-level permission matrix for Admin/User roles');
-    matrixDirty = false;
-    // Lets index.html's route guard + every sidebar re-filter for this
-    // session immediately, instead of only taking effect on next reload.
-    window.dispatchEvent(new CustomEvent('pc:permissions-updated'));
-    showToast('Permission matrix saved.');
-  } catch (err) {
-    showToast('Failed to save: ' + err.message, 'error');
-  } finally {
-    btn.disabled = false; btn.innerHTML = original;
-  }
-});
-
-window.addEventListener('beforeunload', e => {
-  if (matrixDirty) { e.preventDefault(); e.returnValue = ''; }
-});
-
 $('btn-add-preapprove').addEventListener('click', async () => {
   const input = $('preapprove-email-input');
   const email = (input.value || '').trim().toLowerCase();
@@ -802,6 +857,12 @@ $('btn-add-preapprove').addEventListener('click', async () => {
   btn.disabled = true;
   btn.innerHTML = '<div class="spinner" style="width:14px;height:14px;border-width:2px"></div> Adding…';
 
+  // Whatever role and page access the admin picked in the form travels
+  // with the entry, so the account is fully configured the moment the
+  // person registers.
+  const chosenRole = $('preapprove-role-select').value === 'admin' ? 'admin' : 'user';
+  const chosenPermissions = readPermissionGrid('preapprove-permissions');
+
   try {
     const snap = await getDoc(PREAPPROVE_DOC);
     const entries = snap.exists() ? (snap.data().entries || []) : [];
@@ -809,21 +870,28 @@ $('btn-add-preapprove').addEventListener('click', async () => {
     if (entries.some(en => (en.email || '').toLowerCase() === email)) {
       showToast('This email is already pre-registered.', 'warning');
     } else {
+      const entry = {
+        email, role: chosenRole, permissions: chosenPermissions,
+        addedAt: new Date().toISOString(), addedBy: currentUser.email || ''
+      };
       const existingUser = allUsers.find(u => (u.email || '').toLowerCase() === email);
       if (existingUser && existingUser.status === 'approved') {
         showToast('This user is already approved.', 'warning');
       } else if (existingUser && existingUser.status === 'pending') {
-        await smartUpdateDoc(doc(db, 'users', existingUser.id), { status: 'approved', approvedAt: serverTimestamp(), approvedBy: currentUser.email }, ['users']);
-        existingUser.status = 'approved';
+        await smartUpdateDoc(doc(db, 'users', existingUser.id), {
+          status: 'approved', role: chosenRole, permissions: chosenPermissions,
+          approvedAt: serverTimestamp(), approvedBy: currentUser.email
+        }, ['users']);
+        Object.assign(existingUser, { status: 'approved', role: chosenRole, permissions: chosenPermissions });
         await logAction('updated', 'user', existingUser.id, `Auto-approved pending user via pre-registration: ${email}`);
         showToast(`${email} was pending — approved immediately!`);
-        entries.push({ email, addedAt: new Date().toISOString(), addedBy: currentUser.email || '' });
-        await smartSetDoc(PREAPPROVE_DOC, { entries }, { merge: true }, ['config:preapproved']);
+        entries.push(entry);
+        await savePreapproved(entries);
         updateStats(); applyFilters();
       } else {
-        entries.push({ email, addedAt: new Date().toISOString(), addedBy: currentUser.email || '' });
-        await smartSetDoc(PREAPPROVE_DOC, { entries }, { merge: true }, ['config:preapproved']);
-        await logAction('created', 'preapproved_email', email, `Added pre-registered email: ${email}`);
+        entries.push(entry);
+        await savePreapproved(entries);
+        await logAction('created', 'preapproved_email', email, `Added pre-registered email: ${email} (${chosenRole})`);
         showToast(`${email} added to pre-registered list.`);
       }
       input.value = '';
@@ -832,6 +900,7 @@ $('btn-add-preapprove').addEventListener('click', async () => {
   } catch (err) {
     showToast('Failed: ' + err.message, 'error');
   }
+
 
   btn.disabled = false;
   btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add Email';
@@ -845,43 +914,33 @@ $('preapprove-email-input').addEventListener('keydown', e => { if (e.key === 'En
 async function applyProfile(p) {
   currentUser = { uid: p.uid, email: p.email };
   currentRole = p.role;
+  currentProfile = p;
 
   const name = p.name || p.email || 'there';
   $('user-display-name').textContent = name;
   $('user-role-label').textContent = (p.role || 'user').replace('_', ' ');
   $('user-initials').textContent = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
 
-  const isSuperAdmin = p.role === 'superadmin';
-  const canAccessAdmin = isSuperAdmin || p.role === 'admin';
-  $('admin-operations-nav-label').style.display = isSuperAdmin ? '' : 'none';
-  $('admin-nav-audit-log').style.display = isSuperAdmin ? '' : 'none';
-  // The permission matrix is the access-control system itself — only a
-  // super admin can see or edit it, same reasoning as Audit Log.
-  $('matrix-section').style.display = isSuperAdmin ? '' : 'none';
-
-  if (canAccessAdmin) {
+  // Sidebar link visibility is applied centrally by js/app-shell.js from
+  // the shared permission matrix; this page only decides whether the
+  // signed-in account may see User Management itself.
+  if (canAccess(p, 'users')) {
     $('access-denied').style.display = 'none';
     $('admin-content').style.display = 'block';
     if (!adminInitialized) {
       adminInitialized = true;
       await loadUsers();
       await loadPreapprovedEmails();
-      if (isSuperAdmin) await loadPermissionMatrix();
     }
   } else {
     $('access-denied').style.display = 'block';
     $('admin-content').style.display = 'none';
   }
 }
+
 if (window.__pcProfile) applyProfile(window.__pcProfile);
 window.addEventListener('pc:profile', e => applyProfile(e.detail));
 
-window.addEventListener('router:view-shown', e => {
-  if (e.detail?.name === 'admin' && adminInitialized) {
-    invalidate('users');
-    loadUsers();
-  }
-});
 
 $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
@@ -893,4 +952,18 @@ const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remo
 hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
 overlay.addEventListener('click', closeSB);
 
+
+/* ── Live sync ──────────────────────────────────────────────────
+   Registers this module with the app-wide data bus: any create,
+   edit or delete anywhere in Pestastic invalidates the shared cache,
+   and this module re-reads and re-renders itself automatically — on
+   the spot when visible, on next open when it isn't. This is what
+   replaced the old manual Refresh button. */
+import { registerModuleSync } from './js/data-bus.js';
+registerModuleSync({
+  view: 'admin',
+  keys: ['users', 'config:preapproved'],
+  isReady: () => adminInitialized,
+  reload: () => loadUsers()
+});
 </script>

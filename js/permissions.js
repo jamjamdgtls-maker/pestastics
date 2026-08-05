@@ -1,99 +1,109 @@
 /* ════════════════════════════════════════════════════════════════
-   permissions.js
-   Single source of truth for the page-level permission matrix (item 6
-   of the system review): which of Admin/User can reach which module.
+   js/permissions.js
+   Single source of truth for "who may see which page".
 
-   Super Admin is always unrestricted and never appears in the matrix.
-   Audit Log is deliberately absent — it stays a fixed superadmin-only
-   page, same as it's always been, not something a super admin can
-   hand out. Everything else in LAZY_VIEWS (js/router.js) plus
-   Dashboard is configurable.
+   Rules of the model:
+     - superadmin  → unrestricted, always. Never configurable, never
+       hidden, never blocked. Nothing in this file can lock a super
+       admin out of anything.
+     - admin / user → every module is configurable per-account from
+       User Management. A user document may carry a `permissions`
+       map ({ moduleKey: true|false }); anything missing from that map
+       falls back to the role default below.
 
-   Storage: one doc, config/permissions, shaped as
-     { admin: { <moduleKey>: bool, ... }, user: { <moduleKey>: bool, ... } }
-   Firestore rules restrict writes to superadmin; any signed-in
-   approved user can read it (they need their own row to route).
+   Every module, sidebar link and route guard in the app reads its
+   answer from here — there is no second place that decides access.
    ════════════════════════════════════════════════════════════════ */
 
-import { db } from '../firebase-config.js';
-import { doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-export const PERMISSIONS_DOC_ID = 'permissions';
-const ROLES_WITH_MATRIX = ['admin', 'user'];
-
-/* Grouped for the User Management UI; `key` must match the route name
-   used in js/router.js's LAZY_VIEWS (or 'dashboard', which is built
-   into index.html rather than lazy-loaded). */
-export const PERMISSION_MODULES = [
-  { key: 'dashboard', label: 'Dashboard', group: 'Core' },
-  { key: 'clients', label: 'Clients', group: 'Core' },
-  { key: 'contracts', label: 'Contracts', group: 'Core' },
-  { key: 'treatments', label: 'Treatments', group: 'Core' },
-  { key: 'payments', label: 'Payments', group: 'Core' },
-  { key: 'renewals', label: 'Renewals', group: 'Core' },
-  { key: 'complaints', label: 'Complaints', group: 'Core' },
-  { key: 'inspections', label: 'Inspections', group: 'Core' },
-  { key: 'overdue', label: 'Overdue', group: 'Core' },
-  { key: 'calendar', label: 'Calendar', group: 'Core' },
-  { key: 'report-daily-schedule', label: 'Daily Schedule', group: 'Reports' },
-  { key: 'report-service', label: 'Service Report', group: 'Reports' },
-  { key: 'report-client-soa', label: 'Client SOA', group: 'Reports' },
-  { key: 'report-monthly-collection', label: 'Monthly Collection', group: 'Reports' },
-  { key: 'report-overdue-treatments', label: 'Overdue Treatments', group: 'Reports' },
-  { key: 'admin', label: 'User Management', group: 'Admin' }
+/** The permission matrix, in sidebar order. `routes` lists every hash
+ *  route that the module owns; the route guard maps a hash back to a
+ *  module key through this table. */
+export const MODULES = [
+  { key: 'dashboard',   label: 'Dashboard',       routes: ['dashboard'] },
+  { key: 'clients',     label: 'Clients',         routes: ['clients'] },
+  { key: 'contracts',   label: 'Contracts',       routes: ['contracts'] },
+  { key: 'treatments',  label: 'Treatments',      routes: ['treatments'] },
+  { key: 'payments',    label: 'Payments',        routes: ['payments'] },
+  { key: 'renewals',    label: 'Renewals',        routes: ['renewals'] },
+  { key: 'complaints',  label: 'Complaints',      routes: ['complaints'] },
+  { key: 'inspections', label: 'Inspections',     routes: ['inspections'] },
+  {
+    key: 'reports', label: 'Reports',
+    routes: [
+      'overdue', 'calendar',
+      'report-daily-schedule', 'report-service', 'report-client-soa',
+      'report-monthly-collection', 'report-overdue-treatments'
+    ]
+  },
+  { key: 'users',       label: 'User Management', routes: ['admin', 'audit-log'] }
 ];
 
-export const PERMISSION_MODULE_KEYS = new Set(PERMISSION_MODULES.map(m => m.key));
+export const MODULE_KEYS = MODULES.map(m => m.key);
 
-/* Preserves today's behavior as the shipped default — everything on
-   for both roles, except User Management for plain Users (matches the
-   "No, unless granted" default called for in the spec) — so nobody
-   loses access the moment this ships. A super admin opts INTO
-   restricting things from here, rather than everyone being locked out
-   until the matrix is filled in. */
-function defaultPermissions() {
-  const perms = { admin: {}, user: {} };
-  ROLES_WITH_MATRIX.forEach(role => {
-    PERMISSION_MODULES.forEach(m => {
-      perms[role][m.key] = m.key === 'admin' ? role === 'admin' : true;
-    });
-  });
-  return perms;
-}
-
-let cached = null;
-
-/** Loads config/permissions, merged over the defaults so any module
- *  added after a super admin last saved the matrix still has a sane
- *  default instead of being treated as unset/false. Cached in-memory
- *  for the session; pass force=true (or call clearPermissionsCache())
- *  after a save to pick up the change immediately. */
-export async function loadPermissions(force = false) {
-  if (cached && !force) return cached;
-  const defaults = defaultPermissions();
-  try {
-    const snap = await getDoc(doc(db, 'config', PERMISSIONS_DOC_ID));
-    const stored = snap.exists() ? snap.data() : {};
-    cached = {
-      admin: { ...defaults.admin, ...(stored.admin || {}) },
-      user: { ...defaults.user, ...(stored.user || {}) }
-    };
-  } catch {
-    cached = defaults; // if the read fails for any reason, fail open to today's behavior
+/** Role defaults, used for any module a user document doesn't pin
+ *  explicitly. Super admin isn't listed — it never consults defaults. */
+export const ROLE_DEFAULTS = {
+  admin: {
+    dashboard: true, clients: true, contracts: true, treatments: true,
+    payments: true, renewals: true, complaints: true, inspections: true,
+    reports: true, users: true
+  },
+  user: {
+    dashboard: true, clients: true, contracts: true, treatments: true,
+    payments: true, renewals: true, complaints: true, inspections: true,
+    reports: true, users: false
   }
-  return cached;
+};
+
+export function isSuperAdmin(profile) {
+  return (profile?.role || '') === 'superadmin';
 }
 
-export function clearPermissionsCache() { cached = null; }
+/** Resolved permission map for a profile — role defaults with the
+ *  account's own overrides applied on top. Super admins resolve to
+ *  "everything true" and can't be narrowed. */
+export function permissionsFor(profile) {
+  const out = {};
+  if (isSuperAdmin(profile)) {
+    MODULE_KEYS.forEach(k => { out[k] = true; });
+    return out;
+  }
+  const defaults = ROLE_DEFAULTS[profile?.role] || ROLE_DEFAULTS.user;
+  const overrides = (profile && typeof profile.permissions === 'object' && profile.permissions) || {};
+  MODULE_KEYS.forEach(k => {
+    out[k] = typeof overrides[k] === 'boolean' ? overrides[k] : !!defaults[k];
+  });
+  return out;
+}
 
-/** The one check both the route guard (index.html) and the sidebar
- *  filter (js/router.js) call. Super admin is always true. A route
- *  that isn't in the matrix at all (login/register/pending/forbidden/
- *  notfound/audit-log) is never gated here — audit-log has its own
- *  fixed superadmin-only rule, enforced by its own page/route branch. */
-export function canAccess(role, permissions, routeName) {
-  if (role === 'superadmin') return true;
-  if (!PERMISSION_MODULE_KEYS.has(routeName)) return true;
-  const rolePerms = (permissions && permissions[role]) || {};
-  return rolePerms[routeName] !== false;
+/** May this profile open this module? */
+export function canAccess(profile, moduleKey) {
+  if (isSuperAdmin(profile)) return true;
+  if (!profile) return false;
+  return !!permissionsFor(profile)[moduleKey];
+}
+
+/** Which module owns this hash route (null for shell routes such as
+ *  login/register/pending/forbidden/notfound). */
+export function moduleForRoute(route) {
+  const r = (route || '').replace(/^#/, '');
+  const found = MODULES.find(m => m.routes.includes(r));
+  return found ? found.key : null;
+}
+
+/** Route guard. Unknown/shell routes are always allowed through — the
+ *  shell router decides what to do with them. Anything that maps to a
+ *  module is checked against the matrix, so a hand-typed URL is just
+ *  as blocked as a hidden sidebar link. */
+export function canAccessRoute(profile, route) {
+  const key = moduleForRoute(route);
+  if (!key) return true;
+  return canAccess(profile, key);
+}
+
+/** First route this profile is actually allowed to land on. */
+export function defaultRouteFor(profile) {
+  if (canAccess(profile, 'dashboard')) return 'dashboard';
+  const first = MODULES.find(m => canAccess(profile, m.key));
+  return first ? first.routes[0] : 'forbidden';
 }

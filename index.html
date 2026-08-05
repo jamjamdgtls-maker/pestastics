@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pestastic</title>
-<link rel="icon" type="image/jpeg" href="logo.jpg">
+<title>Access Control</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Newsreader:wght@400;500;600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -18,7 +17,6 @@
 
   .center-shell { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
   .pending-card { background:var(--card); border:1px solid var(--border); border-radius:14px; box-shadow:var(--shadow); padding:44px 40px; max-width:460px; width:100%; text-align:center; }
-.card-logo-img { display:block; height:32px; width:auto; margin:0 auto 20px; }
   .pending-card .badge { display:inline-flex; align-items:center; gap:7px; background:#FBF3E6; color:var(--amber); border:1px solid #F0DCB6; padding:5px 12px; border-radius:999px; font-family:'IBM Plex Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:.08em; margin-bottom:20px; }
   .pending-card .badge .dot { width:6px; height:6px; border-radius:50%; background:var(--amber); }
   .pending-card h1 { font-size:24px; margin-bottom:10px; }
@@ -366,7 +364,7 @@
     #view-dashboard .dcard-body::-webkit-scrollbar-track {background:white}
     #view-dashboard .dcard-body {scrollbar-width:thin;scrollbar-color:var(--border-hover) white}
     @media(max-width:1200px){#view-dashboard .dash-bottom {grid-template-columns:minmax(0,1fr)}#view-dashboard .dcard {height:clamp(280px,36vh,380px)}}
-  .sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
+  </style>
 </head>
 <body>
 
@@ -378,8 +376,7 @@
   <div class="shell">
     <div class="brand-panel">
       <div>
-        <img src="logo.jpg" alt="Pestastic Pest Control Services" class="brand-logo-img" />
-        <div class="brand-mark"><span class="dot"></span><span>ACCESS CONTROL</span></div>
+        <div class="brand-mark"><span class="brand-logo-slot" aria-hidden="true"></span><span>PESTASTIC · ACCESS CONTROL</span></div>
         <div class="brand-copy" style="margin-top:64px;">
           <h1>Every account is reviewed before it's let in.</h1>
           <p>Create your account below. A super admin verifies who you are before you get access — no self-serve accounts, no exceptions.</p>
@@ -426,8 +423,7 @@
   <div class="shell">
     <div class="brand-panel">
       <div>
-        <img src="logo.jpg" alt="Pestastic Pest Control Services" class="brand-logo-img" />
-        <div class="brand-mark"><span class="dot"></span><span>ACCESS CONTROL</span></div>
+        <div class="brand-mark"><span class="brand-logo-slot" aria-hidden="true"></span><span>PESTASTIC · ACCESS CONTROL</span></div>
         <div class="brand-copy" style="margin-top:64px;">
           <h1>Welcome back.</h1>
           <p>Sign in with the credentials from your request. If you're still waiting on clearance, we'll let you know here.</p>
@@ -471,7 +467,6 @@
 <div data-view="pending">
   <div class="center-shell">
     <div class="pending-card">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="card-logo-img" />
       <div class="badge"><span class="dot"></span>Pending review</div>
       <h1>Your request is in.</h1>
       <p>A super admin needs to clear your account before you can sign in. This page doesn't refresh automatically — check back later or wait for an email.</p>
@@ -500,7 +495,8 @@
   <div class="sidebar-overlay" id="dash-sidebar-overlay"></div>
   <aside class="sidebar" id="dash-sidebar">
     <div class="sidebar-logo">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -718,7 +714,6 @@
 <div data-view="forbidden">
   <div class="center-shell">
     <div class="pending-card">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="card-logo-img" />
       <h1>Not your page.</h1>
       <p>This screen is for super admins only.</p>
       <div class="altlink"><a href="#dashboard">Back to dashboard</a></div>
@@ -730,7 +725,6 @@
 <div data-view="notfound">
   <div class="center-shell">
     <div class="pending-card">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="card-logo-img" />
       <h1>Nothing here.</h1>
       <p>That page doesn't exist.</p>
       <div class="altlink"><a href="#dashboard">Back to dashboard</a></div>
@@ -755,9 +749,16 @@ import {
   doc, setDoc, getDoc, serverTimestamp,
   collection, query, where, orderBy, limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { showView as routerShowView, isKnownView, setProfile, applyNavPermissions } from "./js/router.js";
+import { showView as routerShowView, isKnownView, setProfile } from "./js/router.js";
 import { cachedGetDocs, invalidate } from "./js/firestore-cache.js";
-import { loadPermissions, clearPermissionsCache, canAccess } from "./js/permissions.js";
+import { registerModuleSync } from "./js/data-bus.js";
+import { canAccessRoute, defaultRouteFor, permissionsFor } from "./js/permissions.js";
+import { initAppShell, setShellProfile } from "./js/app-shell.js";
+
+// Shared chrome (logo, browser titles, sidebar gating, active nav) for
+// every page in the app, applied from one place.
+initAppShell();
+
 
 // ---------------------------------------------------------------
 // Tiny hash router. Built-in views (login/register/pending/admin/
@@ -769,7 +770,6 @@ const bootGate = document.getElementById("bootGate");
 
 let currentProfile = null; // cached Firestore profile of the signed-in user, if any
 let profileBroadcast = false; // ensures pc:profile fires once per sign-in, not on every navigation
-let currentPermissions = null; // cached config/permissions matrix, resolved once per sign-in (see js/permissions.js)
 
 async function showView(name) {
   await routerShowView(name);
@@ -819,54 +819,27 @@ async function route() {
     return;
   }
 
-  // The permission matrix (item 6) needs to be known before any
-  // routing decision below, same reasoning as the profile itself —
-  // resolved once per sign-in and cached, not re-read on every
-  // navigation. See js/permissions.js.
-  if (!currentPermissions) {
-    currentPermissions = await loadPermissions();
-  }
-
   // status === "approved" — let every module (mounted or not yet
   // mounted) know who's signed in. Only needs to happen once per
   // sign-in, not on every navigation — modules cache this themselves
   // and re-running it was forcing every mounted module to redo its
   // "profile changed" handling (including re-reading settings) on
   // every single hash change.
+  const profileForModules = {
+    uid: user.uid,
+    email: user.email,
+    name: currentProfile.name,
+    role: currentProfile.role,
+    permissions: permissionsFor(currentProfile)
+  };
   if (!profileBroadcast) {
     profileBroadcast = true;
-    setProfile({ uid: user.uid, email: user.email, name: currentProfile.name, role: currentProfile.role });
-  }
-  // Filter every sidebar's nav-items down to what this role/permission
-  // combination can reach. Idempotent and cheap, so just re-run it on
-  // every navigation rather than trying to track exactly when it's
-  // needed (a newly-mounted module's own sidebar copy also needs it,
-  // which fetchAndMount already handles, but this covers any case that
-  // doesn't).
-  applyNavPermissions(currentProfile.role, currentPermissions);
-
-  if (target === "admin") {
-    if (!canAccess(currentProfile.role, currentPermissions, "admin")) { await showView("forbidden"); return; }
-    await showView("admin");
-    return;
+    setProfile(profileForModules);
+    setShellProfile(currentProfile);
   }
 
   if (target === "login" || target === "register" || target === "") {
-    window.location.hash = (currentProfile.role === "superadmin" || currentProfile.role === "admin") ? "#admin" : "#dashboard";
-    return;
-  }
-
-  if (target === "dashboard") {
-    if (!canAccess(currentProfile.role, currentPermissions, "dashboard")) { await showView("forbidden"); return; }
-    await showView("dashboard");
-    initDashboardShell(user, currentProfile);
-    // initDashboardShell sets its own nav-admin/nav-audit-log visibility
-    // from role alone (a plain role check, pre-dating the permission
-    // matrix) — re-apply the matrix-aware filter on top of that so a
-    // super admin's per-admin override of the User Management link
-    // actually sticks on the dashboard's own sidebar copy too.
-    applyNavPermissions(currentProfile.role, currentPermissions);
-    loadDashboardData();
+    window.location.hash = `#${defaultRouteFor(currentProfile)}`;
     return;
   }
 
@@ -875,36 +848,30 @@ async function route() {
     return;
   }
 
-  // Unauthorized routes are blocked here even for a direct/typed-in
-  // URL hash, not just a hidden sidebar link — isKnownView() above only
-  // checks the route exists at all, this checks this role is actually
-  // allowed to open it.
-  if (!canAccess(currentProfile.role, currentPermissions, target)) {
+  // One guard for every module, driven by the same permission matrix
+  // that hides the sidebar links — so a hidden page stays unreachable
+  // even when someone types its URL directly.
+  if (!canAccessRoute(currentProfile, target)) {
     await showView("forbidden");
     return;
   }
 
+  if (target === "dashboard") {
+    await showView("dashboard");
+    initDashboardShell(user, currentProfile);
+    loadDashboardData();
+    return;
+  }
+
   await showView(target);
+
 }
 
 window.addEventListener("hashchange", route);
 
-// A super admin just saved changes to the permission matrix in User
-// Management — pick it up in this session immediately (sidebar +
-// route guard) rather than waiting for a reload. Other signed-in
-// sessions pick up the change the next time they navigate after a
-// fresh page load, same as any other config doc in this app.
-window.addEventListener("pc:permissions-updated", async () => {
-  clearPermissionsCache();
-  currentPermissions = await loadPermissions(true);
-  if (currentProfile) applyNavPermissions(currentProfile.role, currentPermissions);
-});
-
 onAuthStateChanged(auth, async (user) => {
   currentProfile = null; // invalidate cache on any auth change
   profileBroadcast = false; // a real auth change means modules need the new profile
-  currentPermissions = null; // re-resolve the permission matrix for whoever just signed in
-  clearPermissionsCache();
   bootGate.style.display = "none";
   if (!window.location.hash) window.location.hash = user ? "#dashboard" : "#login";
   await route();
@@ -928,12 +895,12 @@ function initDashboardShell(user, profile) {
   if (user.photoURL) avatarEl.innerHTML = `<img src="${user.photoURL}" alt="${name}"/>`;
   else document.getElementById("dash-user-initials").textContent = name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
 
-  const isSuperAdmin = profile?.role === "superadmin";
-  const canAccessAdmin = isSuperAdmin || profile?.role === "admin";
-  document.getElementById("dash-operations-nav-label").style.display = isSuperAdmin ? "" : "none";
-  document.getElementById("dash-nav-audit-log").style.display = isSuperAdmin ? "" : "none";
-  document.getElementById("dash-admin-nav-label").style.display = canAccessAdmin ? "" : "none";
-  document.getElementById("dash-nav-admin").style.display = canAccessAdmin ? "" : "none";
+  // Sidebar visibility is no longer decided here — js/app-shell.js
+  // applies the shared permission matrix to every sidebar in the app
+  // (this one included), so nav links and route guards can never
+  // disagree about what an account is allowed to open.
+  setShellProfile(profile);
+
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
@@ -951,6 +918,9 @@ function initDashboardShell(user, profile) {
   const dashClose = () => { dashSidebar.classList.remove("open"); dashOverlay.classList.remove("open"); };
   document.getElementById("dash-hamburger").addEventListener("click", () => dashSidebar.classList.contains("open") ? dashClose() : dashOpen());
   dashOverlay.addEventListener("click", dashClose);
+  // (No Refresh button: the dashboard re-reads itself through the data
+  // bus whenever anything, anywhere, changes.)
+
 
   // Date range presets — pure client-side date math
   document.querySelectorAll('#view-dashboard .btn-preset').forEach(btn => {
@@ -1027,6 +997,19 @@ async function loadDashboardData() {
   const failed = results.filter(r => r.status === "rejected");
   if (failed.length) failed.forEach((r, i) => console.error(`Dashboard section ${i + 1} failed:`, r.reason));
 }
+
+/* ── Live sync ──
+   The dashboard rolls up every other module, so it listens to the same
+   data bus they do: a contract signed in Contracts or a payment logged
+   in Payments re-draws these KPIs by itself. This is what replaced the
+   dashboard's Refresh button. */
+registerModuleSync({
+  view: "dashboard",
+  keys: ["clients", "contracts", "treatments", "payments", "renewals", "complaints", "inspections", "audit_log"],
+  isReady: () => dashboardShellInitialized,
+  reload: () => loadDashboardData()
+});
+
 
 async function loadDashOpsKPIs() {
   const today = dashTodayStart();
@@ -1235,17 +1218,36 @@ registerForm.addEventListener("submit", async (e) => {
     // this is the one place that needs to check the allowlist, rather
     // than duplicating the check per-page the way the original standalone
     // admin pages each did in their own onAuthStateChanged.
-    let autoApproved = false;
+    //
+    // A pre-approval entry may also carry the role and per-module
+    // permissions an admin picked ahead of time, so the account is fully
+    // configured the moment it registers — no second trip to User
+    // Management to switch it on.
+    let preEntry = null;
     try {
       const preSnap = await getDoc(doc(db, "config", "preapproved"));
-      const entries = preSnap.exists() ? (preSnap.data().entries || []) : [];
-      autoApproved = entries.some(en => (en.email || "").toLowerCase() === email.toLowerCase());
+      const data = preSnap.exists() ? preSnap.data() : {};
+      const key = email.toLowerCase();
+      // `emails` is the map form the security rules also check; `entries`
+      // is the older array form, still read so a list saved before this
+      // change keeps working.
+      preEntry = (data.emails && data.emails[key])
+        || (data.entries || []).find(en => (en.email || "").toLowerCase() === key)
+        || null;
     } catch { /* proceed as pending if this lookup fails for any reason */ }
 
-    await setDoc(doc(db, "users", cred.user.uid), {
-      name, email, status: autoApproved ? "approved" : "pending", role: "user", createdAt: serverTimestamp()
-    });
-    window.location.hash = autoApproved ? "#dashboard" : "#pending";
+    const profileDoc = {
+      name, email,
+      status: preEntry ? "approved" : "pending",
+      role: preEntry?.role === "admin" ? "admin" : "user",
+      createdAt: serverTimestamp()
+    };
+    if (preEntry && preEntry.permissions && typeof preEntry.permissions === "object") {
+      profileDoc.permissions = preEntry.permissions;
+    }
+    await setDoc(doc(db, "users", cred.user.uid), profileDoc);
+    window.location.hash = preEntry ? `#${defaultRouteFor(profileDoc)}` : "#pending";
+
   } catch (err) {
     registerBtn.disabled = false;
     registerBtn.textContent = "Request access";
@@ -1290,7 +1292,7 @@ loginForm.addEventListener("submit", async (e) => {
       loginBanner.className = "banner show error";
       loginBanner.textContent = "This account's request was declined. Contact a super admin for details.";
     } else {
-      window.location.hash = profile.role === "superadmin" ? "#admin" : "#dashboard";
+      window.location.hash = `#${defaultRouteFor(profile)}`;
     }
   } catch (err) {
     loginBanner.className = "banner show error";

@@ -23,6 +23,35 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
     }
 
+    // ── Pre-registration allowlist ──
+    // config/preapproved holds { emails: { "<lowercase email>": { role,
+    // permissions } } }. Rules can't search an array, which is why the
+    // list is stored keyed by email — that makes it verifiable here.
+    function preapprovedMap() {
+      return exists(/databases/$(database)/documents/config/preapproved)
+        ? get(/databases/$(database)/documents/config/preapproved).data.get("emails", {})
+        : {};
+    }
+
+    function preapprovedEntry() {
+      return isSignedIn() && request.auth.token.email != null
+        ? preapprovedMap().get(request.auth.token.email.lower(), null)
+        : null;
+    }
+
+    function preapprovedRole() {
+      return preapprovedEntry() != null
+        ? preapprovedEntry().get("role", "user")
+        : "user";
+    }
+
+    function preapprovedPermissions() {
+      return preapprovedEntry() != null
+        ? preapprovedEntry().get("permissions", {})
+        : {};
+    }
+
+
     match /users/{uid} {
       // A user can read their own profile (needed to check pending/approved
       // status right after sign-in, before they're approved); a super admin
@@ -31,12 +60,26 @@ service cloud.firestore {
       // user, not just admins.
       allow read: if isOwner(uid) || isSuperAdmin() || isApproved();
 
-      // A user can create their OWN profile at registration, but only as
-      // status "pending" / role "user" — they cannot self-approve or
-      // self-promote to superadmin.
-      allow create: if isOwner(uid)
-        && request.resource.data.status == "pending"
-        && request.resource.data.role == "user";
+      // A user can create their OWN profile at registration. Normally
+      // that means status "pending" / role "user" — nobody self-approves
+      // and nobody self-promotes.
+      //
+      // The one exception is the pre-registration allowlist an admin
+      // maintains in config/preapproved: if this exact email was put on
+      // that list ahead of time, the new account may start "approved"
+      // with the role the admin chose there. The claim is verified here
+      // against the stored entry, so it can't be forged by a hand-made
+      // request — the client never gets to decide its own status.
+      allow create: if isOwner(uid) && (
+        (request.resource.data.status == "pending" && request.resource.data.role == "user")
+        || (
+          preapprovedEntry() != null
+          && request.resource.data.status == "approved"
+          && request.resource.data.role == preapprovedRole()
+          && request.resource.data.get("permissions", {}) == preapprovedPermissions()
+        )
+      );
+
 
       // Super admin: unrestricted. Admin: can update any user doc except
       // one that's currently superadmin, and can never set anyone's role
@@ -116,34 +159,20 @@ service cloud.firestore {
       allow delete: if isSuperAdmin();
     }
 
-    // The pre-approved-email allowlist has to be readable at the exact
-    // moment a brand-new account is being registered, before that user
-    // has any status at all — isApproved() fails at that point (their
-    // users/{uid} doc either doesn't exist yet or is still "pending"),
-    // which was silently forcing every registration down the manual-
-    // approval path regardless of the allowlist. Just being signed in
-    // is enough to read this one doc; only an approved user can still
-    // manage the allowlist itself.
-    match /config/preapproved {
-      allow read: if isSignedIn();
-      allow write: if isApproved();
-    }
-
-    // Page-level permission matrix (item 6) — every approved user needs
-    // to read it to know their own role's access, but only a super
-    // admin can change it; it's the access-control system itself, same
-    // reasoning as user-management.html only showing this section to
-    // superadmin.
-    match /config/permissions {
-      allow read: if isApproved();
-      allow write: if isSuperAdmin();
-    }
-
     // Shared counters (customer/contract/treatment numbers) and settings
     // (sales agents, contract types, treatment types, booking statuses,
     // cancel/reschedule reasons, etc.)
     match /config/{id} {
       allow read, write: if isApproved();
+    }
+
+    // The allowlist is the one config document a not-yet-approved user
+    // has to read: the registration form checks it to know whether this
+    // signup is pre-cleared. Read-only, signed-in only, and writable
+    // solely by admins through User Management.
+    match /config/preapproved {
+      allow read: if isSignedIn();
+      allow write: if isAdmin() || isSuperAdmin();
     }
 
     // Append-only audit trail of client/contract changes.

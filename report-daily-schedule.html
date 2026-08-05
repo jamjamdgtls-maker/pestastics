@@ -153,8 +153,8 @@
 
 #view-report-daily-schedule .letterhead{display:flex;align-items:flex-start;justify-content:space-between;border-bottom:3px solid #111;padding-bottom:16px;margin-bottom:20px;gap:20px}
 #view-report-daily-schedule .letterhead-logo{display:flex;align-items:center;gap:14px}
-#view-report-daily-schedule .letterhead-logo-icon{height:44px;width:auto;max-width:180px;object-fit:contain;flex-shrink:0}
-
+#view-report-daily-schedule .letterhead-logo-icon{width:52px;height:52px;background:var(--primary);border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+#view-report-daily-schedule .letterhead-logo-icon svg{width:28px;height:28px;color:white}
 #view-report-daily-schedule .letterhead-company{line-height:1.3}
 #view-report-daily-schedule .letterhead-company h1{font-size:20px;font-weight:900;color:#111;letter-spacing:-.3px}
 #view-report-daily-schedule .letterhead-company p{font-size:12px;color:#555;margin-top:2px}
@@ -229,7 +229,7 @@
 #view-report-daily-schedule .controls-bar{padding:10px 12px;background:white;border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 1px 2px rgba(0,0,0,.03)}
 #view-report-daily-schedule #report-area{padding:26px 30px;box-shadow:0 1px 3px rgba(0,0,0,.05);max-width:1880px;margin:0 auto}
 #view-report-daily-schedule .letterhead{border-bottom:2px solid #111;padding-bottom:12px;margin-bottom:14px}
-#view-report-daily-schedule .letterhead-logo-icon{height:38px}
+#view-report-daily-schedule .letterhead-logo-icon{width:44px;height:44px;border-radius:8px}
 #view-report-daily-schedule .letterhead-company h1{font-size:18px}
 #view-report-daily-schedule .letterhead-doc-title{font-size:15px}
 #view-report-daily-schedule .report-summary{gap:0;margin-bottom:16px;padding:0;border-radius:6px;overflow:hidden;display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr))}
@@ -261,8 +261,8 @@
 #view-report-daily-schedule #report-area{max-width:1800px;padding:28px 32px;border-radius:8px}
 
 #view-report-daily-schedule .letterhead{align-items:center}
-#view-report-daily-schedule .letterhead-logo-icon{height:34px}
-
+#view-report-daily-schedule .letterhead-logo-icon{width:40px;height:40px;border-radius:8px}
+#view-report-daily-schedule .letterhead-logo-icon svg{width:22px;height:22px}
 #view-report-daily-schedule .letterhead-company h1{font-size:17px;letter-spacing:-.2px}
 #view-report-daily-schedule .letterhead-company p{font-size:11.5px;color:#6b7280}
 #view-report-daily-schedule .letterhead-doc-title{font-size:14px;letter-spacing:.08em}
@@ -367,9 +367,10 @@
     border-bottom:1.4pt solid #000!important;padding-bottom:4pt!important;margin-bottom:5pt!important;gap:10pt!important;
   }
   #view-report-daily-schedule .letterhead-logo{gap:6pt!important}
-  #view-report-daily-schedule .letterhead-logo-icon{height:20pt!important;width:auto!important;max-width:90pt!important;border:none!important;background:transparent!important}
-  
-
+  #view-report-daily-schedule .letterhead-logo-icon{width:26pt!important;height:26pt!important;border:.5pt solid #000!important;background:transparent!important}
+  #view-report-daily-schedule .letterhead-logo-icon svg{stroke:#000!important;color:#000!important}
+  #view-report-daily-schedule .letterhead-logo-icon img,
+  #view-report-daily-schedule .letterhead-logo-icon svg{width:20pt!important;height:20pt!important}
   #view-report-daily-schedule .letterhead-company h1{font-size:12pt!important;letter-spacing:.02em!important}
   #view-report-daily-schedule .letterhead-company p{font-size:7pt!important}
   #view-report-daily-schedule .letterhead-doc-title{font-size:10pt!important;letter-spacing:.08em!important}
@@ -527,14 +528,15 @@
     box-shadow:none!important;margin:0!important;
   }
 }
-.sidebar-logo-img{display:block;height:34px;width:auto;max-width:100%;background:#fff;border-radius:7px;padding:4px 8px;box-shadow:0 1px 3px rgba(0,0,0,.18)}</style>
+</style>
 
 <div data-view="report-daily-schedule" id="view-report-daily-schedule">
 <div id="app-shell">
   <div class="sidebar-overlay" id="sidebar-overlay"></div>
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-logo">
-      <img src="logo.jpg" alt="Pestastic Pest Control Services" class="sidebar-logo-img" />
+      <div class="sidebar-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+      <div class="sidebar-logo-text"><span>Pestastic</span><small>Pest Control Ops</small></div>
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">Main</div>
@@ -619,6 +621,10 @@
             Landscape
           </button>
         </div>
+        <button class="btn btn-secondary" id="btn-load">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh
+        </button>
         <button class="btn btn-primary btn-print" id="btn-print">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           Print Report
@@ -1033,7 +1039,7 @@ async function generateReport() {
     $('report-area').innerHTML = `
       <div class="letterhead">
         <div class="letterhead-logo">
-          <img src="logo.jpg" alt="Pestastic" class="letterhead-logo-icon" />
+          <div class="letterhead-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
           <div class="letterhead-company"><h1>${esc(companyName)}</h1><p>${esc(companyAddr)}${companyPhone ? ' · ' + esc(companyPhone) : ''}</p></div>
         </div>
         <div class="letterhead-right"><div class="letterhead-doc-title">Daily Schedule Report</div><div class="letterhead-doc-date">${esc(docTitle)}</div></div>
@@ -1053,7 +1059,7 @@ async function generateReport() {
   const html = `
     <div class="letterhead">
       <div class="letterhead-logo">
-        <img src="logo.jpg" alt="Pestastic" class="letterhead-logo-icon" />
+        <div class="letterhead-logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
         <div class="letterhead-company"><h1>${esc(companyName)}</h1><p>${esc([companyAddr, companyPhone].filter(Boolean).join(' · '))}</p></div>
       </div>
       <div class="letterhead-right">
@@ -1116,6 +1122,10 @@ function setAllDatesMode(active) {
 $('date-picker').addEventListener('change', generateReport);
 $('filter-team').addEventListener('change', generateReport);
 $('filter-status').addEventListener('change', generateReport);
+$('btn-load').addEventListener('click', () => {
+  invalidate('clients', 'contracts', 'teams', 'config:settings', 'treatments', 'inspections', 'payments');
+  generateReport();
+});
 $('btn-prev-date').addEventListener('click', () => shiftDate(-1));
 $('btn-next-date').addEventListener('click', () => shiftDate(1));
 $('filter-all-dates').addEventListener('change', e => {
@@ -1158,12 +1168,6 @@ window.addEventListener('pc:profile', e => applyProfile(e.detail));
 
 /* Refresh on every re-visit — same reasoning as Overdue/Calendar: this
    reflects scheduling/payment changes made elsewhere. */
-window.addEventListener('router:view-shown', e => {
-  if (e.detail?.name === 'report-daily-schedule' && reportInitialized) {
-    invalidate('clients', 'contracts', 'teams', 'config:settings', 'treatments', 'inspections', 'payments');
-    generateReport();
-  }
-});
 
 $('btn-signout').addEventListener('click', () => {
   if (confirm('Sign out?')) signOut(auth).then(() => { window.location.hash = '#login'; });
@@ -1175,4 +1179,18 @@ const closeSB = () => { sidebar.classList.remove('open'); overlay.classList.remo
 hamburger.addEventListener('click', () => sidebar.classList.contains('open') ? closeSB() : openSB());
 overlay.addEventListener('click', closeSB);
 
+
+/* ── Live sync ──────────────────────────────────────────────────
+   Registers this module with the app-wide data bus: any create,
+   edit or delete anywhere in Pestastic invalidates the shared cache,
+   and this module re-reads and re-renders itself automatically — on
+   the spot when visible, on next open when it isn't. This is what
+   replaced the old manual Refresh button. */
+import { registerModuleSync } from './js/data-bus.js';
+registerModuleSync({
+  view: 'report-daily-schedule',
+  keys: ['clients', 'contracts', 'teams', 'config:settings', 'treatments', 'inspections', 'payments'],
+  isReady: () => reportInitialized,
+  reload: () => generateReport()
+});
 </script>
